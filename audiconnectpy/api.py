@@ -34,10 +34,9 @@ class AudiConnect:
         country: str,
         spin: str,
         unit_system: str = "metric",
-        dbg_level: int = 0,
     ) -> None:
         """Initiliaze."""
-        Globals(unit_system, dbg_level)
+        Globals(unit_system)
         self._auth = Auth(session)
         self._audi_service = AudiService(self._auth, country, spin)
         self._username = username

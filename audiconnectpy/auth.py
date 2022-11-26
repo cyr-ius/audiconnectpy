@@ -26,7 +26,7 @@ from .exceptions import (
     RequestError,
     TimeoutExceededError,
 )
-from .util import Globals, get_attr, jload, json_loads
+from .util import get_attr, jload, json_loads
 
 TIMEOUT = 120
 DELAY = 10
@@ -82,10 +82,9 @@ class Auth:
         """Request url with method."""
         try:
             with async_timeout.timeout(TIMEOUT):
-                if Globals.debug_level() >= 2:
-                    _LOGGER.debug("HEADER: %s", headers)
-                    if method == "POST":
-                        _LOGGER.debug("POST DATA:%s", data)
+                _LOGGER.expert("HEADER: %s", headers)  # type: ignore
+                if method == "POST":
+                    _LOGGER.expert("POST DATA:%s", data)  # type: ignore
                 _LOGGER.debug("METHOD:%s URL:%s", method, url)
                 async with self._session.request(
                     method, url, headers=headers, data=data, **kwargs
@@ -651,8 +650,7 @@ class Auth:
             rsp_txt=True,
         )
         azs_token_json = jload(azs_token_rsptxt)
-        if Globals.debug_level() >= 2:
-            _LOGGER.debug("AZS Token: %s", azs_token_json)
+        _LOGGER.expert("AZS Token: %s", azs_token_json)  # type: ignore
 
         return azs_token_json
 
@@ -698,8 +696,7 @@ class Auth:
             rsp_txt=True,
         )
         idk_token_json = jload(idk_token_rsptxt)
-        if Globals.debug_level() >= 2:
-            _LOGGER.debug("IDK Token: %s", idk_token_json)
+        _LOGGER.expert("IDK Token: %s", idk_token_json)  # type: ignore
 
         return idk_token_json
 
@@ -767,7 +764,6 @@ class Auth:
             rsp_txt=True,
         )
         mbboauth_json = jload(mbboauth_rsptxt)
-        if Globals.debug_level() >= 2:
-            _LOGGER.debug("MBB Token: %s", mbboauth_json)
+        _LOGGER.expert("MBB Token: %s", mbboauth_json)  # type: ignore
 
         return mbboauth_json

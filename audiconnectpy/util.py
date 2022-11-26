@@ -444,18 +444,36 @@ class Identities(Enum):
 
 
 class Globals:
-    """Set Global metric."""
+    def __init__(self, unit: str) -> None:
+        """Initiliaze."""
+        global UNIT_SYSTEM  # pylint: disable=global-variable-undefined
+        UNIT_SYSTEM = f"{unit}"  # type: ignore
 
-    def __init__(self, unit: str = "metric", level: int = 0):
-        """Initialize."""
-        global UNIT_SYSTEM, DEBUG_LEVEL  # pylint: disable=global-variable-undefined
-        UNIT_SYSTEM = f"{unit}"
-        DEBUG_LEVEL = int(level)
 
-    @staticmethod
-    def debug_level() -> int:
-        """Return debug level."""
-        return int(DEBUG_LEVEL)
+def addLoggingLevel(levelName, levelNum, methodName=None):
+    if not methodName:
+        methodName = levelName.lower()
+
+    if hasattr(logging, levelName):
+        raise AttributeError(f"{levelName} already defined in logging module")
+    if hasattr(logging, methodName):
+        raise AttributeError(f"{methodName} already defined in logging module")
+    if hasattr(logging.getLoggerClass(), methodName):
+        raise AttributeError(f"{methodName} already defined in logger class")
+
+    def logForLevel(self, message, *args, **kwargs):
+        if self.isEnabledFor(levelNum):
+            self._log(  # pylint: disable=protected-access
+                levelNum, message, args, **kwargs
+            )
+
+    def logToRoot(message, *args, **kwargs):
+        logging.log(levelNum, message, *args, **kwargs)
+
+    logging.addLevelName(levelNum, levelName.upper())
+    setattr(logging, levelName, levelNum)
+    setattr(logging.getLoggerClass(), methodName, logForLevel)
+    setattr(logging, methodName, logToRoot)
 
 
 def get_attr(
@@ -463,9 +481,7 @@ def get_attr(
 ) -> Any:
     """Return attribute value."""
     return reduce(
-        lambda d, key: d.get(key, default)
-        if isinstance(d, dict)
-        else default,  # mypy:ingore
+        lambda d, key: d.get(key, default) if isinstance(d, dict) else default,  # type: ignore
         keys.split("."),
         dictionary,
     )
@@ -497,7 +513,7 @@ def set_attr(
         if field_type.evaluation and value:
             try:
                 value = field_type.evaluation(value)
-                if UNIT_SYSTEM == "imperial" and field_type.unit == "km":
+                if UNIT_SYSTEM == "imperial" and field_type.unit == "km":  # type: ignore
                     unit = "mi"
                     value = round(value * 0.621371, 2)
             except Exception as error:  # pylint: disable=broad-except
