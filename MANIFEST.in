@@ -1,0 +1,6 @@
+include LICENSE
+exclude example_home.py
+recursive-exclude * __pycache__
+recursive-exclude * *.pyc
+recursive-exclude * *.pyo
+recursive-exclude * *.orig
