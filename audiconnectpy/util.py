@@ -33,6 +33,7 @@ class Identities(Enum):
     """IDS Audi."""
 
     # Fields
+    # pylint: disable=unnecessary-lambda
     UTC_TIME_AND_KILOMETER_STATUS = FieldType(
         attr="mileage",
         sensor_type="sensor",
@@ -439,6 +440,7 @@ class Identities(Enum):
     SHORTTERM_CURRENT = FieldType(attr="shortterm_current", sensor_type="sensor")
     LONGTERM_RESET = FieldType(attr="longterm_reset", sensor_type="sensor")
     LONGTERM_CURRENT = FieldType(attr="longterm_current", sensor_type="sensor")
+    # pylint: enable=unnecessary-lambda
 
 
 class Globals:
@@ -446,7 +448,7 @@ class Globals:
 
     def __init__(self, unit: str = "metric", level: int = 0):
         """Initialize."""
-        global UNIT_SYSTEM, DEBUG_LEVEL
+        global UNIT_SYSTEM, DEBUG_LEVEL  # pylint: disable=global-variable-undefined
         UNIT_SYSTEM = f"{unit}"
         DEBUG_LEVEL = int(level)
 
@@ -516,10 +518,10 @@ def set_attr(
     return attribute
 
 
-def jload(json_loads: str | bytes) -> Any:
+def jload(json_data: str | bytes) -> Any:
     """Load json with error manage."""
     try:
-        return json.loads(json_loads)
+        return json.loads(json_data)
     except json.decoder.JSONDecodeError as error:
         raise InvalidFormatError("Invalid json") from error
 
