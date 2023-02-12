@@ -35,7 +35,6 @@ HDR_USER_AGENT = "myAudi-Android/4.13.0 (Build 800238275.2210271555) Android/11"
 MARKET_URL = "https://content.app.my.audi.com/service/mobileapp/configurations"
 CLIENT_ID = "09b6cbec-cd19-4589-82fd-363dfa8c24da@apps_vw-dilab_com"
 MBB_URL = "https://mbboauth-1d.prd.ece.vwg-connect.com/mbbcoauth"
-X_CLIENT_ID = "83c92de4-52b6-406a-8d69-ddbcfc77be03"
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -63,7 +62,7 @@ class Auth:
         self._revocation_endpoint_url = ""
 
         self._client_id = CLIENT_ID
-        self._x_client_id = X_CLIENT_ID
+        self._x_client_id = ""
         self._language = ""
         self._country = ""
         self._mbb_token: dict[str, Any] = {}
@@ -86,9 +85,9 @@ class Auth:
         """Request url with method."""
         try:
             with async_timeout.timeout(TIMEOUT):
-                _LOGGER.expert("HEADER: %s", headers)  # type: ignore
+                _LOGGER.debug("HEADER: %s", headers)  # type: ignore
                 if method == "POST":
-                    _LOGGER.expert("POST DATA:%s", data)  # type: ignore
+                    _LOGGER.debug("POST DATA:%s", data)  # type: ignore
                 _LOGGER.debug("METHOD:%s URL:%s", method, url)
                 async with self._session.request(
                     method, url, headers=headers, data=data, **kwargs
@@ -632,7 +631,7 @@ class Auth:
             rsp_txt=True,
         )
         azs_token_json = jload(azs_token_rsptxt)
-        _LOGGER.expert("AZS Token: %s", azs_token_json)  # type: ignore
+        _LOGGER.debug("AZS Token: %s", azs_token_json)  # type: ignore
 
         return azs_token_json
 
@@ -678,7 +677,7 @@ class Auth:
             rsp_txt=True,
         )
         idk_token_json = jload(idk_token_rsptxt)
-        _LOGGER.expert("IDK Token: %s", idk_token_json)  # type: ignore
+        _LOGGER.debug("IDK Token: %s", idk_token_json)  # type: ignore
 
         return idk_token_json
 
@@ -746,6 +745,6 @@ class Auth:
             rsp_txt=True,
         )
         mbboauth_json = jload(mbboauth_rsptxt)
-        _LOGGER.expert("MBB Token: %s", mbboauth_json)  # type: ignore
+        _LOGGER.debug("MBB Token: %s", mbboauth_json)  # type: ignore
 
         return mbboauth_json

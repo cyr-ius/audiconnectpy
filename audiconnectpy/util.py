@@ -450,32 +450,6 @@ class Globals:
         UNIT_SYSTEM = f"{unit}"  # type: ignore
 
 
-def addLoggingLevel(levelName, levelNum, methodName=None):
-    if not methodName:
-        methodName = levelName.lower()
-
-    if hasattr(logging, levelName):
-        raise AttributeError(f"{levelName} already defined in logging module")
-    if hasattr(logging, methodName):
-        raise AttributeError(f"{methodName} already defined in logging module")
-    if hasattr(logging.getLoggerClass(), methodName):
-        raise AttributeError(f"{methodName} already defined in logger class")
-
-    def logForLevel(self, message, *args, **kwargs):
-        if self.isEnabledFor(levelNum):
-            self._log(  # pylint: disable=protected-access
-                levelNum, message, args, **kwargs
-            )
-
-    def logToRoot(message, *args, **kwargs):
-        logging.log(levelNum, message, *args, **kwargs)
-
-    logging.addLevelName(levelNum, levelName.upper())
-    setattr(logging, levelName, levelNum)
-    setattr(logging.getLoggerClass(), methodName, logForLevel)
-    setattr(logging, methodName, logToRoot)
-
-
 def get_attr(
     dictionary: dict[Any, dict[str, Any]], keys: str, default: str | None = None
 ) -> Any:
