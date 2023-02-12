@@ -30,8 +30,12 @@ from .util import get_attr, jload, json_loads
 
 TIMEOUT = 120
 DELAY = 10
-HDR_XAPP_VERSION = "4.9.2"
-HDR_USER_AGENT = "myAudi-Android/4.9.2 (Build 800237696.2205091738) Android/11"
+HDR_XAPP_VERSION = "4.13.0"
+HDR_USER_AGENT = "myAudi-Android/4.13.0 (Build 800238275.2210271555) Android/11"
+MARKET_URL = "https://content.app.my.audi.com/service/mobileapp/configurations"
+CLIENT_ID = "09b6cbec-cd19-4589-82fd-363dfa8c24da@apps_vw-dilab_com"
+MBB_URL = "https://mbboauth-1d.prd.ece.vwg-connect.com/mbbcoauth"
+X_CLIENT_ID = "83c92de4-52b6-406a-8d69-ddbcfc77be03"
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -52,14 +56,14 @@ class Auth:
         else:
             self.__proxy = None  # pylint: disable=unused-private-member
 
-        self._mbb_baseurl = ""
+        self._audi_baseurl = ""
+        self._mbb_baseurl = MBB_URL
         self._token_endpoint_url = ""
-        self._authorization_baseurl = ""
         self._authorization_endpoint_url = ""
         self._revocation_endpoint_url = ""
 
-        self._client_id = ""
-        self._x_client_id = ""
+        self._client_id = CLIENT_ID
+        self._x_client_id = X_CLIENT_ID
         self._language = ""
         self._country = ""
         self._mbb_token: dict[str, Any] = {}
@@ -99,7 +103,7 @@ class Auth:
                         return response, txt
                     elif raw_contents:
                         return await response.read()
-                    elif response.status == 200 or response.status == 202:
+                    elif response.status == 200 or response.status == 202 or response.status == 207:
                         return await response.json(loads=json_loads)
                     else:
                         raise RequestError(
@@ -333,7 +337,7 @@ class Auth:
             code_verifier=code_verifier,
         )
 
-        # AZS token
+        # Audi token
         self._audi_token = await self._async_get_azs_token(
             self._idk_token["access_token"]
         )
@@ -379,7 +383,7 @@ class Auth:
                     self._client_id, refresh_token=self._idk_token["refresh_token"]
                 )
 
-                # AZS token
+                # Audi token
                 self._audi_token = await self._async_get_azs_token(
                     self._idk_token["access_token"]
                 )
@@ -390,11 +394,7 @@ class Auth:
     async def _async_retrieve_url_service(self) -> None:
         """Get urls for request."""
         # Get markets to get language
-        markets_json = await self.request(
-            "GET",
-            "https://content.app.my.audi.com/service/mobileapp/configurations/markets",
-            None,
-        )
+        markets_json = await self.request("GET", f"{MARKET_URL}/markets", None)
 
         country_spec = get_attr(markets_json, "countries.countrySpecifications")
         if self._country.upper() not in country_spec:
@@ -404,56 +404,29 @@ class Auth:
             "defaultLanguage"
         )
 
-        # Dynamic configuration URLs
-        marketcfg_url = f"https://content.app.my.audi.com/service/mobileapp/configurations/market/{self._country}/{self._language}?v=4.6.0"
-
         # Get market config to get client_id , Authorization base url and mbbOAuth base url
-        marketcfg_json = await self.request("GET", marketcfg_url, None)
+        market_json = await self.request(
+            "GET", f"{MARKET_URL}/market/{self._country}/{self._language}", None
+        )
 
-        # use dynamic config from marketcfg
-        self._client_id = "09b6cbec-cd19-4589-82fd-363dfa8c24da@apps_vw-dilab_com"
-        if "idkClientIDAndroidLive" in marketcfg_json:
-            self._client_id = marketcfg_json["idkClientIDAndroidLive"]
+        self._client_id = market_json.get("idkClientIDAndroidLive", CLIENT_ID)
+        self._audi_baseurl = market_json.get(
+            "myAudiAuthorizationServerProxyServiceURLProduction", ""
+        )
+        openid_url = market_json.get("idkLoginServiceConfigurationURLProduction", "")
+        self._mbb_baseurl = market_json.get("mbbOAuthBaseURLLive", MBB_URL)
+
         _LOGGER.debug("Client id: %s", self._client_id)
+        _LOGGER.debug("Audi Base Url: %s", self._audi_baseurl)
+        _LOGGER.debug("MBB Base Url: %s", self._mbb_baseurl)
+        _LOGGER.debug("IDK Base Url: %s", openid_url)
 
-        self._authorization_baseurl = "https://aazsproxy-service.apps.emea.vwapps.io"
-        if "authorizationServerBaseURLLive" in marketcfg_json:
-            self._authorization_baseurl = marketcfg_json[
-                "authorizationServerBaseURLLive"
-            ]
-        self._mbb_baseurl = "https://mbboauth-1d.prd.ece.vwg-connect.com/mbbcoauth"
-        if "mbbOAuthBaseURLLive" in marketcfg_json:
-            self._mbb_baseurl = marketcfg_json["mbbOAuthBaseURLLive"]
-
-        _LOGGER.debug("AAZEndpoint: %s", self._authorization_baseurl)
-        _LOGGER.debug("MBBOAuth: %s", self._mbb_baseurl)
-
-        # use dynamic config from openId config
         # Get openId config to get authorizationEndpoint, tokenEndpoint, RevocationEndpoint
-        zone = "na" if self._country.upper() == "US" else "emea"
-        openidcfg_url = f"https://idkproxy-service.apps.{zone}.vwapps.io/v1/{zone}/openid-configuration"
-        openidcfg_json = await self.request("GET", openidcfg_url, None)
+        openid_json = await self.request("GET", openid_url, None)
 
-        # authorization endpoint
-        self._authorization_endpoint_url = (
-            "https://identity.vwgroup.io/oidc/v1/authorize"
-        )
-        if "authorization_endpoint" in openidcfg_json:
-            self._authorization_endpoint_url = openidcfg_json["authorization_endpoint"]
-
-        # token endpoint
-        self._token_endpoint_url = (
-            "https://idkproxy-service.apps.emea.vwapps.io/v1/emea/token"
-        )
-        if "token_endpoint" in openidcfg_json:
-            self._token_endpoint_url = openidcfg_json["token_endpoint"]
-
-        # revocation endpoint
-        revocation_endpoint = (
-            "https://idkproxy-service.apps.emea.vwapps.io/v1/emea/revoke"
-        )
-        if revocation_endpoint in openidcfg_json:
-            self._revocation_endpoint_url = openidcfg_json["revocation_endpoint"]
+        self._authorization_endpoint_url = openid_json.get("authorization_endpoint", "")
+        self._token_endpoint_url = openid_json.get("token_endpoint", "")
+        self._revocation_endpoint_url = openid_json.get("revocation_endpoint", "")
 
         _LOGGER.debug("AuthEndpoint: %s", self._authorization_endpoint_url)
         _LOGGER.debug("TokenEndpoint: %s", self._token_endpoint_url)
@@ -534,6 +507,15 @@ class Auth:
             "X-App-Name": "myAudi",
             "Accept": "application/json",
             "Authorization": f"Bearer {self._mbb_token['access_token']}",
+        }
+
+    async def async_get_simple_headers(self) -> dict[str, str]:
+        await self.async_refresh_tokens()
+        return {
+            "Accept": "application/json",
+            "Accept-Charset": "utf-8",
+            "Authorization": f"Bearer {self._idk_token['access_token']}",
+            "User-Agent": HDR_USER_AGENT,
         }
 
     @staticmethod
@@ -643,7 +625,7 @@ class Auth:
         }
         azs_token_rsptxt = await self.request(
             "POST",
-            self._authorization_baseurl + "/token",
+            self._audi_baseurl + "/token",
             json.dumps(asz_req_data),
             headers=headers,
             allow_redirects=False,
@@ -726,7 +708,7 @@ class Auth:
             rsp_txt=True,
         )
         mbboauth_client_reg_json = jload(mbboauth_client_reg_rsptxt)
-        return mbboauth_client_reg_json["client_id"]
+        return mbboauth_client_reg_json.get("client_id")
 
     async def _async_get_mbb_token(self, x_client_id: str, **kwargs: Any) -> Any:
         """Authentification to IDK."""
