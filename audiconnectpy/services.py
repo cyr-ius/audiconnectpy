@@ -75,7 +75,19 @@ class AudiService:
         data = await self._auth.get(
             f"{home_region}/fs-car/bs/vsr/v1/{self._type}/{self._country}/vehicles/{vin.upper()}/status"
         )
-        _LOGGER.advanced("RESPONSE: %s", data)  # type: ignore
+        _LOGGER.debug("RESPONSE: %s", data)  # type: ignore
+        return VehicleDataResponse(data, self._spin is not None)
+
+    async def async_get_stored_vehicle_dataV2(self, vin: str) -> VehicleDataResponse:
+        home_region = "https://emea.bff.cariad.digital"
+        headers = await self._auth.async_get_simple_headers()
+        data = await self._auth.request(
+            "GET",
+            f"{home_region}/vehicle/v1/vehicles/{vin.upper()}/selectivestatus?jobs=all",
+            headers=headers,
+            data=None,
+        )
+        _LOGGER.debug("RESPONSE: %s", data)  # type: ignore
         return VehicleDataResponse(data, self._spin is not None)
 
     async def async_get_charger(self, vin: str) -> ChargerDataResponse:
@@ -84,7 +96,7 @@ class AudiService:
         data = await self._auth.get(
             f"{home_region}/fs-car/bs/batterycharge/v1/{self._type}/{self._country}/vehicles/{vin.upper()}/charger"
         )
-        _LOGGER.advanced("RESPONSE: %s", data)  # type: ignore
+        _LOGGER.debug("RESPONSE: %s", data)  # type: ignore
         return ChargerDataResponse(data)
 
     async def async_get_climater(self, vin: str) -> ClimaterDataResponse:
@@ -93,7 +105,7 @@ class AudiService:
         data = await self._auth.get(
             f"{home_region}/fs-car/bs/climatisation/v1/{self._type}/{self._country}/vehicles/{vin.upper()}/climater"
         )
-        _LOGGER.advanced("RESPONSE: %s", data)  # type: ignore
+        _LOGGER.debug("RESPONSE: %s", data)  # type: ignore
         return ClimaterDataResponse(data)
 
     async def async_get_stored_position(self, vin: str) -> PositionDataResponse:
@@ -102,8 +114,32 @@ class AudiService:
         data = await self._auth.get(
             f"{home_region}/fs-car/bs/cf/v1/{self._type}/{self._country}/vehicles/{vin.upper()}/position"
         )
-        _LOGGER.advanced("RESPONSE: %s", data)  # type: ignore
+        _LOGGER.debug("RESPONSE: %s", data)  # type: ignore
         return PositionDataResponse(data)
+
+    async def async_get_stored_positionV2(self, vin: str) -> VehicleDataResponse:
+        home_region = "https://emea.bff.cariad.digital"
+        headers = await self._auth.async_get_simple_headers()
+        data = await self._auth.request(
+            "GET",
+            f"{home_region}/vehicle/v1/vehicles/{vin.upper()}/parkingposition",
+            headers=headers,
+            data=None,
+        )
+        _LOGGER.debug("RESPONSE: %s", data)  # type: ignore
+        return VehicleDataResponse(data, self._spin is not None)
+
+    async def async_get_capabilitesV2(self, vin: str) -> VehicleDataResponse:
+        home_region = "https://emea.bff.cariad.digital"
+        headers = await self._auth.async_get_simple_headers()
+        data = await self._auth.request(
+            "GET",
+            f"{home_region}/vehicle/v1/vehicles/{vin.upper()}/capabilities",
+            headers=headers,
+            data=None,
+        )
+        _LOGGER.debug("RESPONSE: %s", data)  # type: ignore
+        return VehicleDataResponse(data, self._spin is not None)
 
     async def async_get_operations_list(self, vin: str) -> Any:
         """Get operation data."""
@@ -111,7 +147,7 @@ class AudiService:
         data = await self._auth.get(
             f"{home_region_setter}/api/rolesrights/operationlist/v3/vehicles/{vin.upper()}"
         )
-        _LOGGER.advanced("RESPONSE: %s", data)  # type: ignore
+        _LOGGER.debug("RESPONSE: %s", data)  # type: ignore
         return data
 
     async def async_get_timer(self, vin: str) -> Any:
@@ -120,7 +156,7 @@ class AudiService:
         data = await self._auth.get(
             f"{home_region}/fs-car/bs/departuretimer/v1/{self._type}/{self._country}/vehicles/{vin.upper()}/timer"
         )
-        _LOGGER.advanced("RESPONSE: %s", data)  # type: ignore
+        _LOGGER.debug("RESPONSE: %s", data)  # type: ignore
         return data
 
     async def async_get_vehicles(self) -> Any:
@@ -128,7 +164,7 @@ class AudiService:
         data = await self._auth.get(
             f"https://msg.volkswagen.de/fs-car/usermanagement/users/v1/{self._type}/{self._country}/vehicles"
         )
-        _LOGGER.advanced("RESPONSE: %s", data)  # type: ignore
+        _LOGGER.debug("RESPONSE: %s", data)  # type: ignore
         return data
 
     async def async_get_vehicle_information(self) -> Any:
@@ -148,7 +184,7 @@ class AudiService:
         vins = jload(rep_rsptxt)
         if "data" not in vins:
             raise InvalidFormatError("Invalid json in vehicle information")
-        _LOGGER.advanced("RESPONSE: %s", vins["data"])  # type: ignore
+        _LOGGER.debug("RESPONSE: %s", vins["data"])  # type: ignore
         return vins["data"]
 
     async def async_get_vehicle_data(self, vin: str) -> Any:
@@ -197,8 +233,8 @@ class AudiService:
                 td_current["tripID"] = trip["tripID"]
                 td_current["startMileage"] = trip["startMileage"]
 
-        _LOGGER.advanced("RESPONSE: %s", td_current)  # type: ignore
-        _LOGGER.advanced("RESPONSE: %s", td_reset_trip)  # type: ignore
+        _LOGGER.debug("RESPONSE: %s", td_current)  # type: ignore
+        _LOGGER.debug("RESPONSE: %s", td_reset_trip)  # type: ignore
 
         return TripDataResponse(td_current), TripDataResponse(td_reset_trip)
 
