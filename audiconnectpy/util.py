@@ -369,7 +369,7 @@ class Identities(Enum):
         device_class="power_factor",
     )
     PLUG_STATE = FieldType(
-        attr="secondary_engine_type",
+        attr="plug_state",
         sensor_type="sensor",
         icon="mdi:power-plug",
     )
@@ -386,8 +386,7 @@ class Identities(Enum):
     CLIMATISATION_STATE = FieldType(
         attr="climatisation_state",
         icon="mdi:air-conditioner",
-        sensor_type="switch",
-        turn_mode="async_set_vehicle_climatisation",
+        sensor_type="sensor",
     )
     OUTDOOR_TEMPERATURE = FieldType(
         attr="outdoor_temperature",

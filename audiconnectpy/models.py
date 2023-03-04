@@ -410,7 +410,7 @@ class ClimaterDataResponse:
         self._data = data
 
     @property
-    def charger_supported(self) -> bool:
+    def climater_supported(self) -> bool:
         """Supported status."""
         return (
             get_attr(self._data, "climatisation_state") is not None
@@ -652,7 +652,7 @@ class Vehicle:
         if self.support_climater is not False:
             try:
                 result = await self._audi_service.async_get_climater(self.vin)
-                if result.charger_supported:
+                if result.climater_supported:
                     self.states.update(result.attributes)
             except RequestError as error:
                 if error.status in (401, 403, 502):
@@ -670,7 +670,7 @@ class Vehicle:
                     str(error).rstrip("\n"),
                 )
             else:
-                self.support_climater = result.charger_supported
+                self.support_climater = result.climater_supported
 
     async def async_update_preheater(self) -> None:
         """Update vehicle preheater."""
