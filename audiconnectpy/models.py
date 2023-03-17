@@ -412,10 +412,7 @@ class ClimaterDataResponse:
     @property
     def climater_supported(self) -> bool:
         """Supported status."""
-        return (
-            get_attr(self._data, "climatisation_state") is not None
-            or get_attr(self._data, "outdoor_temperature") is not None
-        )
+        return self.attributes is not None
 
     @property
     def attributes(self) -> dict[Any, dict[str, Any]]:
