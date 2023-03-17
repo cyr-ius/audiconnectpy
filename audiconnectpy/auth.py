@@ -2,22 +2,22 @@
 from __future__ import annotations
 
 import asyncio
-from asyncio import CancelledError, TimeoutError  # pylint: disable=redefined-builtin
 import base64
-from datetime import datetime, timedelta
-from hashlib import sha256
 import hmac
 import json
 import logging
 import os
 import re
+import uuid
+from asyncio import CancelledError, TimeoutError  # pylint: disable=redefined-builtin
+from datetime import datetime, timedelta
+from hashlib import sha256
 from typing import Any
 from urllib.parse import parse_qs, urlencode, urlparse
-import uuid
 
+import async_timeout
 from aiohttp import ClientSession
 from aiohttp.hdrs import METH_GET, METH_POST, METH_PUT
-import async_timeout
 from bs4 import BeautifulSoup
 
 from .exceptions import (
@@ -85,9 +85,9 @@ class Auth:
         """Request url with method."""
         try:
             with async_timeout.timeout(TIMEOUT):
-                _LOGGER.debug("HEADER: %s", headers)  # type: ignore
+                _LOGGER.debug("HEADER: %s", headers)
                 if method == "POST":
-                    _LOGGER.debug("POST DATA:%s", data)  # type: ignore
+                    _LOGGER.debug("POST DATA:%s", data)
                 _LOGGER.debug("METHOD:%s URL:%s", method, url)
                 async with self._session.request(
                     method, url, headers=headers, data=data, **kwargs
@@ -95,22 +95,22 @@ class Auth:
                     _LOGGER.debug("RESPONSE: %s", response.status)
                     if raw_reply:
                         return response
-                    elif rsp_txt:
+                    if rsp_txt:
                         return await response.text()
-                    elif rsp_wtxt:
+                    if rsp_wtxt:
                         txt = await response.text()
                         return response, txt
-                    elif raw_contents:
+                    if raw_contents:
                         return await response.read()
-                    elif response.status == 200 or response.status == 202 or response.status == 207:
+                    if response.status in [200, 202, 207]:
                         return await response.json(loads=json_loads)
-                    else:
-                        raise RequestError(
-                            response.request_info,
-                            response.history,
-                            status=response.status,
-                            message=response.reason,
-                        )
+
+                    raise RequestError(
+                        response.request_info,
+                        response.history,
+                        status=response.status,
+                        message=response.reason,
+                    )
         except (CancelledError, TimeoutError) as error:
             raise TimeoutExceededError("Timeout error") from error
         except RequestError as error:
@@ -193,9 +193,9 @@ class Auth:
                 )
                 await asyncio.sleep(DELAY)
                 return await self.async_connect(username, password, country, ntries - 1)
-            else:
-                _LOGGER.error("Login to Audi service failed: %s ", str(error))
-                return False
+
+            _LOGGER.error("Login to Audi service failed: %s ", str(error))
+            return False
         else:
             return True
 
@@ -509,6 +509,7 @@ class Auth:
         }
 
     async def async_get_simple_headers(self) -> dict[str, str]:
+        """Return simple headers."""
         await self.async_refresh_tokens()
         return {
             "Accept": "application/json",
@@ -631,7 +632,7 @@ class Auth:
             rsp_txt=True,
         )
         azs_token_json = jload(azs_token_rsptxt)
-        _LOGGER.debug("AZS Token: %s", azs_token_json)  # type: ignore
+        _LOGGER.debug("AZS Token: %s", azs_token_json)
 
         return azs_token_json
 
@@ -677,7 +678,7 @@ class Auth:
             rsp_txt=True,
         )
         idk_token_json = jload(idk_token_rsptxt)
-        _LOGGER.debug("IDK Token: %s", idk_token_json)  # type: ignore
+        _LOGGER.debug("IDK Token: %s", idk_token_json)
 
         return idk_token_json
 
@@ -745,6 +746,6 @@ class Auth:
             rsp_txt=True,
         )
         mbboauth_json = jload(mbboauth_rsptxt)
-        _LOGGER.debug("MBB Token: %s", mbboauth_json)  # type: ignore
+        _LOGGER.debug("MBB Token: %s", mbboauth_json)
 
         return mbboauth_json

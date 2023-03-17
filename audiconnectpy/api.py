@@ -32,7 +32,7 @@ class AudiConnect:
         username: str,
         password: str,
         country: str,
-        spin: str,
+        spin: int,
         unit_system: str = "metric",
     ) -> None:
         """Initiliaze."""

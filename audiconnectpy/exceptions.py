@@ -1,6 +1,10 @@
 """Exceptions for Audi connect."""
+from __future__ import annotations
+
 import logging
-from aiohttp import RequestInfo
+from typing import Tuple
+
+from aiohttp import ClientResponse, RequestInfo  # pylint: disable=unused-import
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -13,7 +17,11 @@ class RequestError(AudiException):
     """Not open url."""
 
     def __init__(
-        self, request_info: RequestInfo, history=None, status=None, message=None
+        self,
+        request_info: RequestInfo,
+        history: Tuple["ClientResponse", ...] | None = None,
+        status: int | None = None,
+        message: str | None = None,
     ) -> None:
         """Initialize."""
         self.request_info = request_info
@@ -32,7 +40,7 @@ class RequestError(AudiException):
 
     def __str__(self) -> str:
         """Set string object."""
-        return "{}, message={!r}, url={!r}".format(
+        return "{}, message={!r}, url={!r}".format(  # pylint: disable=consider-using-f-string
             self.status,
             self.message,
             self.request_info.real_url,

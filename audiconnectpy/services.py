@@ -2,14 +2,14 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime, timedelta
-from hashlib import sha512
 import json
 import logging
+from datetime import datetime, timedelta
+from hashlib import sha512
 from typing import Any
 
 from .auth import Auth
-from .exceptions import InvalidFormatError, HttpRequestError, TimeoutExceededError
+from .exceptions import HttpRequestError, InvalidFormatError, TimeoutExceededError
 from .models import (
     ChargerDataResponse,
     ClimaterDataResponse,
@@ -34,7 +34,7 @@ _LOGGER = logging.getLogger(__name__)
 class AudiService:
     """Audi service."""
 
-    def __init__(self, auth: Auth, country: str, spin: str) -> None:
+    def __init__(self, auth: Auth, country: str, spin: int) -> None:
         """Initialize."""
         self._auth = auth
         self._country: str = "DE" if country is None else country
@@ -67,7 +67,7 @@ class AudiService:
         data = await self._auth.get(
             f"{home_region}/fs-car/bs/rs/v1/{self._type}/{self._country}/vehicles/{vin.upper()}/status"
         )
-        _LOGGER.debug("PREHEATER: %s", data)  # type: ignore
+        _LOGGER.debug("PREHEATER: %s", data)
         return PreheaterDataResponse(data)
 
     async def async_get_stored_vehicle_data(self, vin: str) -> VehicleDataResponse:
@@ -76,10 +76,10 @@ class AudiService:
         data = await self._auth.get(
             f"{home_region}/fs-car/bs/vsr/v1/{self._type}/{self._country}/vehicles/{vin.upper()}/status"
         )
-        _LOGGER.debug("STORED: %s", data)  # type: ignore
+        _LOGGER.debug("STORED: %s", data)
         return VehicleDataResponse(data, self._spin is not None)
 
-    async def async_get_stored_vehicle_dataV2(self, vin: str) -> VehicleDataResponse:
+    async def async_get_stored_vehicle_data_v2(self, vin: str) -> VehicleDataResponse:
         """Get store data v2."""
         home_region = "https://emea.bff.cariad.digital"
         headers = await self._auth.async_get_simple_headers()
@@ -89,7 +89,7 @@ class AudiService:
             headers=headers,
             data=None,
         )
-        _LOGGER.debug("STORED: %s", data)  # type: ignore
+        _LOGGER.debug("STORED: %s", data)
         return VehicleDataResponse(data, self._spin is not None)
 
     async def async_get_charger(self, vin: str) -> ChargerDataResponse:
@@ -98,7 +98,7 @@ class AudiService:
         data = await self._auth.get(
             f"{home_region}/fs-car/bs/batterycharge/v1/{self._type}/{self._country}/vehicles/{vin.upper()}/charger"
         )
-        _LOGGER.debug("CHARGER: %s", data)  # type: ignore
+        _LOGGER.debug("CHARGER: %s", data)
         return ChargerDataResponse(data)
 
     async def async_get_climater(self, vin: str) -> ClimaterDataResponse:
@@ -107,7 +107,7 @@ class AudiService:
         data = await self._auth.get(
             f"{home_region}/fs-car/bs/climatisation/v1/{self._type}/{self._country}/vehicles/{vin.upper()}/climater"
         )
-        _LOGGER.debug("CLIMATER: %s", data)  # type: ignore
+        _LOGGER.debug("CLIMATER: %s", data)
         return ClimaterDataResponse(data)
 
     async def async_get_stored_position(self, vin: str) -> PositionDataResponse:
@@ -116,10 +116,10 @@ class AudiService:
         data = await self._auth.get(
             f"{home_region}/fs-car/bs/cf/v1/{self._type}/{self._country}/vehicles/{vin.upper()}/position"
         )
-        _LOGGER.debug("POSITION: %s", data)  # type: ignore
+        _LOGGER.debug("POSITION: %s", data)
         return PositionDataResponse(data)
 
-    async def async_get_stored_positionV2(self, vin: str) -> VehicleDataResponse:
+    async def async_get_stored_position_v2(self, vin: str) -> VehicleDataResponse:
         """Get position data v2."""
         home_region = "https://emea.bff.cariad.digital"
         headers = await self._auth.async_get_simple_headers()
@@ -129,7 +129,7 @@ class AudiService:
             headers=headers,
             data=None,
         )
-        _LOGGER.debug("POSITION: %s", data)  # type: ignore
+        _LOGGER.debug("POSITION: %s", data)
         return VehicleDataResponse(data, self._spin is not None)
 
     async def async_get_capabilities(self, vin: str) -> VehicleDataResponse:
@@ -142,7 +142,7 @@ class AudiService:
             headers=headers,
             data=None,
         )
-        _LOGGER.debug("CAPABILITES: %s", data)  # type: ignore
+        _LOGGER.debug("CAPABILITES: %s", data)
         return VehicleDataResponse(data, self._spin is not None)
 
     async def async_get_operations_list(self, vin: str) -> Any:
@@ -151,7 +151,7 @@ class AudiService:
         data = await self._auth.get(
             f"{home_region_setter}/api/rolesrights/operationlist/v3/vehicles/{vin.upper()}"
         )
-        _LOGGER.debug("OPERATIONS: %s", data)  # type: ignore
+        _LOGGER.debug("OPERATIONS: %s", data)
         return data
 
     async def async_get_timer(self, vin: str) -> Any:
@@ -160,7 +160,7 @@ class AudiService:
         data = await self._auth.get(
             f"{home_region}/fs-car/bs/departuretimer/v1/{self._type}/{self._country}/vehicles/{vin.upper()}/timer"
         )
-        _LOGGER.debug("TIMER: %s", data)  # type: ignore
+        _LOGGER.debug("TIMER: %s", data)
         return data
 
     async def async_get_vehicles(self) -> Any:
@@ -168,7 +168,7 @@ class AudiService:
         data = await self._auth.get(
             f"https://msg.volkswagen.de/fs-car/usermanagement/users/v1/{self._type}/{self._country}/vehicles"
         )
-        _LOGGER.debug("VEHICLES: %s", data)  # type: ignore
+        _LOGGER.debug("VEHICLES: %s", data)
         return data
 
     async def async_get_vehicle_information(self) -> Any:
@@ -188,7 +188,7 @@ class AudiService:
         vins = jload(rep_rsptxt)
         if "data" not in vins:
             raise InvalidFormatError("Invalid json in vehicle information")
-        _LOGGER.debug("INFO: %s", vins["data"])  # type: ignore
+        _LOGGER.debug("INFO: %s", vins["data"])
         return vins["data"]
 
     async def async_get_vehicle_data(self, vin: str) -> Any:
@@ -223,7 +223,7 @@ class AudiService:
         )
         td_sorted = sorted(
             get_attr(data, "tripDataList.tripData"),
-            key=lambda k: k["overallMileage"],
+            key=lambda k: k["overallMileage"],  # type: ignore[no-any-return]
             reverse=True,
         )
         td_current = td_sorted[0]
@@ -233,12 +233,11 @@ class AudiService:
             if (td_current["startMileage"] - trip["startMileage"]) > 2:
                 td_reset_trip = trip
                 break
-            else:
-                td_current["tripID"] = trip["tripID"]
-                td_current["startMileage"] = trip["startMileage"]
+            td_current["tripID"] = trip["tripID"]
+            td_current["startMileage"] = trip["startMileage"]
 
-        _LOGGER.debug("TRIP: %s", td_current)  # type: ignore
-        _LOGGER.debug("TRIP: %s", td_reset_trip)  # type: ignore
+        _LOGGER.debug("TRIP: %s", td_current)
+        _LOGGER.debug("TRIP: %s", td_reset_trip)
 
         return TripDataResponse(td_current), TripDataResponse(td_reset_trip)
 

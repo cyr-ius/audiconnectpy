@@ -1,3 +1,4 @@
+"""Example script."""
 import asyncio
 import logging
 
@@ -21,8 +22,8 @@ COUNTRY = "DE"
 SPIN = 1234
 
 
-async def main():
-    """Main method."""
+async def main() -> None:
+    """Init method."""
     async with ClientSession() as session:
         api = AudiConnect(session, VW_USERNAME, VW_PASSWORD, COUNTRY, SPIN)
 
@@ -37,8 +38,8 @@ async def main():
                 _LOGGER.info(vehicle.support_position)
                 _LOGGER.info(vehicle.support_preheater)
                 _LOGGER.info(vehicle.support_status)
-                _LOGGER.info(vehicle.support_longTerm)
-                _LOGGER.info(vehicle.support_shortTerm)
+                _LOGGER.info(vehicle.support_long_term)
+                _LOGGER.info(vehicle.support_short_term)
 
                 for attr, state in vehicle.states.items():
                     _LOGGER.info("%s: %s", attr, state.get("value"))

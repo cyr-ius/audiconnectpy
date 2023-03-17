@@ -545,11 +545,11 @@ class Vehicle:
         self.support_climater: bool | None = None
         self.support_preheater: bool | None = None
         self.support_charger: bool | None = None
-        self.support_shortTerm: bool | None = None
-        self.support_longTerm: bool | None = None
+        self.support_short_term: bool | None = None
+        self.support_long_term: bool | None = None
         self.states: dict[Any, dict[str, Any]] = {}
 
-    async def call_update(self, func: Callable, ntries: int) -> None:
+    async def call_update(self, func: Callable[..., Any], ntries: int) -> None:
         """Call update."""
         try:
             await func()

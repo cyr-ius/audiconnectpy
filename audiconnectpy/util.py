@@ -1,13 +1,13 @@
 """Helper functions."""
 from __future__ import annotations
 
+import json
+import logging
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from functools import reduce
-import json
-import logging
 from typing import Any
 
 from .exceptions import InvalidFormatError
@@ -443,10 +443,12 @@ class Identities(Enum):
 
 
 class Globals:
+    """Global variables."""
+
     def __init__(self, unit: str) -> None:
         """Initiliaze."""
         global UNIT_SYSTEM  # pylint: disable=global-variable-undefined
-        UNIT_SYSTEM = f"{unit}"  # type: ignore
+        UNIT_SYSTEM = f"{unit}"  # type: ignore[name-defined]
 
 
 def get_attr(
@@ -454,7 +456,7 @@ def get_attr(
 ) -> Any:
     """Return attribute value."""
     return reduce(
-        lambda d, key: d.get(key, default) if isinstance(d, dict) else default,  # type: ignore
+        lambda d, key: d.get(key, default) if isinstance(d, dict) else default,  # type: ignore[arg-type]
         keys.split("."),
         dictionary,
     )
@@ -486,7 +488,7 @@ def set_attr(
         if field_type.evaluation and value:
             try:
                 value = field_type.evaluation(value)
-                if UNIT_SYSTEM == "imperial" and field_type.unit == "km":  # type: ignore
+                if UNIT_SYSTEM == "imperial" and field_type.unit == "km":  # type: ignore[name-defined]
                     unit = "mi"
                     value = round(value * 0.621371, 2)
             except Exception as error:  # pylint: disable=broad-except
