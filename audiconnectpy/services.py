@@ -80,6 +80,7 @@ class AudiService:
         return VehicleDataResponse(data, self._spin is not None)
 
     async def async_get_stored_vehicle_dataV2(self, vin: str) -> VehicleDataResponse:
+        """Get store data v2."""
         home_region = "https://emea.bff.cariad.digital"
         headers = await self._auth.async_get_simple_headers()
         data = await self._auth.request(
@@ -119,6 +120,7 @@ class AudiService:
         return PositionDataResponse(data)
 
     async def async_get_stored_positionV2(self, vin: str) -> VehicleDataResponse:
+        """Get position data v2."""
         home_region = "https://emea.bff.cariad.digital"
         headers = await self._auth.async_get_simple_headers()
         data = await self._auth.request(
@@ -130,7 +132,8 @@ class AudiService:
         _LOGGER.debug("POSITION: %s", data)  # type: ignore
         return VehicleDataResponse(data, self._spin is not None)
 
-    async def async_get_capabilitesV2(self, vin: str) -> VehicleDataResponse:
+    async def async_get_capabilities(self, vin: str) -> VehicleDataResponse:
+        """Get capabilities."""
         home_region = "https://emea.bff.cariad.digital"
         headers = await self._auth.async_get_simple_headers()
         data = await self._auth.request(
