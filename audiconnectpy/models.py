@@ -721,11 +721,11 @@ class Vehicle:
 
     async def async_update_trip_longterm(self) -> None:
         """Update vehicle longterm trip."""
-        await self.async_update_tripdata("longTerm")
+        await self.async_update_tripdata("long_term")
 
     async def async_update_trip_shortterm(self) -> None:
         """Update vehicle shorterm trip."""
-        await self.async_update_tripdata("shortTerm")
+        await self.async_update_tripdata("short_term")
 
     async def async_update_tripdata(self, kind: str) -> None:
         """Update vehicle trip."""
