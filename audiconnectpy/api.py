@@ -50,11 +50,11 @@ class AudiConnect:
         self.is_connected: bool = False
         self.vehicles: dict[str, Vehicle] = {}
 
-    async def async_login(self) -> bool:
+    async def async_login(self, ntries: int = 3) -> bool:
         """Login and retreive tokens."""
         if not self.is_connected:
             self.is_connected = await self._auth.async_connect(
-                self._username, self._password, self._country
+                self._username, self._password, self._country, ntries
             )
         return self.is_connected
 
