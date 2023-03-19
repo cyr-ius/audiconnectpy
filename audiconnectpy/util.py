@@ -448,7 +448,7 @@ class Globals:
     def __init__(self, unit: str) -> None:
         """Initiliaze."""
         global UNIT_SYSTEM  # pylint: disable=global-variable-undefined
-        UNIT_SYSTEM = f"{unit}"  # type: ignore[name-defined]
+        UNIT_SYSTEM = f"{unit}"  # type: ignore
 
 
 def get_attr(
@@ -456,7 +456,7 @@ def get_attr(
 ) -> Any:
     """Return attribute value."""
     return reduce(
-        lambda d, key: d.get(key, default) if isinstance(d, dict) else default,  # type: ignore[arg-type]
+        lambda d, key: d.get(key, default) if isinstance(d, dict) else default,  # type: ignore
         keys.split("."),
         dictionary,
     )
@@ -488,7 +488,7 @@ def set_attr(
         if field_type.evaluation and value:
             try:
                 value = field_type.evaluation(value)
-                if UNIT_SYSTEM == "imperial" and field_type.unit == "km":  # type: ignore[name-defined]
+                if UNIT_SYSTEM == "imperial" and field_type.unit == "km":  # type: ignore
                     unit = "mi"
                     value = round(value * 0.621371, 2)
             except Exception as error:  # pylint: disable=broad-except
@@ -509,10 +509,12 @@ def set_attr(
     return attribute
 
 
-def jload(json_data: str | bytes) -> Any:
+def jload(json_data: Any) -> Any:
     """Load json with error manage."""
     try:
-        return json.loads(json_data)
+        if not isinstance(json_data, dict):
+            return json.loads(json_data)
+        return json_data
     except json.decoder.JSONDecodeError as error:
         raise InvalidFormatError("Invalid json") from error
 
