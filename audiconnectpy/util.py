@@ -10,8 +10,6 @@ from enum import Enum
 from functools import reduce
 from typing import Any
 
-from .exceptions import InvalidFormatError
-
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -511,12 +509,9 @@ def set_attr(
 
 def jload(json_data: Any) -> Any:
     """Load json with error manage."""
-    try:
-        if not isinstance(json_data, dict):
-            return json.loads(json_data)
-        return json_data
-    except json.decoder.JSONDecodeError as error:
-        raise InvalidFormatError("Invalid json") from error
+    if not isinstance(json_data, dict):
+        return json.loads(json_data)
+    return json_data
 
 
 def obj_parser(obj: dict[str, Any]) -> dict[str, Any]:

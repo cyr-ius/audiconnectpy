@@ -6,7 +6,7 @@ import logging
 from aiohttp import ClientSession
 
 from .auth import Auth
-from .exceptions import HttpRequestError, RequestError
+from .exceptions import HttpRequestError, ServiceNotFoundError
 from .models import Vehicle
 from .services import AudiService
 from .util import Globals
@@ -122,17 +122,17 @@ class AudiConnect:
                 await self._audi_service.async_refresh_vehicle_data(vin)
                 _LOGGER.debug("Successfully refreshed data of vehicle %s", vin)
                 return True
-        except RequestError as error:
-            if error.status in (403, 502):
-                _LOGGER.debug("refresh vehicle not supported: %s", error.status)
+        except ServiceNotFoundError as error:
+            if error.args[0] in (403, 502):
+                _LOGGER.debug("Refresh vehicle not supported")
                 self._excluded_refresh.add(vin)
-            elif error.status == 401:
+            elif error.args[0] == 401:
                 _LOGGER.debug("Request unauthorized. Update and retry refresh")
                 try:
                     self.is_connected = False
                     await self.async_login()
                     await self._audi_service.async_refresh_vehicle_data(vin)
-                except RequestError as err:
+                except ServiceNotFoundError as err:
                     _LOGGER.error(
                         "Unable to refresh vehicle data of %s, despite trying again (%s)",
                         vin,
@@ -168,7 +168,7 @@ class AudiConnect:
             action = "locked" if lock else "unlocked"
             _LOGGER.debug("Successfully %s vehicle %s", action, vin)
             return True
-        except RequestError as error:  # pylint: disable=broad-except
+        except ServiceNotFoundError as error:  # pylint: disable=broad-except
             _LOGGER.error(
                 "Unable to %s %s: %s",
                 action,
@@ -191,7 +191,7 @@ class AudiConnect:
             action = "started" if activate else "stopped"
             _LOGGER.debug("Successfully %s climatisation of vehicle %s", action, vin)
             return True
-        except RequestError as error:  # pylint: disable=broad-except
+        except ServiceNotFoundError as error:  # pylint: disable=broad-except
             _LOGGER.error(
                 "Unable to %s climatisation of vehicle %s: %s",
                 action,
@@ -220,7 +220,7 @@ class AudiConnect:
             action = "started" if activate else "stopped"
             _LOGGER.debug("Successfully %s%s charger of vehicle %s", action, vin, timed)
             return True
-        except RequestError as error:  # pylint: disable=broad-except
+        except ServiceNotFoundError as error:  # pylint: disable=broad-except
             action = "start" if activate else "stop"
             _LOGGER.error(
                 "Unable to %s charger of vehicle %s: %s",
@@ -244,7 +244,7 @@ class AudiConnect:
             action = "started" if activate else "stopped"
             _LOGGER.debug("Successfully %s window heating of vehicle %s", action, vin)
             return True
-        except RequestError as error:  # pylint: disable=broad-except
+        except ServiceNotFoundError as error:  # pylint: disable=broad-except
             _LOGGER.error(
                 "Unable to %s window heating of vehicle %s: %s",
                 action,
@@ -265,7 +265,7 @@ class AudiConnect:
             action = "started" if activate else "stopped"
             _LOGGER.debug("Successfully %s pre-heater of vehicle %s", action, vin)
             return True
-        except RequestError as error:  # pylint: disable=broad-except
+        except ServiceNotFoundError as error:  # pylint: disable=broad-except
             _LOGGER.error(
                 "Unable to %s pre-heater of vehicle %s: %s",
                 action,

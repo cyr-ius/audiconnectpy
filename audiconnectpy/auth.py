@@ -23,7 +23,7 @@ from bs4 import BeautifulSoup
 from .exceptions import (
     AudiException,
     HttpRequestError,
-    RequestError,
+    ServiceNotFoundError,
     TimeoutExceededError,
 )
 from .util import get_attr, jload, json_loads
@@ -104,10 +104,12 @@ class Auth:
             response.close()
 
             if content_type == "application/json":
-                raise AudiException(
+                raise ServiceNotFoundError(
                     response.status, json.loads(contents.decode("utf8"))
                 )
-            raise AudiException(response.status, {"message": contents.decode("utf8")})
+            raise ServiceNotFoundError(
+                response.status, {"message": contents.decode("utf8")}
+            )
 
         if raw_reply:
             return response
@@ -558,7 +560,7 @@ class Auth:
             url_parts = urlparse(url)
             username_post_url = url_parts.scheme + "://" + url_parts.netloc + action
         else:
-            raise RequestError("Unknown form action: " + action)
+            raise AudiException(f"Unknown form action: {action}")
         return username_post_url
 
     # TR/2022-06-15: New secrect for X_QMAuth
