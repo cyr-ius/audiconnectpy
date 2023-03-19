@@ -9,7 +9,7 @@ from hashlib import sha512
 from typing import Any
 
 from .auth import Auth
-from .exceptions import HttpRequestError, InvalidFormatError, TimeoutExceededError
+from .exceptions import AudiException, HttpRequestError, TimeoutExceededError
 from .models import (
     ChargerDataResponse,
     ClimaterDataResponse,
@@ -183,11 +183,10 @@ class AudiService:
             json.dumps(req_data),
             headers=headers,
             allow_redirects=False,
-            rsp_txt=True,
         )
         vins = jload(rep_rsptxt)
         if "data" not in vins:
-            raise InvalidFormatError("Invalid json in vehicle information")
+            raise AudiException("Invalid json in vehicle information")
         _LOGGER.debug("INFO: %s", vins["data"])
         return vins["data"]
 
@@ -279,6 +278,7 @@ class AudiService:
 
     async def _async_get_security_token(self, vin: str, action: str) -> Any:
         """Get security token."""
+        self._spin = "" if self._spin is None else self._spin
         home_region_setter = await self._async_get_home_region_setter(vin.upper())
 
         # Challenge
