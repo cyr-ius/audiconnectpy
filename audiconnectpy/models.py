@@ -395,7 +395,7 @@ class ChargerDataResponse:
         _attributes.update(
             set_attr(
                 "REMAINING_CHARGING_TIME",
-                get_attr(_cruising_status, "secondaryEngineRange.content"),
+                get_attr(_status, "batteryStatusData.remainingChargingTime.content"),
             )
         )
 
@@ -609,7 +609,7 @@ class Vehicle:
                         self.vin,
                         str(error).rstrip("\n"),
                     )
-            except HttpRequestError as error:  # pylint: disable=broad-except
+            except HttpRequestError as error:
                 _LOGGER.error(
                     "Unable to obtain the vehicle  status report of %s: %s",
                     self.vin,
@@ -635,7 +635,7 @@ class Vehicle:
                         self.vin,
                         str(error).rstrip("\n"),
                     )
-            except HttpRequestError as error:  # pylint: disable=broad-except
+            except HttpRequestError as error:
                 _LOGGER.error(
                     "Unable to obtain the vehicle position of %s: %s",
                     self.vin,
@@ -660,7 +660,7 @@ class Vehicle:
                         self.vin,
                         str(error).rstrip("\n"),
                     )
-            except HttpRequestError as error:  # pylint: disable=broad-except
+            except HttpRequestError as error:
                 _LOGGER.error(
                     "Unable to obtain the vehicle climatisation state for %s: %s",
                     self.vin,
@@ -685,7 +685,7 @@ class Vehicle:
                         self.vin,
                         str(error).rstrip("\n"),
                     )
-            except HttpRequestError as error:  # pylint: disable=broad-except
+            except HttpRequestError as error:
                 _LOGGER.error(
                     "Unable to obtain the vehicle preheater state for %s: %s",
                     self.vin,
@@ -710,7 +710,7 @@ class Vehicle:
                         self.vin,
                         str(error).rstrip("\n"),
                     )
-            except HttpRequestError as error:  # pylint: disable=broad-except
+            except HttpRequestError as error:
                 _LOGGER.error(
                     "Unable to obtain the vehicle charger state for %s: %s",
                     self.vin,
@@ -753,7 +753,7 @@ class Vehicle:
                         self.vin,
                         str(error).rstrip("\n"),
                     )
-            except HttpRequestError as error:  # pylint: disable=broad-except
+            except HttpRequestError as error:
                 _LOGGER.error(
                     "Unable to obtain the vehicle %s tripdata of %s: %s",
                     kind,
