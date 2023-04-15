@@ -140,7 +140,7 @@ class AudiConnect:
                     )
             else:
                 _LOGGER.error("Unable to refresh vehicle data of %s: %s", vin, error)
-        except HttpRequestError as error:  # pylint: disable=broad-except
+        except HttpRequestError as error:
             _LOGGER.error(
                 "Unable to refresh vehicle data of %s: %s", vin, str(error).rstrip("\n")
             )
@@ -168,7 +168,7 @@ class AudiConnect:
             action = "locked" if lock else "unlocked"
             _LOGGER.debug("Successfully %s vehicle %s", action, vin)
             return True
-        except ServiceNotFoundError as error:  # pylint: disable=broad-except
+        except ServiceNotFoundError as error:
             _LOGGER.error(
                 "Unable to %s %s: %s",
                 action,
@@ -191,7 +191,7 @@ class AudiConnect:
             action = "started" if activate else "stopped"
             _LOGGER.debug("Successfully %s climatisation of vehicle %s", action, vin)
             return True
-        except ServiceNotFoundError as error:  # pylint: disable=broad-except
+        except ServiceNotFoundError as error:
             _LOGGER.error(
                 "Unable to %s climatisation of vehicle %s: %s",
                 action,
@@ -220,7 +220,7 @@ class AudiConnect:
             action = "started" if activate else "stopped"
             _LOGGER.debug("Successfully %s%s charger of vehicle %s", action, timed, vin)
             return True
-        except ServiceNotFoundError as error:  # pylint: disable=broad-except
+        except ServiceNotFoundError as error:
             action = "start" if activate else "stop"
             _LOGGER.error(
                 "Unable to %s charger of vehicle %s: %s",
@@ -244,7 +244,7 @@ class AudiConnect:
             action = "started" if activate else "stopped"
             _LOGGER.debug("Successfully %s window heating of vehicle %s", action, vin)
             return True
-        except ServiceNotFoundError as error:  # pylint: disable=broad-except
+        except ServiceNotFoundError as error:
             _LOGGER.error(
                 "Unable to %s window heating of vehicle %s: %s",
                 action,
@@ -265,7 +265,7 @@ class AudiConnect:
             action = "started" if activate else "stopped"
             _LOGGER.debug("Successfully %s pre-heater of vehicle %s", action, vin)
             return True
-        except ServiceNotFoundError as error:  # pylint: disable=broad-except
+        except ServiceNotFoundError as error:
             _LOGGER.error(
                 "Unable to %s pre-heater of vehicle %s: %s",
                 action,
