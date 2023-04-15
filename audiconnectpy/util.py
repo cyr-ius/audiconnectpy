@@ -325,7 +325,7 @@ class Identities(Enum):
         device_class="power",
     )
     CHARGING_MODE = FieldType(
-        attr="charging_power",
+        attr="charging_mode",
         sensor_type="switch",
         turn_mode="async_set_battery_charger",
     )
