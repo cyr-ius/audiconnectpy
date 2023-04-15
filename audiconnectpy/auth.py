@@ -79,7 +79,6 @@ class Auth:
         data: Any | None,
         headers: dict[str, str] | None = None,
         raw_reply: bool = False,
-        raw_contents: bool = False,
         rsp_wtxt: bool = False,
         **kwargs: Any,
     ) -> Any:
@@ -93,16 +92,21 @@ class Auth:
             raise TimeoutExceededError(
                 "Timeout occurred while connecting to Audi Connect."
             ) from error
-        except (aiohttp.ClientError, socket.gaierror) as exception:
+        except (aiohttp.ClientError, socket.gaierror) as error:
+            _LOGGER.debug(
+                "HTTP Request error (%s) (%s): %s", str(url), str(data), str(error)
+            )
             raise HttpRequestError(
                 "Error occurred while communicating with Audit Connect."
-            ) from exception
+            ) from error
 
         content_type = response.headers.get("Content-Type", "")
         if response.status // 100 in [4, 5]:
             contents = await response.read()
             response.close()
-
+            _LOGGER.debug(
+                "[%s] Service not found: %s", response.status, contents.decode("utf8")
+            )
             if content_type == "application/json":
                 raise ServiceNotFoundError(
                     response.status, json.loads(contents.decode("utf8"))
@@ -113,8 +117,6 @@ class Auth:
 
         if raw_reply:
             return response
-        if raw_contents:
-            return await response.read()
 
         if "application/json" in content_type:
             return await response.json(loads=json_loads)
@@ -124,13 +126,7 @@ class Auth:
             return response, text
         return text
 
-    async def get(
-        self,
-        url: str,
-        raw_reply: bool = False,
-        raw_contents: bool = False,
-        **kwargs: Any,
-    ) -> Any:
+    async def get(self, url: str, raw_reply: bool = False, **kwargs: Any) -> Any:
         """GET request."""
         full_headers = await self.async_get_headers()
         response = await self.request(
@@ -139,7 +135,6 @@ class Auth:
             data=None,
             headers=full_headers,
             raw_reply=raw_reply,
-            raw_contents=raw_contents,
             **kwargs,
         )
         return response
@@ -164,7 +159,6 @@ class Auth:
         headers: dict[str, str] | None = None,
         use_json: bool = True,
         raw_reply: bool = False,
-        raw_contents: bool = False,
         **kwargs: Any,
     ) -> Any:
         """POST request."""
@@ -179,7 +173,6 @@ class Auth:
             headers=full_headers,
             data=data,
             raw_reply=raw_reply,
-            raw_contents=raw_contents,
             **kwargs,
         )
         return response
