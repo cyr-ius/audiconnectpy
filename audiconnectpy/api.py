@@ -213,12 +213,12 @@ class AudiConnect:
             _LOGGER.debug(
                 "Sending command to %s%s charger to vehicle %s",
                 action,
-                vin,
                 timed,
+                vin,
             )
             await self._audi_service.async_set_battery_charger(vin, activate, timer)
             action = "started" if activate else "stopped"
-            _LOGGER.debug("Successfully %s%s charger of vehicle %s", action, vin, timed)
+            _LOGGER.debug("Successfully %s%s charger of vehicle %s", action, timed, vin)
             return True
         except ServiceNotFoundError as error:  # pylint: disable=broad-except
             action = "start" if activate else "stop"
