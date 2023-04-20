@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import asyncio
 import base64
-import hmac
 import json
 import logging
 import os
@@ -26,7 +25,7 @@ from .exceptions import (
     ServiceNotFoundError,
     TimeoutExceededError,
 )
-from .util import get_attr, jload, json_loads
+from .util import get_attr, jload, json_loads, retry
 
 TIMEOUT = 120
 DELAY = 10
@@ -62,9 +61,11 @@ class Auth:
         self._token_endpoint_url = ""
         self._authorization_endpoint_url = ""
         self._revocation_endpoint_url = ""
+        self.profil_url = ""
 
         self._client_id = CLIENT_ID
         self._x_client_id = ""
+        self.user_id = ""
         self._language = ""
         self._country = ""
         self._mbb_token: dict[str, Any] = {}
@@ -85,6 +86,7 @@ class Auth:
         """Request url with method."""
         try:
             async with async_timeout.timeout(TIMEOUT):
+                _LOGGER.debug(url)
                 response = await self._session.request(
                     method, url, headers=headers, data=data, **kwargs
                 )
@@ -177,26 +179,29 @@ class Auth:
         )
         return response
 
-    async def async_connect(
-        self, username: str, password: str, country: str, ntries: int = 3
-    ) -> bool:
+    @retry(exceptions=HttpRequestError, tries=3)
+    async def async_connect(self, username: str, password: str, country: str) -> bool:
         """Connect to API."""
         try:
             self._country = country
             await self._async_login(username, password)
-        except HttpRequestError as error:  # pylint: disable=broad-except
-            if ntries > 1:
-                _LOGGER.error(
-                    "Login to Audi service failed, trying again in %s seconds [ERROR:%s]",
-                    DELAY,
-                    str(error),
-                )
-                await asyncio.sleep(DELAY)
-                return await self.async_connect(username, password, country, ntries - 1)
-            _LOGGER.error("Login to Audi service failed: %s ", str(error))
+        except TimeoutExceededError as error:
+            _LOGGER.error("Login to Audi service failed: %s ", error)
             return False
-        else:
-            return True
+        return True
+        # except HttpRequestError as error:  # pylint: disable=broad-except
+        #     if ntries > 1:
+        #         _LOGGER.error(
+        #             "Login to Audi service failed, trying again in %s seconds [ERROR:%s]",
+        #             DELAY,
+        #             str(error),
+        #         )
+        #         await asyncio.sleep(DELAY)
+        #         return await self.async_connect(username, password, country, ntries - 1)
+        #     _LOGGER.error("Login to Audi service failed: %s ", str(error))
+        #     return False
+        # else:
+        #     return True
 
     async def _async_login(self, user: str, password: str) -> None:
         """Request login."""
@@ -285,6 +290,11 @@ class Auth:
             allow_redirects=False,
             raw_reply=True,
         )
+
+        pw_strings = parse_qs(urlparse(pw_rsp.headers.get("Location", {}))[4]).get(
+            "userId", []
+        )
+        self.user_id = pw_strings[0] if pw_strings else ""
 
         # forward1 after pwd
         fwd1_rsp = await self.request(
@@ -407,6 +417,9 @@ class Auth:
         self._client_id = market_json.get("idkClientIDAndroidLive", CLIENT_ID)
         self._audi_baseurl = market_json.get(
             "myAudiAuthorizationServerProxyServiceURLProduction", ""
+        )
+        self.profil_url = (
+            market_json.get("idkCustomerProfileMicroserviceBaseURLLive", "") + "/v3"
         )
         openid_url = market_json.get("idkLoginServiceConfigurationURLProduction", "")
         self._mbb_baseurl = market_json.get("mbbOAuthBaseURLLive", MBB_URL)
@@ -556,94 +569,6 @@ class Auth:
             raise AudiException(f"Unknown form action: {action}")
         return username_post_url
 
-    # TR/2022-06-15: New secrect for X_QMAuth
-    @staticmethod
-    def _calculate_x_qmauth() -> str:
-        """Calculate X-QMAuth value."""
-        gmtime_100sec = int(
-            (datetime.utcnow() - datetime(1970, 1, 1)).total_seconds() / 100
-        )
-        # xqmauth_secret = bytes(
-        #     [
-        #         256 - 28,
-        #         120,
-        #         102,
-        #         55,
-        #         256 - 114,
-        #         256 - 16,
-        #         101,
-        #         256 - 116,
-        #         256 - 25,
-        #         93,
-        #         113,
-        #         0,
-        #         122,
-        #         256 - 128,
-        #         256 - 97,
-        #         52,
-        #         97,
-        #         107,
-        #         256 - 106,
-        #         53,
-        #         256 - 30,
-        #         256 - 20,
-        #         34,
-        #         256 - 126,
-        #         69,
-        #         120,
-        #         76,
-        #         31,
-        #         99,
-        #         256 - 24,
-        #         256 - 115,
-        #         6,
-        #     ]
-        # )
-        xqmauth_secret = bytes(
-            [
-                26,
-                256 - 74,
-                256 - 103,
-                37,
-                256 - 84,
-                23,
-                256 - 102,
-                256 - 86,
-                78,
-                256 - 125,
-                256 - 85,
-                256 - 26,
-                113,
-                256 - 87,
-                71,
-                109,
-                23,
-                100,
-                24,
-                256 - 72,
-                91,
-                256 - 41,
-                6,
-                256 - 15,
-                67,
-                108,
-                256 - 95,
-                91,
-                256 - 26,
-                71,
-                256 - 104,
-                256 - 100,
-            ]
-        )
-        xqmauth_val = hmac.new(
-            xqmauth_secret,
-            str(gmtime_100sec).encode("ascii", "ignore"),
-            digestmod="sha256",
-        ).hexdigest()
-
-        # return "v1:c95f4fd2:" + xqmauth_val
-        return "v1:01da27b0:" + xqmauth_val
-
     async def _async_get_azs_token(self, access_token: str) -> Any:
         """Get AZS Token."""
         headers = {
@@ -680,7 +605,6 @@ class Auth:
         headers = {
             "Accept": "application/json",
             "Accept-Charset": "utf-8",
-            "X-QMAuth": self._calculate_x_qmauth(),
             "User-Agent": HDR_USER_AGENT,
             "Content-Type": "application/x-www-form-urlencoded",
         }

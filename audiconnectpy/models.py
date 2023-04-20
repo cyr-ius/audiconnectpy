@@ -4,6 +4,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from asyncio import TimeoutError  # pylint: disable=redefined-builtin
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Callable
 
 from .exceptions import HttpRequestError, ServiceNotFoundError, TimeoutExceededError
@@ -16,12 +17,11 @@ if TYPE_CHECKING:
 _LOGGER = logging.getLogger(__name__)
 
 
+@dataclass
 class PreheaterDataResponse:
     """Preheater class."""
 
-    def __init__(self, data: dict[Any, dict[str, Any]]) -> None:
-        """Initialize."""
-        self._data = data
+    data: dict[str, Any]
 
     @property
     def preheater_supported(self) -> bool:
@@ -32,7 +32,7 @@ class PreheaterDataResponse:
     def attributes(self) -> dict[Any, dict[str, Any]]:
         """Attributes properties."""
         _attributes = {}
-        report = get_attr(self._data, "statusResponse.climatisationStateReport")
+        report = get_attr(self.data, "statusResponse.climatisationStateReport")
         if report:
             _attributes.update(set_attr("PREHEATER_STATE", report))
             _attributes.update(
@@ -137,7 +137,7 @@ class VehicleDataResponse:
 
     def __init__(self, data: dict[str, str], has_pin: bool = False) -> None:
         """Initialize."""
-        self._data: dict[str, Any] = data
+        self.data: dict[str, Any] = data
         self.has_pin = has_pin
         self.measure_time = None
         self.send_time = None
@@ -160,10 +160,10 @@ class VehicleDataResponse:
         _attributes: dict[str, Any] = {}
 
         default = get_attr(
-            self._data, "CurrentVehicleDataByRequestResponse.vehicleData.data"
+            self.data, "CurrentVehicleDataByRequestResponse.vehicleData.data"
         )
         vehicle_data = get_attr(
-            self._data, "StoredVehicleDataResponse.vehicleData.data", default
+            self.data, "StoredVehicleDataResponse.vehicleData.data", default
         )
         if vehicle_data is None:
             return _attributes
@@ -293,31 +293,28 @@ class VehicleDataResponse:
         return _metadatas
 
 
+@dataclass
 class ChargerDataResponse:
     """Charger class."""
 
-    def __init__(self, data: dict[Any, dict[str, Any]]) -> None:
-        """Initialize."""
-        self._data = data
+    data: dict[str, Any]
 
     @property
     def charger_supported(self) -> bool:
         """Supported status."""
         return (
-            get_attr(self._data, "charger.settings") is not None
-            or get_attr(self._data, "charger.status") is not None
+            get_attr(self.data, "charger.settings") is not None
+            or get_attr(self.data, "charger.status") is not None
         )
 
     @property
     def attributes(self) -> dict[Any, dict[str, Any]]:
         """Attributes properties."""
         _attributes = {}
-        _settings = get_attr(self._data, "charger.settings")
-        _status = get_attr(self._data, "charger.status")
-        _charging_status = get_attr(self._data, "charger.status.chargingStatusData")
-        _cruising_status = get_attr(
-            self._data, "charger.status.cruisingRangeStatusData"
-        )
+        _settings = get_attr(self.data, "charger.settings")
+        _status = get_attr(self.data, "charger.status")
+        _charging_status = get_attr(self.data, "charger.status.chargingStatusData")
+        _cruising_status = get_attr(self.data, "charger.status.cruisingRangeStatusData")
 
         _attributes.update(
             set_attr(
@@ -402,12 +399,11 @@ class ChargerDataResponse:
         return _attributes
 
 
+@dataclass
 class ClimaterDataResponse:
     """Climater class."""
 
-    def __init__(self, data: dict[Any, dict[str, Any]]) -> None:
-        """Initialize."""
-        self._data = data
+    data: dict[str, Any]
 
     @property
     def climater_supported(self) -> bool:
@@ -422,7 +418,7 @@ class ClimaterDataResponse:
             set_attr(
                 "CLIMATISATION_STATE",
                 get_attr(
-                    self._data,
+                    self.data,
                     "climater.status.climatisationStatusData.climatisationState.content",
                 ),
             )
@@ -431,7 +427,7 @@ class ClimaterDataResponse:
             set_attr(
                 "OUTDOOR_TEMPERATURE",
                 get_attr(
-                    self._data,
+                    self.data,
                     "climater.status.temperatureStatusData.outdoorTemperature.content",
                 ),
             )
@@ -440,23 +436,79 @@ class ClimaterDataResponse:
         return _attributes
 
 
-class PositionDataResponse:
-    """Position class."""
+@dataclass
+class DestinationDataResponse:
+    """Destination."""
 
-    def __init__(self, data: dict[Any, dict[str, Any]]) -> None:
-        """Initialize."""
-        self._data = data
+    data: dict[str, Any]
 
     @property
-    def position_supported(self) -> bool:
+    def destination_supported(self) -> bool:
         """Supported status."""
-        return get_attr(self._data, "findCarResponse.Position") is not None
+        return self.attributes is not None
 
     @property
     def attributes(self) -> dict[Any, dict[str, Any]]:
         """Attributes properties."""
         _attributes = {}
-        car = self._data.get("findCarResponse", {})
+        _attributes = self.data
+        return _attributes
+
+
+@dataclass
+class HistoryDataResponse:
+    """Destination."""
+
+    data: dict[str, Any]
+
+    @property
+    def history_supported(self) -> bool:
+        """Supported status."""
+        return self.attributes is not None
+
+    @property
+    def attributes(self) -> dict[Any, dict[str, Any]]:
+        """Attributes properties."""
+        _attributes = {}
+        _attributes = self.data
+        return _attributes
+
+
+@dataclass
+class UsersDataResponse:
+    """Destination."""
+
+    data: dict[str, Any]
+
+    @property
+    def users_supported(self) -> bool:
+        """Supported status."""
+        return self.attributes is not None
+
+    @property
+    def attributes(self) -> dict[Any, dict[str, Any]]:
+        """Attributes properties."""
+        _attributes = {}
+        _attributes = self.data
+        return _attributes
+
+
+@dataclass
+class PositionDataResponse:
+    """Position class."""
+
+    data: dict[str, Any]
+
+    @property
+    def position_supported(self) -> bool:
+        """Supported status."""
+        return get_attr(self.data, "findCarResponse.Position") is not None
+
+    @property
+    def attributes(self) -> dict[Any, dict[str, Any]]:
+        """Attributes properties."""
+        _attributes = {}
+        car = self.data.get("findCarResponse", {})
         position = car.get("Position", {})
         if coordinate := position.get("carCoordinate"):
             value = {
@@ -469,42 +521,39 @@ class PositionDataResponse:
         return _attributes
 
 
+@dataclass
 class TripDataResponse:
     """Trip class."""
 
-    def __init__(self, data: Any) -> None:
-        """Initialize."""
-        self._data = data
+    data: dict[str, Any]
 
     @property
     def attributes(self) -> dict[str, Any]:
         """Attributes properties."""
-        trip_id = self._data["tripID"]
+        trip_id = self.data["tripID"]
         average_electricengine_consumption = (
-            (float(self._data["averageElectricEngineConsumption"]) / 10)
-            if "averageElectricEngineConsumption" in self._data
+            (float(self.data["averageElectricEngineConsumption"]) / 10)
+            if "averageElectricEngineConsumption" in self.data
             else None
         )
         average_fuel_consumption = (
-            float(self._data["averageFuelConsumption"]) / 10
-            if "averageFuelConsumption" in self._data
+            float(self.data["averageFuelConsumption"]) / 10
+            if "averageFuelConsumption" in self.data
             else None
         )
         average_speed = (
-            int(self._data["averageSpeed"]) if "averageSpeed" in self._data else None
+            int(self.data["averageSpeed"]) if "averageSpeed" in self.data else None
         )
-        mileage = int(self._data["mileage"]) if "mileage" in self._data else None
+        mileage = int(self.data["mileage"]) if "mileage" in self.data else None
         start_mileage = (
-            int(self._data["startMileage"]) if "startMileage" in self._data else None
+            int(self.data["startMileage"]) if "startMileage" in self.data else None
         )
         travel_time = (
-            int(self._data["traveltime"]) if "traveltime" in self._data else None
+            int(self.data["traveltime"]) if "traveltime" in self.data else None
         )
-        timestamp = self._data["timestamp"] if "timestamp" in self._data else None
+        timestamp = self.data["timestamp"] if "timestamp" in self.data else None
         overall_mileage = (
-            int(self._data["overallMileage"])
-            if "overallMileage" in self._data
-            else None
+            int(self.data["overallMileage"]) if "overallMileage" in self.data else None
         )
 
         return {
@@ -522,7 +571,7 @@ class TripDataResponse:
     @property
     def trip_supported(self) -> bool:
         """Supported status."""
-        return self._data is not None
+        return self.data is not None
 
 
 class Vehicle:
@@ -540,13 +589,14 @@ class Vehicle:
         else:
             self.title = get_attr(data, "vehicle.media.shortName", self.vin)
 
-        self.support_status: bool | None = None
+        self.support_vehicle: bool | None = None
         self.support_position: bool | None = None
         self.support_climater: bool | None = None
         self.support_preheater: bool | None = None
         self.support_charger: bool | None = None
         self.support_short_term: bool | None = None
         self.support_long_term: bool | None = None
+        self.support_cyclic: bool | None = None
         self.states: dict[Any, dict[str, Any]] = {}
 
     async def call_update(self, func: Callable[..., Any], ntries: int) -> None:
@@ -565,11 +615,13 @@ class Vehicle:
         info = ""
         try:
             info = "status"
-            await self.call_update(self.async_update_status, ntries)
+            await self.call_update(self.async_update_vehicle, ntries)
             info = "shortterm"
             await self.call_update(self.async_update_trip_shortterm, ntries)
             info = "longterm"
             await self.call_update(self.async_update_trip_longterm, ntries)
+            info = "cyclic"
+            await self.call_update(self.async_update_trip_cyclic, ntries)
             info = "position"
             await self.call_update(self.async_update_position, ntries)
             info = "climater"
@@ -588,13 +640,11 @@ class Vehicle:
             return False
         return True
 
-    async def async_update_status(self) -> None:
+    async def async_update_vehicle(self) -> None:
         """Update vehicle status."""
-        if self.support_status is not False:
+        if self.support_vehicle is not False:
             try:
-                result = await self._audi_service.async_get_stored_vehicle_data(
-                    self.vin
-                )
+                result = await self._audi_service.async_get_vehicle(self.vin)
                 if result.vehicledata_supported:
                     self.states.update(
                         set_attr("LAST_UPDATE_TIME", result.send_time_utc)
@@ -602,7 +652,7 @@ class Vehicle:
                     self.states.update(result.attributes)
             except ServiceNotFoundError as error:
                 if error.args[0] in (401, 403, 502):
-                    self.support_status = False
+                    self.support_vehicle = False
                 else:
                     _LOGGER.error(
                         "Unable to obtain the vehicle  status report of %s: %s",
@@ -616,7 +666,7 @@ class Vehicle:
                     str(error).rstrip("\n"),
                 )
             else:
-                self.support_status = result.vehicledata_supported
+                self.support_vehicle = result.vehicledata_supported
 
     async def async_update_position(self) -> None:
         """Update vehicle position."""
@@ -721,15 +771,20 @@ class Vehicle:
 
     async def async_update_trip_longterm(self) -> None:
         """Update vehicle longterm trip."""
-        await self.async_update_tripdata("long_term")
+        await self.async_update_tripdata("longTerm")
 
     async def async_update_trip_shortterm(self) -> None:
         """Update vehicle shorterm trip."""
-        await self.async_update_tripdata("short_term")
+        await self.async_update_tripdata("shortTerm")
+
+    async def async_update_trip_cyclic(self) -> None:
+        """Update vehicle cyclic trip."""
+        await self.async_update_tripdata("cyclic")
 
     async def async_update_tripdata(self, kind: str) -> None:
         """Update vehicle trip."""
-        if getattr(self, f"support_{kind}") is not False:
+        syntax = kind.replace("Term", "_term")
+        if getattr(self, f"support_{syntax}") is not False:
             try:
                 td_cur, td_rst = await self._audi_service.async_get_tripdata(
                     self.vin, kind
@@ -761,4 +816,4 @@ class Vehicle:
                     str(error).rstrip("\n"),
                 )
             else:
-                setattr(self, f"support_{kind}", True)
+                setattr(self, f"support_{syntax}", True)
