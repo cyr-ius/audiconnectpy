@@ -21,7 +21,7 @@ from .models import (
     UsersDataResponse,
     VehicleDataResponse,
 )
-from .util import get_attr, jload, to_byte_array
+from .util import get_attr, to_byte_array
 
 MAX_RESPONSE_ATTEMPTS = 10
 REQUEST_STATUS_SLEEP = 10
@@ -67,11 +67,9 @@ class AudiService:
                 "Accept": "application/vnd.vwg.mbb.vehicleDataDetail_v2_1_0+json, application/vnd.vwg.mbb.genericError_v1_0_2+json"
             }
         )
-        data = await self._auth.request(
-            "GET",
+        data = await self._auth.get(
             f"{url}/vehicleMgmt/vehicledata/v2/{self._type}/{self._country}/vehicles/{vin.upper()}/",
             headers=headers,
-            data=None,
         )
         _LOGGER.debug("DETAILS: %s", data)
         return data
@@ -151,7 +149,7 @@ class AudiService:
     ) -> tuple[TripDataResponse, TripDataResponse]:
         """Get trip data."""
         url = await self._async_get_home_region(vin.upper())
-        headers = await self._auth.async_get_trip_headers()
+        headers = await self._auth.async_get_headers()
         td_reqdata = {
             "type": "list",
             "from": "1970-01-01T00:00:00Z",
@@ -160,10 +158,8 @@ class AudiService:
                 "%Y-%m-%dT%H:%M:%SZ"
             ),
         }
-        data = await self._auth.request(
-            "GET",
-            f"{url}/bs/tripstatistics/v1/{self._type}/{self._country}/vehicles/{vin.upper()}/tripdata/{kind}?list",
-            None,
+        data = await self._auth.get(
+            f"{url}/bs/tripstatistics/v1/{self._type}/{self._country}/vehicles/{vin.upper()}/tripdata/{kind}",
             params=td_reqdata,
             headers=headers,
         )
@@ -227,11 +223,8 @@ class AudiService:
         """Get capabilities."""
         url = "https://emea.bff.cariad.digital"
         headers = await self._auth.async_get_simple_headers()
-        data = await self._auth.request(
-            "GET",
-            f"{url}/vehicle/v1/vehicles/{vin.upper()}/capabilities",
-            headers=headers,
-            data=None,
+        data = await self._auth.get(
+            f"{url}/vehicle/v1/vehicles/{vin.upper()}/capabilities", headers=headers
         )
         _LOGGER.debug("CAPABILITES: %s", data)
         return VehicleDataResponse(data, self._spin is not None)
@@ -239,21 +232,19 @@ class AudiService:
     async def async_get_vehicle_information(self) -> Any:
         """Get vehicle information."""
         headers = await self._auth.async_get_information_headers()
-        req_data = {
+        data = {
             "query": "query vehicleList {\n userVehicles {\n vin\n mappingVin\n vehicle { core { modelYear\n }\n media { shortName\n longName }\n }\n csid\n commissionNumber\n type\n devicePlatform\n mbbConnect\n userRole {\n role\n }\n vehicle {\n classification {\n driveTrain\n }\n }\n nickname\n }\n}"
         }
-        rep_rsptxt = await self._auth.request(
-            "POST",
+        resp = await self._auth.post(
             "https://app-api.live-my.audi.com/vgql/v1/graphql",
-            json.dumps(req_data),
+            data=data,
             headers=headers,
             allow_redirects=False,
         )
-        vins = jload(rep_rsptxt)
-        if "data" not in vins:
+        if "data" not in resp:
             raise AudiException("Invalid json in vehicle information")
-        _LOGGER.debug("INFO: %s", vins["data"])
-        return vins["data"]
+        _LOGGER.debug("INFO: %s", resp["data"])
+        return resp["data"]
 
     async def async_get_honkflash(self, vin: str) -> Any:
         """Get Honk & Flash status."""
@@ -268,9 +259,7 @@ class AudiService:
         """Get Honk & Flash status."""
         url = f"{self._auth.profil_url}/customers/{self._auth.user_id}"
         headers = await self._auth.async_get_simple_headers()
-        data = await self._auth.request(
-            "GET", f"{url}/personalData", headers=headers, data=None
-        )
+        data = await self._auth.get(f"{url}/personalData", headers=headers)
         _LOGGER.debug("personalData: %s", data)
         return data
 
@@ -278,9 +267,7 @@ class AudiService:
         """Get Honk & Flash status."""
         url = f"{self._auth.profil_url}/customers/{self._auth.user_id}"
         headers = await self._auth.async_get_simple_headers()
-        data = await self._auth.request(
-            "GET", f"{url}/realCarData", headers=headers, data=None
-        )
+        data = await self._auth.get(f"{url}/realCarData", headers=headers)
         _LOGGER.debug("realCarData: %s", data)
         return data
 
@@ -288,9 +275,7 @@ class AudiService:
         """Get Honk & Flash status."""
         url = f"{self._auth.profil_url}/customers/{self._auth.user_id}"
         headers = await self._auth.async_get_simple_headers()
-        data = await self._auth.request(
-            "GET", f"{url}/mbbStatusData", headers=headers, data=None
-        )
+        data = await self._auth.get(f"{url}/mbbStatusData", headers=headers)
         _LOGGER.debug("mbbStatusData: %s", data)
         return data
 
@@ -298,9 +283,7 @@ class AudiService:
         """Get Honk & Flash status."""
         url = f"{self._auth.profil_url}/customers/{self._auth.user_id}"
         headers = await self._auth.async_get_simple_headers()
-        data = await self._auth.request(
-            "GET", f"{url}/identityData", headers=headers, data=None
-        )
+        data = await self._auth.get(f"{url}/identityData", headers=headers)
         _LOGGER.debug("identityData: %s", data)
         return data
 
@@ -308,9 +291,7 @@ class AudiService:
     #     """Get users."""
     #     url = "https://userinformationservice.apps.emea.vwapps.io/iaa"
     #     headers = await self._auth.async_get_simple_headers()
-    #     data = await self._auth.request(
-    #         "GET", f"{url}/uic/v1/vin/{vin.upper()}/users", headers=headers, data=None
-    #     )
+    #     data = await self._auth.get(f"{url}/uic/v1/vin/{vin.upper()}/users", headers=headers)
     #     _LOGGER.debug("Users: %s", data)
     #     return data
 
@@ -363,11 +344,11 @@ class AudiService:
             "application/vnd.vwg.mbb.RemoteLockUnlock_v1_0_0+xml", security_token
         )
 
-        res = await self._auth.request(
-            "POST",
+        res = await self._auth.post(
             f"{url}/bs/rlu/v1/{self._type}/{self._country}/vehicles/{vin.upper()}/actions",
             headers=headers,
             data=data,
+            use_json=False,
         )
 
         request_id = get_attr(res, "rluActionResponse.requestId")
@@ -401,23 +382,20 @@ class AudiService:
             "application/vnd.vwg.mbb.ClimaterAction_v1_0_2+json", security_token
         )
         data = (
-            json.dumps(
-                {
-                    "action": {
-                        "type": "startClimatisation",
-                        "settings": {
-                            "climatisationWithoutHVpower": "without_hv_power",
-                            "heaterSource": self._heater_source,
-                        },
-                    }
+            {
+                "action": {
+                    "type": "startClimatisation",
+                    "settings": {
+                        "climatisationWithoutHVpower": "without_hv_power",
+                        "heaterSource": self._heater_source,
+                    },
                 }
-            )
+            }
             if start
-            else json.dumps({"action": {"type": "stopClimatisation"}})
+            else {"action": {"type": "stopClimatisation"}}
         )
 
-        res = await self._auth.request(
-            "POST",
+        res = await self._auth.post(
             f"{url}/bs/climatisation/v1/{self._type}/{self._country}/vehicles/{vin.upper()}/climater/actions",
             headers=headers,
             data=data,
@@ -464,8 +442,7 @@ class AudiService:
             }
         )
         headers = await self._auth.async_get_action_headers("application/json", None)
-        res = await self._auth.request(
-            "POST",
+        res = await self._auth.post(
             f"{url}/bs/climatisation/v1/{self._type}/{self._country}/vehicles/{vin.upper()}/climater/actions",
             headers=headers,
             data=data,
@@ -497,23 +474,20 @@ class AudiService:
             "application/vnd.vwg.mbb.RemoteStandheizung_v2_0_2+json", security_token
         )
         data = (
-            json.dumps(
-                {
-                    "performAction": {
-                        "quickstart": {
-                            "startMode": "heating",
-                            "active": True,
-                            "climatisationDuration": self._control_duration,
-                        }
+            {
+                "performAction": {
+                    "quickstart": {
+                        "startMode": "heating",
+                        "active": True,
+                        "climatisationDuration": self._control_duration,
                     }
                 }
-            )
+            }
             if start
-            else json.dumps({"performAction": {"quickstop": {"active": False}}})
+            else {"performAction": {"quickstop": {"active": False}}}
         )
 
-        await self._auth.request(
-            "POST",
+        await self._auth.post(
             f"{url}/bs/rs/v1/{self._type}/{self._country}/vehicles/{vin.upper()}/action",
             headers=headers,
             data=data,
@@ -538,23 +512,20 @@ class AudiService:
             "application/vnd.vwg.mbb.RemoteStandheizung_v2_0_2+json", security_token
         )
         data = (
-            json.dumps(
-                {
-                    "performAction": {
-                        "quickstart": {
-                            "startMode": "ventilation",
-                            "active": True,
-                            "climatisationDuration": self._control_duration,
-                        }
+            {
+                "performAction": {
+                    "quickstart": {
+                        "startMode": "ventilation",
+                        "active": True,
+                        "climatisationDuration": self._control_duration,
                     }
                 }
-            )
+            }
             if start
-            else json.dumps({"performAction": {"quickstop": {"active": False}}})
+            else {"performAction": {"quickstop": {"active": False}}}
         )
 
-        await self._auth.request(
-            "POST",
+        await self._auth.post(
             f"{url}/bs/rs/v1/{self._type}/{self._country}/vehicles/{vin.upper()}/action",
             headers=headers,
             data=data,
@@ -570,11 +541,11 @@ class AudiService:
         headers = await self._auth.async_get_action_headers(
             "application/vnd.vwg.mbb.ChargerAction_v1_0_0+xml", None
         )
-        res = await self._auth.request(
-            "POST",
+        res = await self._auth.post(
             f"{url}/bs/batterycharge/v1/{self._type}/{self._country}/vehicles/{vin.upper()}/charger/actions",
             headers=headers,
             data=data,
+            use_json=False,
         )
 
         actionid = get_attr(res, "action.actionId")
@@ -596,11 +567,11 @@ class AudiService:
         headers = await self._auth.async_get_action_headers(
             "application/vnd.vwg.mbb.ChargerAction_v1_0_0+xml", None
         )
-        res = await self._auth.request(
-            "POST",
+        res = await self._auth.post(
             f"{url}/bs/batterycharge/v1/{self._type}/{self._country}/vehicles/{vin.upper()}/charger/action",
             headers=headers,
             data=data,
+            use_json=False,
         )
         actionid = get_attr(res, "action.actionId")
         await self.async_check_request_succeeded(
@@ -629,11 +600,11 @@ class AudiService:
         headers = await self._auth.async_get_action_headers(
             "application/vnd.vwg.mbb.ClimaterAction_v1_0_0+xml", None
         )
-        res = await self._auth.request(
-            "POST",
+        res = await self._auth.post(
             f"{url}/bs/climatisation/v1/{self._type}/{self._country}/vehicles/{vin.upper()}/climater/actions",
             headers=headers,
             data=data,
+            use_json=False,
         )
         actionid = get_attr(res, "action.actionId")
         await self.async_check_request_succeeded(
@@ -676,19 +647,10 @@ class AudiService:
                 },
             }
         }
-        res = await self._auth.request(
-            "POST",
+        await self._auth.post(
             f"{url}/bs/rhf/v1/{self._type}/{self._country}/vehicles/{vin.upper()}/honkAndFlash",
             headers=headers,
-            data=json.dumps(data),
-        )
-        request_id = get_attr(res, "rhfActionResponse.requestId")
-        await self.async_check_request_succeeded(
-            f"{url}/bs/rhf/v1/{self._type}/{self._country}/vehicles/{vin.upper()}/honkAndFlash/{request_id}/status",
-            "set honk and flash" if mode == "honk" else "set flash",
-            SUCCEEDED,
-            FAILED,
-            "action.actionState",
+            data=data,
         )
 
     async def async_check_request_succeeded(

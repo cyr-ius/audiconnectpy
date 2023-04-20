@@ -77,7 +77,7 @@ class Auth:
         self,
         method: str,
         url: str,
-        data: Any | None,
+        data: Any | None = None,
         headers: dict[str, str] | None = None,
         raw_reply: bool = False,
         rsp_wtxt: bool = False,
@@ -128,54 +128,30 @@ class Auth:
             return response, text
         return text
 
-    async def get(self, url: str, raw_reply: bool = False, **kwargs: Any) -> Any:
+    async def get(self, url: str, **kwargs: Any) -> Any:
         """GET request."""
-        full_headers = await self.async_get_headers()
+        headers = kwargs.pop("headers", await self.async_get_headers())
+        # full_headers = await self.async_get_headers()
+        response = await self.request(METH_GET, url, headers=headers, **kwargs)
+        return response
+
+    async def put(self, url: str, data: Any = None, **kwargs: Any) -> Any:
+        """PUT request."""
+        headers = kwargs.pop("headers", await self.async_get_headers())
         response = await self.request(
-            METH_GET,
-            url,
-            data=None,
-            headers=full_headers,
-            raw_reply=raw_reply,
-            **kwargs,
+            METH_PUT, url, headers=headers, data=data, **kwargs
         )
         return response
 
-    async def put(
-        self,
-        url: str,
-        data: str | bytes | None = None,
-        headers: dict[str, str] | None = None,
-    ) -> Any:
-        """PUT request."""
-        full_headers = await self.async_get_headers()
-        if headers is not None:
-            full_headers.update(headers)
-        response = await self.request(METH_PUT, url, headers=full_headers, data=data)
-        return response
-
     async def post(
-        self,
-        url: str,
-        data: str | bytes | None = None,
-        headers: dict[str, str] | None = None,
-        use_json: bool = True,
-        raw_reply: bool = False,
-        **kwargs: Any,
+        self, url: str, data: Any = None, use_json: bool = True, **kwargs: Any
     ) -> Any:
         """POST request."""
-        full_headers = await self.async_get_headers()
-        if headers is not None:
-            full_headers.update(headers)
-        if use_json and data is not None:
+        headers = kwargs.pop("headers", await self.async_get_headers())
+        if use_json and data:
             data = json.dumps(data)
         response = await self.request(
-            METH_POST,
-            url,
-            headers=full_headers,
-            data=data,
-            raw_reply=raw_reply,
-            **kwargs,
+            METH_POST, url, headers=headers, data=data, **kwargs
         )
         return response
 
@@ -464,7 +440,7 @@ class Auth:
         await self.async_refresh_tokens()
         headers = {
             "Accept": "application/json, application/vnd.vwg.mbb.ChargerAction_v1_0_0+xml,application/vnd.volkswagenag.com-error-v1+xml,application/vnd.vwg.mbb.genericError_v1_0_2+xml, application/vnd.vwg.mbb.RemoteStandheizung_v2_0_0+xml, application/vnd.vwg.mbb.genericError_v1_0_2+xml,application/vnd.vwg.mbb.RemoteLockUnlock_v1_0_0+xml,*/*",
-            "Accept-charset": "UTF-8",
+            "Accept-charset": "utf-8",
             "Authorization": f"Bearer {self._mbb_token['access_token']}",
             "Content-Type": content_type,
             "Host": "msg.volkswagen.de",
@@ -494,30 +470,16 @@ class Auth:
             "X-User-Country": self._country.upper(),
         }
 
-    async def async_get_trip_headers(self) -> dict[str, str]:
-        """Return header for trip information."""
-        await self.async_refresh_tokens()
-        token = self._mbb_token.get("access_token")
-        return {
-            "Accept": "application/json",
-            "Accept-Charset": "utf-8",
-            "Authorization": f"Bearer {token}",
-            "User-Agent": HDR_USER_AGENT,
-            "X-App-Name": "myAudi",
-            "X-App-Version": HDR_XAPP_VERSION,
-            "X-Client-ID": self._x_client_id,
-        }
-
     async def async_get_security_headers(self) -> dict[str, str]:
         """Return header for security token."""
         await self.async_refresh_tokens()
         token = self._mbb_token.get("access_token")
         return {
+            "Accept": "application/json",
+            "Authorization": f"Bearer {token}",
             "User-Agent": "okhttp/3.7.0",
             "X-App-Version": "3.14.0",
             "X-App-Name": "myAudi",
-            "Accept": "application/json",
-            "Authorization": f"Bearer {token}",
         }
 
     async def async_get_simple_headers(self) -> dict[str, str]:
