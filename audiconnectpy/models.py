@@ -589,14 +589,14 @@ class Vehicle:
         else:
             self.title = get_attr(data, "vehicle.media.shortName", self.vin)
 
-        self.support_vehicle: bool | None = None
-        self.support_position: bool | None = None
-        self.support_climater: bool | None = None
-        self.support_preheater: bool | None = None
         self.support_charger: bool | None = None
-        self.support_short_term: bool | None = None
-        self.support_long_term: bool | None = None
+        self.support_climater: bool | None = None
         self.support_cyclic: bool | None = None
+        self.support_long_term: bool | None = None
+        self.support_position: bool | None = None
+        self.support_preheater: bool | None = None
+        self.support_short_term: bool | None = None
+        self.support_vehicle: bool | None = None
         self.states: dict[Any, dict[str, Any]] = {}
 
     async def call_update(self, func: Callable[..., Any], ntries: int) -> None:
