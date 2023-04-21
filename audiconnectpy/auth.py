@@ -80,7 +80,7 @@ class Auth:
         data: Any | None = None,
         headers: dict[str, str] | None = None,
         raw_reply: bool = False,
-        rsp_wtxt: bool = False,
+        raw_rsp: bool = False,
         **kwargs: Any,
     ) -> Any:
         """Request url with method."""
@@ -95,9 +95,6 @@ class Auth:
                 "Timeout occurred while connecting to Audi Connect."
             ) from error
         except (aiohttp.ClientError, socket.gaierror) as error:
-            _LOGGER.debug(
-                "HTTP Request error (%s) (%s): %s", str(url), str(data), str(error)
-            )
             raise HttpRequestError(
                 "Error occurred while communicating with Audit Connect."
             ) from error
@@ -106,9 +103,6 @@ class Auth:
         if response.status // 100 in [4, 5]:
             contents = await response.read()
             response.close()
-            _LOGGER.debug(
-                "[%s] Service not found: %s", response.status, contents.decode("utf8")
-            )
             if content_type == "application/json":
                 raise ServiceNotFoundError(
                     response.status, json.loads(contents.decode("utf8"))
@@ -117,16 +111,17 @@ class Auth:
                 response.status, {"message": contents.decode("utf8")}
             )
 
-        if raw_reply:
+        if raw_reply and raw_rsp is False:
             return response
 
         if "application/json" in content_type:
-            return await response.json(loads=json_loads)
+            rsp = await response.json(loads=json_loads)
+        else:
+            rsp = await response.text()
 
-        text = await response.text()
-        if rsp_wtxt:
-            return response, text
-        return text
+        if raw_reply and raw_rsp:
+            return response, rsp
+        return rsp
 
     async def get(self, url: str, **kwargs: Any) -> Any:
         """GET request."""
@@ -222,7 +217,8 @@ class Auth:
             None,
             headers=headers,
             params=idk_data,
-            rsp_wtxt=True,
+            raw_reply=True,
+            raw_rsp=True,
         )
 
         # form_data with email
@@ -438,10 +434,11 @@ class Auth:
     ) -> dict[str, str]:
         """Return header for vehicle action."""
         await self.async_refresh_tokens()
+        token = self._mbb_token.get("access_token")
         headers = {
             "Accept": "application/json, application/vnd.vwg.mbb.ChargerAction_v1_0_0+xml,application/vnd.volkswagenag.com-error-v1+xml,application/vnd.vwg.mbb.genericError_v1_0_2+xml, application/vnd.vwg.mbb.RemoteStandheizung_v2_0_0+xml, application/vnd.vwg.mbb.genericError_v1_0_2+xml,application/vnd.vwg.mbb.RemoteLockUnlock_v1_0_0+xml,*/*",
             "Accept-charset": "utf-8",
-            "Authorization": f"Bearer {self._mbb_token['access_token']}",
+            "Authorization": f"Bearer {token}",
             "Content-Type": content_type,
             "Host": "msg.volkswagen.de",
             "User-Agent": "okhttp/3.7.0",
@@ -453,6 +450,19 @@ class Auth:
             headers["x-mbbSecToken"] = security_token
 
         return headers
+
+    async def async_get_security_headers(self) -> dict[str, str]:
+        """Return header for security token."""
+        await self.async_refresh_tokens()
+        token = self._mbb_token.get("access_token")
+        return {
+            "Accept": "application/json",
+            "Accept-Charset": "utf-8",
+            "Authorization": f"Bearer {token}",
+            "User-Agent": "okhttp/3.7.0",
+            "X-App-Version": "3.14.0",
+            "X-App-Name": "myAudi",
+        }
 
     async def async_get_information_headers(self) -> dict[str, str]:
         """Return header for vehicle information."""
@@ -468,18 +478,6 @@ class Auth:
             "X-App-Name": "myAudi",
             "X-App-Version": HDR_XAPP_VERSION,
             "X-User-Country": self._country.upper(),
-        }
-
-    async def async_get_security_headers(self) -> dict[str, str]:
-        """Return header for security token."""
-        await self.async_refresh_tokens()
-        token = self._mbb_token.get("access_token")
-        return {
-            "Accept": "application/json",
-            "Authorization": f"Bearer {token}",
-            "User-Agent": "okhttp/3.7.0",
-            "X-App-Version": "3.14.0",
-            "X-App-Name": "myAudi",
         }
 
     async def async_get_simple_headers(self) -> dict[str, str]:

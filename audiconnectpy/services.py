@@ -372,33 +372,34 @@ class AudiService:
         security_token = await self._async_get_security_token(
             vin, "rclima_v1/operations/" + (action if start else "P_QSTOPACT")
         )
-        # headers = await self._auth.async_get_action_headers(
-        #     "application/vnd.vwg.mbb.ClimaterAction_v1_0_0+xml", security_token
-        # )
-        # input_xml = f"<action><type>startClimatisation</type><settings><heaterSource>{self._heater_source}</heaterSource></settings></action>"
-        # data = f'<?xml version="1.0" encoding="UTF-8"?>{input_xml}'
-
         headers = await self._auth.async_get_action_headers(
-            "application/vnd.vwg.mbb.ClimaterAction_v1_0_2+json", security_token
+            "application/vnd.vwg.mbb.ClimaterAction_v1_0_0+xml", security_token
         )
-        data = (
-            {
-                "action": {
-                    "type": "startClimatisation",
-                    "settings": {
-                        "climatisationWithoutHVpower": "without_hv_power",
-                        "heaterSource": self._heater_source,
-                    },
-                }
-            }
-            if start
-            else {"action": {"type": "stopClimatisation"}}
-        )
+        input_xml = f"<action><type>startClimatisation</type><settings><heaterSource>{self._heater_source}</heaterSource></settings></action>"
+        data = f'<?xml version="1.0" encoding="UTF-8"?>{input_xml}'
+
+        # headers = await self._auth.async_get_action_headers(
+        #     "application/vnd.vwg.mbb.ClimaterAction_v1_0_2+json", security_token
+        # )
+        # data = (
+        #     {
+        #         "action": {
+        #             "type": "startClimatisation",
+        #             "settings": {
+        #                 "climatisationWithoutHVpower": "without_hv_power",
+        #                 "heaterSource": self._heater_source,
+        #             },
+        #         }
+        #     }
+        #     if start
+        #     else {"action": {"type": "stopClimatisation"}}
+        # )
 
         res = await self._auth.post(
             f"{url}/bs/climatisation/v1/{self._type}/{self._country}/vehicles/{vin.upper()}/climater/actions",
             headers=headers,
             data=data,
+            use_json=False,
         )
         actionid = get_attr(res, "action.actionId")
         await self.async_check_request_succeeded(
