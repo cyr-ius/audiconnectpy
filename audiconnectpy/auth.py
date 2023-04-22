@@ -11,7 +11,7 @@ import socket
 import uuid
 from datetime import datetime, timedelta
 from hashlib import sha256
-from typing import Any
+from typing import Any, Literal
 from urllib.parse import parse_qs, urlencode, urlparse
 
 import aiohttp
@@ -66,10 +66,10 @@ class Auth:
         self._client_id = CLIENT_ID
         self._x_client_id = ""
         self.user_id = ""
-        self._language = ""
+        self.language = ""
         self._country = ""
         self._mbb_token: dict[str, Any] = {}
-        self._mbb_token_expired: datetime = datetime.now()
+        self._mbb_token_expired: datetime | None = None
         self._idk_token: dict[str, str] = {}
         self._audi_token: dict[str, str] = {}
 
@@ -86,7 +86,8 @@ class Auth:
         """Request url with method."""
         try:
             async with async_timeout.timeout(TIMEOUT):
-                _LOGGER.debug(url)
+                _LOGGER.debug("REQUEST: %s", url)
+                # _LOGGER.debug("HEADERS: %s", headers)
                 response = await self._session.request(
                     method, url, headers=headers, data=data, **kwargs
                 )
@@ -99,6 +100,12 @@ class Auth:
                 "Error occurred while communicating with Audit Connect."
             ) from error
 
+        _LOGGER.debug(
+            "RESPONSE: %s ,return_code '%s'",
+            (await response.read()).decode("utf8"),
+            response.status,
+        )
+
         content_type = response.headers.get("Content-Type", "")
         if response.status // 100 in [4, 5]:
             contents = await response.read()
@@ -107,9 +114,7 @@ class Auth:
                 raise ServiceNotFoundError(
                     response.status, json.loads(contents.decode("utf8"))
                 )
-            raise ServiceNotFoundError(
-                response.status, {"message": contents.decode("utf8")}
-            )
+            raise ServiceNotFoundError(response.status, contents.decode("utf8"))
 
         if raw_reply and raw_rsp is False:
             return response
@@ -125,14 +130,13 @@ class Auth:
 
     async def get(self, url: str, **kwargs: Any) -> Any:
         """GET request."""
-        headers = kwargs.pop("headers", await self.async_get_headers())
-        # full_headers = await self.async_get_headers()
+        headers = kwargs.pop("headers", await self.async_get_headers(token_type="mbb"))
         response = await self.request(METH_GET, url, headers=headers, **kwargs)
         return response
 
     async def put(self, url: str, data: Any = None, **kwargs: Any) -> Any:
         """PUT request."""
-        headers = kwargs.pop("headers", await self.async_get_headers())
+        headers = kwargs.pop("headers", await self.async_get_headers(token_type="mbb"))
         response = await self.request(
             METH_PUT, url, headers=headers, data=data, **kwargs
         )
@@ -142,7 +146,7 @@ class Auth:
         self, url: str, data: Any = None, use_json: bool = True, **kwargs: Any
     ) -> Any:
         """POST request."""
-        headers = kwargs.pop("headers", await self.async_get_headers())
+        headers = kwargs.pop("headers", await self.async_get_headers(token_type="mbb"))
         if use_json and data:
             data = json.dumps(data)
         response = await self.request(
@@ -191,14 +195,7 @@ class Auth:
         code_challenge_method = "S256"
 
         # login page
-        headers = {
-            "Accept": "application/json",
-            "Accept-Charset": "utf-8",
-            "X-App-Version": HDR_XAPP_VERSION,
-            "X-App-Name": "myAudi",
-            "User-Agent": HDR_USER_AGENT,
-        }
-
+        headers = await self.async_get_headers()
         idk_data = {
             "response_type": "code",
             "client_id": self._client_id,
@@ -209,7 +206,7 @@ class Auth:
             "prompt": "login",
             "code_challenge": code_challenge,
             "code_challenge_method": code_challenge_method,
-            "ui_locales": f"{self._language}-{self._language} {self._language}",
+            "ui_locales": f"{self.language}-{self.language} {self.language}",
         }
         idk_rsp, idk_rsptxt = await self.request(
             "GET",
@@ -308,9 +305,7 @@ class Auth:
 
         # IDK token
         self._idk_token = await self._async_get_idk_token(
-            self._client_id,
-            code=authcode_strings["code"][0],
-            code_verifier=code_verifier,
+            code=authcode_strings["code"][0], code_verifier=code_verifier
         )
 
         # Audi token
@@ -323,13 +318,13 @@ class Auth:
 
         # MBB token
         self._mbb_token = await self._async_get_mbb_token(
-            self._x_client_id, id_token=self._idk_token["id_token"]
+            id_token=self._idk_token["id_token"]
         )
 
         # mbboauth refresh (app immediately refreshes the token)
         refresh_token = self._mbb_token["refresh_token"]
         self._mbb_token = await self._async_get_mbb_token(
-            self._x_client_id, refresh_token=self._mbb_token["refresh_token"]
+            refresh_token=self._mbb_token["refresh_token"]
         )
         self._mbb_token["refresh_token"] = refresh_token
         self._mbb_token_expired = datetime.now() + timedelta(
@@ -338,13 +333,13 @@ class Auth:
 
     async def async_refresh_tokens(self) -> None:
         """Refresh token if."""
-        if datetime.now() > self._mbb_token_expired:
+        if self._mbb_token_expired and datetime.now() > self._mbb_token_expired:
             try:
                 _LOGGER.debug("Refresh token if necessary")
                 # MBB Token
                 refresh_token = self._mbb_token["refresh_token"]
                 self._mbb_token = await self._async_get_mbb_token(
-                    self._x_client_id, refresh_token=refresh_token
+                    refresh_token=refresh_token
                 )
                 # TR/2022-02-10: If a new refresh_token is provided, save it for further refreshes
                 if "refresh_token" not in self._mbb_token:
@@ -357,7 +352,7 @@ class Auth:
 
                 # IDK Token
                 self._idk_token = await self._async_get_idk_token(
-                    self._client_id, refresh_token=self._idk_token["refresh_token"]
+                    refresh_token=self._idk_token["refresh_token"]
                 )
 
                 # Audi token
@@ -377,13 +372,13 @@ class Auth:
         if self._country.upper() not in country_spec:
             raise AudiException("Country not found")
 
-        self._language = country_spec.get(self._country.upper(), {}).get(
+        self.language = country_spec.get(self._country.upper(), {}).get(
             "defaultLanguage"
         )
 
         # Get market config to get client_id , Authorization base url and mbbOAuth base url
         market_json = await self.request(
-            "GET", f"{MARKET_URL}/market/{self._country}/{self._language}", None
+            "GET", f"{MARKET_URL}/market/{self._country.upper()}/{self.language}", None
         )
 
         self._client_id = market_json.get("idkClientIDAndroidLive", CLIENT_ID)
@@ -412,84 +407,64 @@ class Auth:
         _LOGGER.debug("TokenEndpoint: %s", self._token_endpoint_url)
         _LOGGER.debug("RevocationEndpoint: %s", self._revocation_endpoint_url)
 
-    async def async_get_headers(self) -> dict[str, str]:
-        """Prepare header."""
-        await self.async_refresh_tokens()
-        data = {
-            "Accept": "application/json",
-            "Accept-Charset": "utf-8",
-            "User-Agent": HDR_USER_AGENT,
-            "X-App-Version": HDR_XAPP_VERSION,
-            "X-App-Name": "myAudi",
-        }
-        if self._mbb_token:
-            data["Authorization"] = f"Bearer {self._mbb_token['access_token']}"
-        if self._x_client_id:
-            data["X-Client-ID"] = self._x_client_id
-
-        return data
-
     async def async_get_action_headers(
         self, content_type: str, security_token: str | None
     ) -> dict[str, str]:
         """Return header for vehicle action."""
-        await self.async_refresh_tokens()
-        token = self._mbb_token.get("access_token")
         headers = {
-            "Accept": "application/json, application/vnd.vwg.mbb.ChargerAction_v1_0_0+xml,application/vnd.volkswagenag.com-error-v1+xml,application/vnd.vwg.mbb.genericError_v1_0_2+xml, application/vnd.vwg.mbb.RemoteStandheizung_v2_0_0+xml, application/vnd.vwg.mbb.genericError_v1_0_2+xml,application/vnd.vwg.mbb.RemoteLockUnlock_v1_0_0+xml,*/*",
-            "Accept-charset": "utf-8",
-            "Authorization": f"Bearer {token}",
             "Content-Type": content_type,
-            "Host": "msg.volkswagen.de",
-            "User-Agent": "okhttp/3.7.0",
-            "X-App-Version": "3.14.0",
-            "X-App-Name": "myAudi",
+            "User-Agent": "okhttp/3.11.0",
         }
 
         if security_token:
-            headers["x-mbbSecToken"] = security_token
+            headers.update({"x-mbbSecToken": security_token})
+
+        headers = await self.async_get_headers(token_type="mbb", headers=headers)
 
         return headers
 
-    async def async_get_security_headers(self) -> dict[str, str]:
-        """Return header for security token."""
-        await self.async_refresh_tokens()
-        token = self._mbb_token.get("access_token")
-        return {
+    async def async_get_headers(
+        self,
+        token_type: Literal["idk", "mbb", "audi", "no"] = "idk",
+        headers: dict[str, Any] | None = None,
+        okhttp: bool = False,
+        security_token: str | None = None,
+    ) -> dict[str, str]:
+        """Get simple headers."""
+        defaults = {
             "Accept": "application/json",
             "Accept-Charset": "utf-8",
-            "Authorization": f"Bearer {token}",
-            "User-Agent": "okhttp/3.7.0",
-            "X-App-Version": "3.14.0",
-            "X-App-Name": "myAudi",
-        }
-
-    async def async_get_information_headers(self) -> dict[str, str]:
-        """Return header for vehicle information."""
-        await self.async_refresh_tokens()
-        token = self._audi_token.get("access_token")
-        return {
-            "Accept": "application/json",
-            "Accept-Charset": "utf-8",
-            "Accept-Language": f"{self._language}-{self._country.upper()}",
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json; charset=utf-8",
             "User-Agent": HDR_USER_AGENT,
             "X-App-Name": "myAudi",
             "X-App-Version": HDR_XAPP_VERSION,
-            "X-User-Country": self._country.upper(),
         }
+        if security_token:
+            defaults.update(
+                {"User-Agent": "okhttp/3.11.0", "x-mbbSecToken": security_token}
+            )
+            token_type = "mbb"
 
-    async def async_get_simple_headers(self) -> dict[str, str]:
-        """Get simple headers."""
         await self.async_refresh_tokens()
-        token = self._idk_token.get("access_token")
-        return {
-            "Accept": "application/json",
-            "Accept-Charset": "utf-8",
-            "Authorization": f"Bearer {token}",
-            "User-Agent": HDR_USER_AGENT,
-        }
+        match token_type:
+            case "idk":
+                token = self._idk_token.get("access_token")
+            case "mbb":
+                token = self._mbb_token.get("access_token")
+            case "audi":
+                token = self._audi_token.get("access_token")
+            case "no":
+                token = None
+
+        if token:
+            defaults.update({"Authorization": f"Bearer {token}"})
+        if self._x_client_id:
+            defaults.update({"X-Client-ID": self._x_client_id})
+        if okhttp:
+            defaults.update({"User-Agent": "okhttp/3.11.0"})
+        if headers:
+            defaults.update(headers)
+
+        return defaults
 
     @staticmethod
     def _get_hidden_html_input_form_data(
@@ -531,14 +506,9 @@ class Auth:
 
     async def _async_get_azs_token(self, access_token: str) -> Any:
         """Get AZS Token."""
-        headers = {
-            "Accept": "application/json",
-            "Accept-Charset": "utf-8",
-            "X-App-Version": HDR_XAPP_VERSION,
-            "X-App-Name": "myAudi",
-            "User-Agent": HDR_USER_AGENT,
-            "Content-Type": "application/json; charset=utf-8",
-        }
+        headers = await self.async_get_headers(
+            token_type="no", headers={"Content-Type": "application/json"}
+        )
         asz_req_data = {
             "token": access_token,
             "grant_type": "id_token",
@@ -557,28 +527,26 @@ class Auth:
 
         return azs_token_json
 
-    async def _async_get_idk_token(self, client_id: str, **kwargs: Any) -> Any:
+    async def _async_get_idk_token(self, **kwargs: Any) -> Any:
         """Get IDK Token."""
         refresh_token = kwargs.get("refresh_token")
         code = kwargs.get("code")
         code_verifier = kwargs.get("code_verifier")
-        headers = {
-            "Accept": "application/json",
-            "Accept-Charset": "utf-8",
-            "User-Agent": HDR_USER_AGENT,
-            "Content-Type": "application/x-www-form-urlencoded",
-        }
+        headers = await self.async_get_headers(
+            token_type="no",
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+        )
         # IDK token request data
         if refresh_token:
             idk_data = {
-                "client_id": client_id,
+                "client_id": self._client_id,
                 "grant_type": "refresh_token",
                 "refresh_token": refresh_token,
                 "response_type": "token id_token",
             }
         else:
             idk_data = {
-                "client_id": client_id,
+                "client_id": self._client_id,
                 "grant_type": "authorization_code",
                 "code": code,
                 "redirect_uri": "myaudi:///",
@@ -589,12 +557,12 @@ class Auth:
         # IDK token request
         encoded_idk_data = urlencode(idk_data, encoding="utf-8").replace("+", "%20")
 
-        idk_token_rsptxt = await self.request(
-            "POST",
+        idk_token_rsptxt = await self.post(
             self._token_endpoint_url,
             encoded_idk_data,
             headers=headers,
             allow_redirects=False,
+            use_json=False,
         )
         idk_token_json = jload(idk_token_rsptxt)
         _LOGGER.debug("IDK Token: %s", idk_token_json)
@@ -604,12 +572,9 @@ class Auth:
     async def _async_register_idk(self) -> Any:
         """Register IDK."""
         # mbboauth client register
-        headers = {
-            "Accept": "application/json",
-            "Accept-Charset": "utf-8",
-            "User-Agent": HDR_USER_AGENT,
-            "Content-Type": "application/json; charset=utf-8",
-        }
+        headers = await self.async_get_headers(
+            token_type="no", headers={"Content-Type": "application/json"}
+        )
         mbboauth_reg_data = {
             "client_name": "SM-A405FN",
             "platform": "google",
@@ -618,27 +583,23 @@ class Auth:
             "appVersion": HDR_XAPP_VERSION,
             "appId": "de.myaudi.mobile.assistant",
         }
-        mbboauth_client_reg_rsptxt = await self.request(
-            "POST",
+        mbboauth_client_reg_rsptxt = await self.post(
             self._mbb_baseurl + "/mobile/register/v1",
-            json.dumps(mbboauth_reg_data),
+            mbboauth_reg_data,
             headers=headers,
             allow_redirects=False,
         )
         mbboauth_client_reg_json = jload(mbboauth_client_reg_rsptxt)
         return mbboauth_client_reg_json.get("client_id")
 
-    async def _async_get_mbb_token(self, x_client_id: str, **kwargs: Any) -> Any:
+    async def _async_get_mbb_token(self, **kwargs: Any) -> Any:
         """Authentification to IDK."""
         refresh_token = kwargs.get("refresh_token")
         id_token = kwargs.get("id_token")
-        headers = {
-            "Accept": "application/json",
-            "Accept-Charset": "utf-8",
-            "User-Agent": HDR_USER_AGENT,
-            "Content-Type": "application/x-www-form-urlencoded",
-            "X-Client-ID": x_client_id,
-        }
+        headers = await self.async_get_headers(
+            token_type="no",
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+        )
         if refresh_token:
             mbboauth_data = {
                 "grant_type": "refresh_token",
@@ -655,12 +616,12 @@ class Auth:
         encoded_mbboauth_data = urlencode(mbboauth_data, encoding="utf-8").replace(
             "+", "%20"
         )
-        mbboauth_rsptxt = await self.request(
-            "POST",
+        mbboauth_rsptxt = await self.post(
             self._mbb_baseurl + "/mobile/oauth2/v1/token",
             encoded_mbboauth_data,
             headers=headers,
             allow_redirects=False,
+            use_json=False,
         )
         mbboauth_json = jload(mbboauth_rsptxt)
         _LOGGER.debug("MBB Token: %s", mbboauth_json)

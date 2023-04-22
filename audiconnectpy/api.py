@@ -201,34 +201,6 @@ class AudiConnect:
             )
             return False
 
-    async def async_set_climater_temperature(
-        self,
-        vin: str,
-        temperature: float,
-        source: Literal["electric", "auxiliary", "automatic"],
-    ) -> bool:
-        """Set temperature of climater."""
-        if not await self.async_login():
-            return False
-
-        try:
-            _LOGGER.debug(
-                "Sending command to climater (%s) [%s] to vehicle %s",
-                temperature,
-                source,
-                vin,
-            )
-            await self.services.async_climater_temp(vin, temperature, source)
-            _LOGGER.debug("Successfully settings climater of vehicle %s", vin)
-            return True
-        except ServiceNotFoundError as error:
-            _LOGGER.error(
-                "Unable to set climatisater of vehicle %s:  %s",
-                vin,
-                str(error).rstrip("\n"),
-            )
-            return False
-
     async def async_switch_charger(self, vin: str, activate: bool) -> bool:
         """Set charger."""
         if not await self.async_login():
@@ -250,24 +222,6 @@ class AudiConnect:
             _LOGGER.error(
                 "Unable to %s charger of vehicle %s: %s",
                 action,
-                vin,
-                str(error).rstrip("\n"),
-            )
-            return False
-
-    async def async_set_charger_max_current(self, vin: str, current: int = 32) -> bool:
-        """Set pre heater."""
-        if not await self.async_login():
-            return False
-
-        try:
-            _LOGGER.debug("Sending command max current to vehicle %s", vin)
-            await self.services.async_charger_max(vin, current)
-            _LOGGER.debug("Successfully set max current of vehicle %s", vin)
-            return True
-        except ServiceNotFoundError as error:
-            _LOGGER.error(
-                "Unable set max current of vehicle %s: %s",
                 vin,
                 str(error).rstrip("\n"),
             )
@@ -317,26 +271,6 @@ class AudiConnect:
             )
             return False
 
-    async def async_honk_flash(
-        self, vin: str, mode: Literal["honk", "flash"], duration: int
-    ) -> bool:
-        """Set honk/flash."""
-        if not await self.async_login():
-            return False
-
-        try:
-            _LOGGER.debug("Sending command Honk/Flash to vehicle %s", vin)
-            await self.services.async_honkflash(vin, mode, duration)
-            _LOGGER.debug("Successfully Honk/Flash of vehicle %s", vin)
-            return True
-        except ServiceNotFoundError as error:
-            _LOGGER.error(
-                "Unable Honk/Flash of vehicle %s: %s",
-                vin,
-                str(error).rstrip("\n"),
-            )
-            return False
-
     async def async_switch_ventilation(self, vin: str, activate: bool) -> bool:
         """Set charger."""
         if not await self.async_login():
@@ -358,6 +292,72 @@ class AudiConnect:
             _LOGGER.error(
                 "Unable to %s ventilation of vehicle %s: %s",
                 action,
+                vin,
+                str(error).rstrip("\n"),
+            )
+            return False
+
+    async def async_set_honk_flash(
+        self, vin: str, mode: Literal["honk", "flash"], duration: int
+    ) -> bool:
+        """Set honk/flash."""
+        if not await self.async_login():
+            return False
+
+        try:
+            _LOGGER.debug("Sending command Honk/Flash to vehicle %s", vin)
+            await self.services.async_set_honkflash(vin, mode, duration)
+            _LOGGER.debug("Successfully Honk/Flash of vehicle %s", vin)
+            return True
+        except ServiceNotFoundError as error:
+            _LOGGER.error(
+                "Unable Honk/Flash of vehicle %s: %s",
+                vin,
+                str(error).rstrip("\n"),
+            )
+            return False
+
+    async def async_set_charger_max_current(self, vin: str, current: int = 32) -> bool:
+        """Set pre heater."""
+        if not await self.async_login():
+            return False
+
+        try:
+            _LOGGER.debug("Sending command max current to vehicle %s", vin)
+            await self.services.async_charger_max(vin, current)
+            _LOGGER.debug("Successfully set max current of vehicle %s", vin)
+            return True
+        except ServiceNotFoundError as error:
+            _LOGGER.error(
+                "Unable set max current of vehicle %s: %s",
+                vin,
+                str(error).rstrip("\n"),
+            )
+            return False
+
+    async def async_set_climater_temperature(
+        self,
+        vin: str,
+        temperature: float,
+        source: Literal["electric", "auxiliary", "automatic"],
+    ) -> bool:
+        """Set temperature of climater."""
+        if not await self.async_login():
+            return False
+
+        try:
+            _LOGGER.debug(
+                "Sending command to climater (%s) [%s] to vehicle %s",
+                temperature,
+                source,
+                vin,
+            )
+            await self.services.async_climater_temp(vin, temperature, source)
+            _LOGGER.debug("Successfully settings climater of vehicle %s", vin)
+            return True
+        except ServiceNotFoundError as error:
+            _LOGGER.error(
+                "Unable to set climatisater of vehicle %s:  %s",
                 vin,
                 str(error).rstrip("\n"),
             )
