@@ -468,10 +468,12 @@ class Identities(Enum):
         icon="mdi:update",
         device_class="timestamp",
     )
-    SHORTTERM_RESET = FieldType(attr="shortterm_reset", sensor_type="sensor")
-    SHORTTERM_CURRENT = FieldType(attr="shortterm_current", sensor_type="sensor")
-    LONGTERM_RESET = FieldType(attr="longterm_reset", sensor_type="sensor")
-    LONGTERM_CURRENT = FieldType(attr="longterm_current", sensor_type="sensor")
+    TRIP_SHORT_RESET = FieldType(attr="trip_short_reset", sensor_type="sensor")
+    TRIP_SHORT_CURRENT = FieldType(attr="trip_short_current", sensor_type="sensor")
+    TRIP_LONG_RESET = FieldType(attr="trip_long_reset", sensor_type="sensor")
+    TRIP_LONG_CURRENT = FieldType(attr="trip_long_current", sensor_type="sensor")
+    TRIP_CYCLIC_RESET = FieldType(attr="trip_cyclic_reset", sensor_type="sensor")
+    TRIP_CYCLIC_CURRENT = FieldType(attr="trip_cyclic_current", sensor_type="sensor")
     # pylint: enable=unnecessary-lambda
 
 
@@ -602,6 +604,7 @@ def retry(
                 except exceptions as error:  # pylint: disable=broad-except
                     _tries -= 1
                     if not _tries:
+                        logger.error("%s, timeout exceeded", error)
                         raise TimeoutExceededError(error) from error
 
                     if logger is not None:

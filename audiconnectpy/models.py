@@ -1,14 +1,12 @@
 """Definition class."""
 from __future__ import annotations
 
-import asyncio
 import logging
-from asyncio import TimeoutError  # pylint: disable=redefined-builtin
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Literal
 
 from .exceptions import HttpRequestError, ServiceNotFoundError, TimeoutExceededError
-from .util import get_attr, set_attr
+from .util import get_attr, retry, set_attr
 
 if TYPE_CHECKING:
     from .services import AudiService
@@ -589,47 +587,33 @@ class Vehicle:
         else:
             self.title = get_attr(data, "vehicle.media.shortName", self.vin)
 
+        self.states: dict[Any, dict[str, Any]] = {}
         self.support_charger: bool | None = None
         self.support_climater: bool | None = None
-        self.support_cyclic: bool | None = None
-        self.support_long_term: bool | None = None
         self.support_position: bool | None = None
         self.support_preheater: bool | None = None
-        self.support_short_term: bool | None = None
+        self.support_trip_cyclic: bool | None = None
+        self.support_trip_long: bool | None = None
+        self.support_trip_short: bool | None = None
         self.support_vehicle: bool | None = None
-        self.states: dict[Any, dict[str, Any]] = {}
 
-    async def call_update(self, func: Callable[..., Any], ntries: int) -> None:
-        """Call update."""
-        try:
-            await func()
-        except TimeoutError as error:
-            if ntries > 1:
-                await asyncio.sleep(2)
-                await self.call_update(func, ntries - 1)
-            else:
-                raise TimeoutExceededError from error
-
-    async def async_fetch_data(self, ntries: int) -> bool:
+    async def async_fetch_data(self) -> bool:
         """Update."""
         info = ""
         try:
             info = "status"
-            await self.call_update(self.async_update_vehicle, ntries)
-            info = "shortterm"
-            await self.call_update(self.async_update_trip_shortterm, ntries)
-            info = "longterm"
-            await self.call_update(self.async_update_trip_longterm, ntries)
-            info = "cyclic"
-            await self.call_update(self.async_update_trip_cyclic, ntries)
+            await self.async_update_vehicle()
             info = "position"
-            await self.call_update(self.async_update_position, ntries)
+            await self.async_update_position()
             info = "climater"
-            await self.call_update(self.async_update_climater, ntries)
+            await self.async_update_climater()
             info = "charger"
-            await self.call_update(self.async_update_charger, ntries)
+            await self.async_update_charger()
             info = "preheater"
-            await self.call_update(self.async_update_preheater, ntries)
+            await self.async_update_preheater()
+            for kind in ["short", "long", "cyclic"]:
+                info = kind
+                await self.async_update_tripdata(kind)
         except Exception as error:  # pylint: disable=broad-except
             _LOGGER.error(
                 "Unable to update vehicle data %s of %s: %s",
@@ -640,6 +624,7 @@ class Vehicle:
             return False
         return True
 
+    @retry(exceptions=TimeoutExceededError, tries=3, delay=2)
     async def async_update_vehicle(self) -> None:
         """Update vehicle status."""
         if self.support_vehicle is not False:
@@ -668,6 +653,7 @@ class Vehicle:
             else:
                 self.support_vehicle = result.vehicledata_supported
 
+    @retry(exceptions=TimeoutExceededError, tries=3, delay=2)
     async def async_update_position(self) -> None:
         """Update vehicle position."""
         if self.support_position is not False:
@@ -694,6 +680,7 @@ class Vehicle:
             else:
                 self.support_position = result.position_supported
 
+    @retry(exceptions=TimeoutExceededError, tries=3, delay=2)
     async def async_update_climater(self) -> None:
         """Update vehicle climater."""
         if self.support_climater is not False:
@@ -719,6 +706,7 @@ class Vehicle:
             else:
                 self.support_climater = result.climater_supported
 
+    @retry(exceptions=TimeoutExceededError, tries=3, delay=2)
     async def async_update_preheater(self) -> None:
         """Update vehicle preheater."""
         if self.support_preheater is not False:
@@ -744,6 +732,7 @@ class Vehicle:
             else:
                 self.support_preheater = result.preheater_supported
 
+    @retry(exceptions=TimeoutExceededError, tries=3, delay=2)
     async def async_update_charger(self) -> None:
         """Update vehicle charger."""
         if self.support_charger is not False:
@@ -769,38 +758,28 @@ class Vehicle:
             else:
                 self.support_charger = result.charger_supported
 
-    async def async_update_trip_longterm(self) -> None:
-        """Update vehicle longterm trip."""
-        await self.async_update_tripdata("longTerm")
-
-    async def async_update_trip_shortterm(self) -> None:
-        """Update vehicle shorterm trip."""
-        await self.async_update_tripdata("shortTerm")
-
-    async def async_update_trip_cyclic(self) -> None:
-        """Update vehicle cyclic trip."""
-        await self.async_update_tripdata("cyclic")
-
-    async def async_update_tripdata(self, kind: str) -> None:
+    @retry(exceptions=TimeoutExceededError, tries=3, delay=2)
+    async def async_update_tripdata(
+        self, kind: Literal["short", "long", "cyclic"]
+    ) -> None:
         """Update vehicle trip."""
-        syntax = kind.replace("Term", "_term")
-        if getattr(self, f"support_{syntax}") is not False:
+        if getattr(self, f"support_trip_{kind}") is not False:
             try:
                 td_cur, td_rst = await self._audi_service.async_get_tripdata(
                     self.vin, kind
                 )
                 if td_cur.trip_supported:
                     self.states.update(
-                        set_attr(f"{kind.lower()}_current", td_cur.attributes)
+                        set_attr(f"trip_{kind}_current", td_cur.attributes)
                     )
 
                 if td_rst.trip_supported:
                     self.states.update(
-                        set_attr(f"{kind.lower()}_reset", td_rst.attributes)
+                        set_attr(f"trip_{kind}_reset", td_rst.attributes)
                     )
             except ServiceNotFoundError as error:
                 if error.args[0] in (400, 401, 403, 502):
-                    setattr(self, f"support_{kind}", False)
+                    setattr(self, f"support_trip_{kind}", False)
                 else:
                     _LOGGER.error(
                         "Unable to obtain the vehicle %s tripdata of %s: %s",
@@ -816,4 +795,4 @@ class Vehicle:
                     str(error).rstrip("\n"),
                 )
             else:
-                setattr(self, f"support_{syntax}", True)
+                setattr(self, f"support_trip_{kind}", True)

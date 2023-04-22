@@ -131,9 +131,12 @@ class AudiService:
         return ChargerDataResponse(data)
 
     async def async_get_tripdata(
-        self, vin: str, kind: str
+        self, vin: str, kind: Literal["short", "long", "cyclic"]
     ) -> tuple[TripDataResponse, TripDataResponse]:
         """Get trip data."""
+        if kind not in ["short", "long", "cyclic"]:
+            raise AudiException(f"Syntax error, {kind} must be 'short'|'long|'cyclic'")
+        kind.replace("short", "shortTerm").replace("long", "longTerm")
         url = await self._async_get_home_region(vin.upper())
         params = {
             "type": "list",
