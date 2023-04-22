@@ -458,7 +458,6 @@ class Identities(Enum):
     DOORS_TRUNK_STATUS = FieldType(
         attr="doors_trunk_status", sensor_type="sensor", icon="mdi:car-door"
     )
-    LOCK_SUPPORTED = FieldType(attr="lock_supported", sensor_type="binary_sensor")
     ANY_TYRE_PRESSURE = FieldType(
         attr="any_tyre_pressure", sensor_type="binary_sensor", device_class="problem"
     )
