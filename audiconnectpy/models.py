@@ -379,6 +379,9 @@ class ChargerDataResponse:
             )
         )
         _attributes.update(
+            set_attr("PLUG_LOCK", get_attr(_status, "plugStatusData.lockState.content"))
+        )
+        _attributes.update(
             set_attr(
                 "REMAINING_CHARGING_TIME",
                 get_attr(_status, "batteryStatusData.remainingChargingTime.content"),
@@ -403,12 +406,14 @@ class ClimaterDataResponse:
     def attributes(self) -> dict[Any, dict[str, Any]]:
         """Attributes properties."""
         _attributes = {}
+        _settings = get_attr(self.data, "climater.settings")
+        _status = get_attr(self.data, "climater.status")
         _attributes.update(
             set_attr(
                 "CLIMATISATION_STATE",
                 get_attr(
-                    self.data,
-                    "climater.status.climatisationStatusData.climatisationState.content",
+                    _status,
+                    "climatisationStatusData.climatisationState.content",
                 ),
             )
         )
@@ -416,9 +421,21 @@ class ClimaterDataResponse:
             set_attr(
                 "OUTDOOR_TEMPERATURE",
                 get_attr(
-                    self.data,
-                    "climater.status.temperatureStatusData.outdoorTemperature.content",
+                    _status,
+                    "temperatureStatusData.outdoorTemperature.content",
                 ),
+            )
+        )
+        _attributes.update(
+            set_attr(
+                "CLIMATISATION_HEATER_SRC",
+                get_attr(_settings, "heaterSource.content"),
+            )
+        )
+        _attributes.update(
+            set_attr(
+                "CLIMATISATION_TARGET_TEMP",
+                get_attr(_settings, "targetTemperature.content"),
             )
         )
 
