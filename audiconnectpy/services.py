@@ -538,7 +538,7 @@ class AudiService:
             "action.actionState",
         )
 
-    async def async_charger_max(self, vin: str, current: int = 32) -> None:
+    async def async_set_charger_max(self, vin: str, current: int = 32) -> None:
         """Set max current."""
         url = await self._async_get_home_region(vin.upper())
         data = '<?xml version="1.0" encoding= "UTF-8" ?>'
@@ -561,7 +561,7 @@ class AudiService:
             "action.actionState",
         )
 
-    async def set_heater_source(
+    def set_heater_source(
         self, mode: Literal["electric", "auxiliary", "automatic"]
     ) -> None:
         """Set max current."""
@@ -592,9 +592,9 @@ class AudiService:
             "action.actionState",
         )
 
-    async def set_control_duration(self, current: int) -> None:
+    def set_control_duration(self, duration: int) -> None:
         """Set max current."""
-        self._control_duration = current
+        self._control_duration = duration
 
     async def async_set_honkflash(
         self, vin: str, mode: Literal["honk", "flash"], duration: int = 15

@@ -324,7 +324,7 @@ class AudiConnect:
 
         try:
             _LOGGER.debug("Sending command max current to vehicle %s", vin)
-            await self.services.async_charger_max(vin, current)
+            await self.services.async_set_charger_max(vin, current)
             _LOGGER.debug("Successfully set max current of vehicle %s", vin)
             return True
         except ServiceNotFoundError as error:
@@ -362,3 +362,14 @@ class AudiConnect:
                 str(error).rstrip("\n"),
             )
             return False
+
+    async def async_set_heater_source(
+        self,
+        source: Literal["electric", "auxiliary", "automatic"],
+    ) -> None:
+        """Set heater source."""
+        self.services.set_heater_source(source)
+
+    def set_control_duration(self, duration: int) -> None:
+        """Set ventilation/preheating duration."""
+        self.set_control_duration(duration)
