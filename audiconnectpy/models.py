@@ -15,37 +15,6 @@ if TYPE_CHECKING:
 _LOGGER = logging.getLogger(__name__)
 
 
-@dataclass
-class PreheaterDataResponse:
-    """Preheater class."""
-
-    data: dict[str, Any]
-
-    @property
-    def preheater_supported(self) -> bool:
-        """Supported status."""
-        return self.attributes is not None
-
-    @property
-    def attributes(self) -> dict[Any, dict[str, Any]]:
-        """Attributes properties."""
-        _attributes = {}
-        report = get_attr(self.data, "statusResponse.climatisationStateReport")
-        if report:
-            _attributes.update(set_attr("PREHEATER_STATE", report))
-            _attributes.update(
-                set_attr("PREHEATER_ACTIVE", report.get("climatisationState"))
-            )
-            _attributes.update(
-                set_attr("PREHEATER_DURATION", report.get("climatisationDuration"))
-            )
-            _attributes.update(
-                set_attr("PREHEATER_REMAINING", report.get("remainingClimateTime"))
-            )
-
-        return _attributes
-
-
 class VehicleDataResponse:
     """Status class."""
 
@@ -280,6 +249,37 @@ class VehicleDataResponse:
             _metadatas.update(set_attr("ANY_TYRE_PRESSURE", any_tyre_pressure))
 
         return _metadatas
+
+
+@dataclass
+class PreheaterDataResponse:
+    """Preheater class."""
+
+    data: dict[str, Any]
+
+    @property
+    def preheater_supported(self) -> bool:
+        """Supported status."""
+        return self.attributes is not None
+
+    @property
+    def attributes(self) -> dict[Any, dict[str, Any]]:
+        """Attributes properties."""
+        _attributes = {}
+        report = get_attr(self.data, "statusResponse.climatisationStateReport")
+        if report:
+            _attributes.update(set_attr("PREHEATER_STATE", report))
+            _attributes.update(
+                set_attr("PREHEATER_ACTIVE", report.get("climatisationState"))
+            )
+            _attributes.update(
+                set_attr("PREHEATER_DURATION", report.get("climatisationDuration"))
+            )
+            _attributes.update(
+                set_attr("PREHEATER_REMAINING", report.get("remainingClimateTime"))
+            )
+
+        return _attributes
 
 
 @dataclass
