@@ -188,9 +188,8 @@ class VehicleDataResponse:
 
         return _attributes
 
-    def _metadatas(
-        self, attributes: dict[str, dict[str, Any]]
-    ) -> dict[Any, dict[str, Any]]:
+    @staticmethod
+    def _metadatas(attributes: dict[str, dict[str, Any]]) -> dict[Any, dict[str, Any]]:
         _metadatas = {}
         _attributes = attributes
         trunk_open = get_attr(_attributes, "trunk_open") is not None
@@ -257,14 +256,6 @@ class VehicleDataResponse:
                 _metadatas.update(set_attr("DOORS_TRUNK_STATUS", "Closed"))
             else:
                 _metadatas.update(set_attr("DOORS_TRUNK_STATUS", "Locked"))
-
-        # Lock supported
-        _metadatas.update(
-            set_attr(
-                "LOCK_SUPPORTED",
-                _metadatas.get("doors_trunk_status") is not None and self.has_pin,
-            )
-        )
 
         # Tyre pressure status
         left_check = get_attr(_attributes, "tyre_pressure_left_front.value")
