@@ -286,13 +286,13 @@ class Identities(Enum):
         attr="preheater_state",
         evaluation=lambda x: x is not None,
         sensor_type="switch",
-        turn_mode="async_switch_pre_heating",
+        turn_mode="async_pre_heating",
     )
     PREHEATER_ACTIVE = FieldType(
         attr="preheater_active",
         evaluation=lambda x: x != "off",
         sensor_type="switch",
-        turn_mode="async_switch_pre_heating",
+        turn_mode="async_pre_heating",
     )
     PREHEATER_DURATION = FieldType(
         attr="preheater_duration",
@@ -343,7 +343,7 @@ class Identities(Enum):
     CHARGING_MODE = FieldType(
         attr="charging_mode",
         sensor_type="switch",
-        turn_mode="async_switch_charger",
+        turn_mode="async_charger",
     )
     ENERGY_FLOW = FieldType(
         attr="energy_flow",
@@ -406,7 +406,7 @@ class Identities(Enum):
         attr="climatisation_state",
         icon="mdi:air-conditioner",
         sensor_type="switch",
-        turn_mode="async_switch_climater",
+        turn_mode="async_climater",
     )
     CLIMATISATION_TARGET_TEMP = FieldType(
         attr="climatisation_target_temperature",
@@ -450,7 +450,7 @@ class Identities(Enum):
         attr="any_door_unlocked",
         sensor_type="lock",
         device_class="lock",
-        turn_mode="async_switch_lock",
+        turn_mode="async_lock",
     )
     ANY_DOOR_OPEN = FieldType(
         attr="any_door_open", sensor_type="binary_sensor", device_class="door"
