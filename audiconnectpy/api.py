@@ -13,15 +13,6 @@ from .util import Globals
 
 _LOGGER = logging.getLogger(__name__)
 
-MAX_RESPONSE_ATTEMPTS = 10
-REQUEST_STATUS_SLEEP = 5
-
-ACTION_LOCK = "lock"
-ACTION_CLIMATISATION = "climatisation"
-ACTION_CHARGER = "charger"
-ACTION_WINDOW_HEATING = "window_heating"
-ACTION_PRE_HEATER = "pre_heater"
-
 
 class AudiConnect:
     """Representation of an Audi Connect Account."""
@@ -148,9 +139,6 @@ class AudiConnect:
 
     async def async_refresh_vehicles(self) -> bool:
         """Refresh all vehicles data."""
-        if not await self.async_login():
-            return False
-
         for vin in self.vehicles:
             await self.async_refresh_vehicle_data(vin)
 
