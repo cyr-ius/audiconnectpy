@@ -25,7 +25,7 @@ from .exceptions import (
     ServiceNotFoundError,
     TimeoutExceededError,
 )
-from .util import get_attr, jload, json_loads, retry
+from .util import get_attr, jload, json_loads
 
 TIMEOUT = 120
 DELAY = 10
@@ -154,29 +154,26 @@ class Auth:
         )
         return response
 
-    @retry(exceptions=HttpRequestError, tries=3)
-    async def async_connect(self, username: str, password: str, country: str) -> bool:
+    async def async_connect(
+        self, username: str, password: str, country: str, tries: int = 3
+    ) -> bool:
         """Connect to API."""
         try:
             self._country = country
             await self._async_login(username, password)
-        except TimeoutExceededError as error:
-            _LOGGER.error("Login to Audi service failed: %s ", error)
+        except HttpRequestError as error:  # pylint: disable=broad-except
+            if tries > 1:
+                _LOGGER.warning(
+                    "Login to Audi service failed, trying again in %s seconds [ERROR:%s]",
+                    DELAY,
+                    str(error),
+                )
+                await asyncio.sleep(DELAY)
+                return await self.async_connect(username, password, country, tries - 1)
+            _LOGGER.error("Login to Audi service failed: %s ", str(error))
             return False
-        return True
-        # except HttpRequestError as error:  # pylint: disable=broad-except
-        #     if ntries > 1:
-        #         _LOGGER.error(
-        #             "Login to Audi service failed, trying again in %s seconds [ERROR:%s]",
-        #             DELAY,
-        #             str(error),
-        #         )
-        #         await asyncio.sleep(DELAY)
-        #         return await self.async_connect(username, password, country, ntries - 1)
-        #     _LOGGER.error("Login to Audi service failed: %s ", str(error))
-        #     return False
-        # else:
-        #     return True
+        else:
+            return True
 
     async def _async_login(self, user: str, password: str) -> None:
         """Request login."""
