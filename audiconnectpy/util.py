@@ -21,7 +21,6 @@ _LOGGER = logging.getLogger(__name__)
 class FieldType:
     """Field type."""
 
-    name: str | None = None
     attr: str | None = None
     sensor_type: str | None = None
     unit_of_measurement: str | None = None
@@ -29,6 +28,14 @@ class FieldType:
     device_class: str | None = None
     icon: str | None = None
     turn_mode: str | None = None
+    options: list[Any] | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        """Return special attributes dictionnary."""
+        dict_fields = self.__dict__.copy()
+        key = dict_fields.pop("attr")
+        dict_fields.pop("evaluation")
+        return {key: dict_fields}
 
 
 class Identities(Enum):
@@ -411,15 +418,19 @@ class Identities(Enum):
     CLIMATISATION_TARGET_TEMP = FieldType(
         attr="climatisation_target_temperature",
         icon="mdi:temperature-celsius",
-        sensor_type="sensor",
+        sensor_type="text",
         unit_of_measurement="°C",
-        evaluation=lambda x: round(float(x) / 10 - 273, 1),
+        evaluation=lambda x: round((int(x) - 2731) / 10, 1),
         device_class="temperature",
+        turn_mode="async_climater_temp",
+        options=[7, 40],
     )
     CLIMATISATION_HEATER_SRC = FieldType(
         attr="climatisation_heater_source",
         icon="mdi:air-conditioner",
-        sensor_type="sensor",
+        sensor_type="select",
+        options=["electric", "auxiliary", "automatic"],
+        turn_mode="set_heater_source",
     )
     OUTDOOR_TEMPERATURE = FieldType(
         attr="outdoor_temperature",
@@ -519,29 +530,18 @@ def set_attr(
     attribute = {}
     if ids_type:
         field_type = ids_type.value
+        field_type.value = value
+        if unit:
+            field_type.unit_of_measurement = unit
         if field_type.evaluation and value:
             try:
-                value = field_type.evaluation(value)
+                field_type.value = field_type.evaluation(value)
                 if UNIT_SYSTEM == "imperial" and field_type.unit == "km":  # type: ignore
-                    unit = "mi"
-                    value = round(value * 0.621371, 2)
+                    field_type.unit_of_measurement = "mi"
+                    field_type.value = round(value * 0.621371, 2)
             except Exception as error:  # pylint: disable=broad-except
                 _LOGGER.error(error)
-
-        attribute.update(
-            {
-                field_type.attr: {
-                    "value": value,
-                    "unit_of_measurement": field_type.unit_of_measurement
-                    if unit is None
-                    else unit,
-                    "device_class": field_type.device_class,
-                    "icon": field_type.icon,
-                    "sensor_type": field_type.sensor_type,
-                    "turn_mode": field_type.turn_mode,
-                }
-            }
-        )
+        attribute.update(field_type.to_dict())
     return attribute
 
 
