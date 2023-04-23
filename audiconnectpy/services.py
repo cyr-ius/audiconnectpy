@@ -387,7 +387,7 @@ class AudiService:
             "action.actionState",
         )
 
-    async def async_climater_temp(self, vin: str, temperature: float) -> None:
+    async def async_climater_temp(self, vin: str, temperature: float = 19.5) -> None:
         """Set Climatisation temperature."""
         temperature = int(round(temperature, 1) * 10 + 2731)
         url = await self._async_get_home_region(vin.upper())
@@ -538,11 +538,11 @@ class AudiService:
             "action.actionState",
         )
 
-    async def async_set_charger_max(self, vin: str, current: int = 32) -> None:
+    async def async_set_charger_max(self, vin: str, current: float = 32) -> None:
         """Set max current."""
         url = await self._async_get_home_region(vin.upper())
         data = '<?xml version="1.0" encoding= "UTF-8" ?>'
-        data += f"<action><type>setSettings</type><settings><maxChargeCurrent>{current}</maxChargeCurrent></settings></action>"
+        data += f"<action><type>setSettings</type><settings><maxChargeCurrent>{int(current)}</maxChargeCurrent></settings></action>"
         headers = await self._auth.async_get_action_headers(
             "application/vnd.vwg.mbb.ChargerAction_v1_0_0+xml", None
         )

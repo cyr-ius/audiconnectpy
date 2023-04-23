@@ -319,9 +319,10 @@ class Identities(Enum):
     # Charger
     MAX_CHARGE_CURRENT = FieldType(
         attr="max_charge_current",
-        sensor_type="sensor",
+        sensor_type="number",
         icon="mdi:current-ac",
         unit_of_measurement="A",
+        turn_mode="async_set_charger_max",
     )
     CHARGING_STATE = FieldType(
         attr="charging_state",
