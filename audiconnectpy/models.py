@@ -114,7 +114,7 @@ class VehicleDataResponse:
         self._vehicle_data = self._get_attributes()
 
     @property
-    def vehicledata_supported(self) -> bool:
+    def is_supported(self) -> bool:
         """Supported status."""
         return self.attributes is not None
 
@@ -146,6 +146,7 @@ class VehicleDataResponse:
                     self.send_time_utc = raw_field.get("tsCarSentUtc")
                     self.measure_mileage = raw_field.get("milCarCaptured")
                     self.send_mileage = raw_field.get("milCarSent")
+                    _attributes.update(set_attr("LAST_UPDATE_TIME", self.send_time_utc))
 
                 if identity := self.IDS.get(ids):
                     _attributes.update(set_attr(identity, value, unit))
@@ -258,7 +259,7 @@ class PreheaterDataResponse:
     data: dict[str, Any]
 
     @property
-    def preheater_supported(self) -> bool:
+    def is_supported(self) -> bool:
         """Supported status."""
         return self.attributes is not None
 
@@ -289,7 +290,7 @@ class ChargerDataResponse:
     data: dict[str, Any]
 
     @property
-    def charger_supported(self) -> bool:
+    def is_supported(self) -> bool:
         """Supported status."""
         return (
             get_attr(self.data, "charger.settings") is not None
@@ -398,7 +399,7 @@ class ClimaterDataResponse:
     data: dict[str, Any]
 
     @property
-    def climater_supported(self) -> bool:
+    def is_supported(self) -> bool:
         """Supported status."""
         return self.attributes is not None
 
@@ -468,7 +469,7 @@ class HistoryDataResponse:
     data: dict[str, Any]
 
     @property
-    def history_supported(self) -> bool:
+    def is_supported(self) -> bool:
         """Supported status."""
         return self.attributes is not None
 
@@ -487,7 +488,7 @@ class UsersDataResponse:
     data: dict[str, Any]
 
     @property
-    def users_supported(self) -> bool:
+    def is_supported(self) -> bool:
         """Supported status."""
         return self.attributes is not None
 
@@ -506,7 +507,7 @@ class PositionDataResponse:
     data: dict[str, Any]
 
     @property
-    def position_supported(self) -> bool:
+    def is_supported(self) -> bool:
         """Supported status."""
         return get_attr(self.data, "findCarResponse.Position") is not None
 
@@ -532,6 +533,11 @@ class TripDataResponse:
     """Trip class."""
 
     data: dict[str, Any]
+
+    @property
+    def is_supported(self) -> bool:
+        """Supported status."""
+        return self.data is not None
 
     @property
     def attributes(self) -> dict[str, Any]:
@@ -573,11 +579,6 @@ class TripDataResponse:
             "timestamp": timestamp,
             "overallMileage": overall_mileage,
         }
-
-    @property
-    def trip_supported(self) -> bool:
-        """Supported status."""
-        return self.data is not None
 
 
 class Vehicle:
@@ -638,10 +639,7 @@ class Vehicle:
         if self.support_vehicle is not False:
             try:
                 result = await self._audi_service.async_get_vehicle(self.vin)
-                if result.vehicledata_supported:
-                    self.states.update(
-                        set_attr("LAST_UPDATE_TIME", result.send_time_utc)
-                    )
+                if result.is_supported:
                     self.states.update(result.attributes)
             except ServiceNotFoundError as error:
                 if error.args[0] in (401, 403, 502):
@@ -659,7 +657,7 @@ class Vehicle:
                     str(error).rstrip("\n"),
                 )
             else:
-                self.support_vehicle = result.vehicledata_supported
+                self.support_vehicle = result.is_supported
 
     @retry(exceptions=TimeoutExceededError, tries=3, delay=2)
     async def async_update_position(self) -> None:
@@ -667,7 +665,7 @@ class Vehicle:
         if self.support_position is not False:
             try:
                 result = await self._audi_service.async_get_stored_position(self.vin)
-                if result.position_supported:
+                if result.is_supported:
                     self.states.update(result.attributes)
             except ServiceNotFoundError as error:
                 if error.args[0] in (401, 403, 502):
@@ -686,7 +684,7 @@ class Vehicle:
                     str(error).rstrip("\n"),
                 )
             else:
-                self.support_position = result.position_supported
+                self.support_position = result.is_supported
 
     @retry(exceptions=TimeoutExceededError, tries=3, delay=2)
     async def async_update_climater(self) -> None:
@@ -694,7 +692,7 @@ class Vehicle:
         if self.support_climater is not False:
             try:
                 result = await self._audi_service.async_get_climater(self.vin)
-                if result.climater_supported:
+                if result.is_supported:
                     self.states.update(result.attributes)
             except ServiceNotFoundError as error:
                 if error.args[0] in (401, 403, 502):
@@ -712,7 +710,7 @@ class Vehicle:
                     str(error).rstrip("\n"),
                 )
             else:
-                self.support_climater = result.climater_supported
+                self.support_climater = result.is_supported
 
     @retry(exceptions=TimeoutExceededError, tries=3, delay=2)
     async def async_update_preheater(self) -> None:
@@ -720,7 +718,7 @@ class Vehicle:
         if self.support_preheater is not False:
             try:
                 result = await self._audi_service.async_get_preheater(self.vin)
-                if result.preheater_supported:
+                if result.is_supported:
                     self.states.update(result.attributes)
             except ServiceNotFoundError as error:
                 if error.args[0] in (401, 403, 502):
@@ -738,7 +736,7 @@ class Vehicle:
                     str(error).rstrip("\n"),
                 )
             else:
-                self.support_preheater = result.preheater_supported
+                self.support_preheater = result.is_supported
 
     @retry(exceptions=TimeoutExceededError, tries=3, delay=2)
     async def async_update_charger(self) -> None:
@@ -746,7 +744,7 @@ class Vehicle:
         if self.support_charger is not False:
             try:
                 result = await self._audi_service.async_get_charger(self.vin)
-                if result.charger_supported:
+                if result.is_supported:
                     self.states.update(result.attributes)
             except ServiceNotFoundError as error:
                 if error.args[0] in (401, 403, 502):
@@ -764,7 +762,7 @@ class Vehicle:
                     str(error).rstrip("\n"),
                 )
             else:
-                self.support_charger = result.charger_supported
+                self.support_charger = result.is_supported
 
     @retry(exceptions=TimeoutExceededError, tries=3, delay=2)
     async def async_update_tripdata(
@@ -776,12 +774,12 @@ class Vehicle:
                 td_cur, td_rst = await self._audi_service.async_get_tripdata(
                     self.vin, kind
                 )
-                if td_cur.trip_supported:
+                if td_cur.is_supported:
                     self.states.update(
                         set_attr(f"trip_{kind}_current", td_cur.attributes)
                     )
 
-                if td_rst.trip_supported:
+                if td_rst.is_supported:
                     self.states.update(
                         set_attr(f"trip_{kind}_reset", td_rst.attributes)
                     )
