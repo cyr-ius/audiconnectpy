@@ -547,7 +547,7 @@ class AudiService:
             "application/vnd.vwg.mbb.ChargerAction_v1_0_0+xml", None
         )
         res = await self._auth.post(
-            f"{url}/bs/batterycharge/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/charger/action",
+            f"{url}/bs/batterycharge/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/charger/actions",
             headers=headers,
             data=data,
             use_json=False,
