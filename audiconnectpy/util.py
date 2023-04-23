@@ -323,6 +323,7 @@ class Identities(Enum):
         icon="mdi:current-ac",
         unit_of_measurement="A",
         turn_mode="async_set_charger_max",
+        options=[0, 32],
     )
     CHARGING_STATE = FieldType(
         attr="charging_state",
