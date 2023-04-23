@@ -36,7 +36,6 @@ setup(
         "Programming Language :: Python :: 3.10",
         "Framework :: AsyncIO",
         "Intended Audience :: Developers",
-        "Intended Audience :: System Administrators",
-        "Topic :: Home Automation",
+        "Topic :: Software Development :: Libraries :: Python Modules",
     ],
 )
