@@ -418,7 +418,7 @@ class Identities(Enum):
     CLIMATISATION_TARGET_TEMP = FieldType(
         attr="climatisation_target_temperature",
         icon="mdi:temperature-celsius",
-        sensor_type="text",
+        sensor_type="number",
         unit_of_measurement="°C",
         evaluation=lambda x: round((int(x) - 2731) / 10, 1),
         device_class="temperature",
