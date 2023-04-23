@@ -450,7 +450,7 @@ class DestinationDataResponse:
     data: dict[str, Any]
 
     @property
-    def destination_supported(self) -> bool:
+    def is_supported(self) -> bool:
         """Supported status."""
         return self.attributes is not None
 
