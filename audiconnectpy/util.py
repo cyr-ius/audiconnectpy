@@ -607,7 +607,7 @@ def retry(
                         raise TimeoutExceededError(error) from error
 
                     if logger is not None:
-                        logger.warning("%s, retrying in %s seconds...", error, _delay)
+                        logger.warning("%s, trying again in %s seconds", error, _delay)
 
                     time.sleep(_delay)
                     _delay *= backoff
