@@ -573,7 +573,7 @@ class AudiService:
             "action.actionState",
         )
 
-    def set_heater_source(
+    async def set_heater_source(
         self, mode: Literal["electric", "auxiliary", "automatic"]
     ) -> None:
         """Set max current."""
@@ -604,7 +604,7 @@ class AudiService:
             "action.actionState",
         )
 
-    def set_control_duration(self, duration: int) -> None:
+    async def set_control_duration(self, duration: int) -> None:
         """Set max current."""
         self._control_duration = duration
 
