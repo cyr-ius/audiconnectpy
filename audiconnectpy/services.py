@@ -388,19 +388,16 @@ class AudiService:
             "action.actionState",
         )
 
-    async def async_climater_temp(
-        self,
-        vin: str,
-        temperature: float,
-        source: Literal["electric", "auxiliary", "automatic"],
-    ) -> None:
+    async def async_climater_temp(self, vin: str, temperature: float) -> None:
         """Set Climatisation temperature."""
         temperature = int(round(temperature, 1) * 10 + 2731)
         url = await self._async_get_home_region(vin.upper())
         data = '<?xml version="1.0" encoding= "UTF-8" ?>'
         data += f"<action><type>setSettings</type><settings><targetTemperature>{temperature}</targetTemperature>"
         data += "<climatisationWithoutHVpower>false</climatisationWithoutHVpower>"
-        data += f"<heaterSource>{source}</heaterSource></settings></action>"
+        data += (
+            f"<heaterSource>{self._heater_source}</heaterSource></settings></action>"
+        )
         headers = await self._auth.async_get_action_headers(
             "application/vnd.vwg.mbb.ClimaterAction_v1_0_0+xml", None
         )
@@ -564,7 +561,7 @@ class AudiService:
             "action.actionState",
         )
 
-    def set_heater_source(
+    async def set_heater_source(
         self, mode: Literal["electric", "auxiliary", "automatic"]
     ) -> None:
         """Set max current."""
@@ -595,7 +592,7 @@ class AudiService:
             "action.actionState",
         )
 
-    def set_control_duration(self, duration: int) -> None:
+    async def set_control_duration(self, duration: int) -> None:
         """Set max current."""
         self._control_duration = duration
 
