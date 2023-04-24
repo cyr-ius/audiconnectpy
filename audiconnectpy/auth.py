@@ -441,18 +441,15 @@ class Auth:
             )
             token_type = "mbb"
 
-        await self.async_refresh_tokens()
-        match token_type:
-            case "idk":
-                token = self._idk_token.get("access_token")
-            case "mbb":
-                token = self._mbb_token.get("access_token")
-            case "audi":
-                token = self._audi_token.get("access_token")
-            case "no":
-                token = None
-
-        if token:
+        if token_type in ["mbb", "idk", "audi"]:
+            await self.async_refresh_tokens()
+            match token_type:
+                case "idk":
+                    token = self._idk_token.get("access_token")
+                case "mbb":
+                    token = self._mbb_token.get("access_token")
+                case "audi":
+                    token = self._audi_token.get("access_token")
             defaults.update({"Authorization": f"Bearer {token}"})
         if self._x_client_id:
             defaults.update({"X-Client-ID": self._x_client_id})
