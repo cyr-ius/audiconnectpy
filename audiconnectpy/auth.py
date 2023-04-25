@@ -535,8 +535,6 @@ class Auth:
             "Accept": "application/json",
             "Accept-Charset": "utf-8",
             "User-Agent": HDR_USER_AGENT,
-            "X-App-Name": "myAudi",
-            "X-App-Version": HDR_XAPP_VERSION,
             "Content-Type": "application/x-www-form-urlencoded",
         }
         # IDK token request data
@@ -579,8 +577,6 @@ class Auth:
             "Accept": "application/json",
             "Accept-Charset": "utf-8",
             "User-Agent": HDR_USER_AGENT,
-            "X-App-Name": "myAudi",
-            "X-App-Version": HDR_XAPP_VERSION,
             "Content-Type": "application/json",
         }
         mbboauth_reg_data = {
@@ -610,6 +606,7 @@ class Auth:
             "User-Agent": HDR_USER_AGENT,
             "X-App-Name": "myAudi",
             "X-App-Version": HDR_XAPP_VERSION,
+            "X-Client-ID": self._x_client_id,
             "Content-Type": "application/x-www-form-urlencoded",
         }
         if refresh_token:
