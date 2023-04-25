@@ -500,9 +500,14 @@ class Auth:
 
     async def _async_get_azs_token(self, access_token: str) -> Any:
         """Get AZS Token."""
-        headers = await self.async_get_headers(
-            token_type="no", headers={"Content-Type": "application/json"}
-        )
+        headers = {
+            "Accept": "application/json",
+            "Accept-Charset": "utf-8",
+            "User-Agent": HDR_USER_AGENT,
+            "X-App-Name": "myAudi",
+            "X-App-Version": HDR_XAPP_VERSION,
+            "Content-Type": "application/json",
+        }
         asz_req_data = {
             "token": access_token,
             "grant_type": "id_token",
@@ -526,10 +531,14 @@ class Auth:
         refresh_token = kwargs.get("refresh_token")
         code = kwargs.get("code")
         code_verifier = kwargs.get("code_verifier")
-        headers = await self.async_get_headers(
-            token_type="no",
-            headers={"Content-Type": "application/x-www-form-urlencoded"},
-        )
+        headers = {
+            "Accept": "application/json",
+            "Accept-Charset": "utf-8",
+            "User-Agent": HDR_USER_AGENT,
+            "X-App-Name": "myAudi",
+            "X-App-Version": HDR_XAPP_VERSION,
+            "Content-Type": "application/x-www-form-urlencoded",
+        }
         # IDK token request data
         if refresh_token:
             idk_data = {
@@ -566,9 +575,14 @@ class Auth:
     async def _async_register_idk(self) -> Any:
         """Register IDK."""
         # mbboauth client register
-        headers = await self.async_get_headers(
-            token_type="no", headers={"Content-Type": "application/json"}
-        )
+        headers = {
+            "Accept": "application/json",
+            "Accept-Charset": "utf-8",
+            "User-Agent": HDR_USER_AGENT,
+            "X-App-Name": "myAudi",
+            "X-App-Version": HDR_XAPP_VERSION,
+            "Content-Type": "application/json",
+        }
         mbboauth_reg_data = {
             "client_name": "SM-A405FN",
             "platform": "google",
@@ -590,10 +604,14 @@ class Auth:
         """Authentification to IDK."""
         refresh_token = kwargs.get("refresh_token")
         id_token = kwargs.get("id_token")
-        headers = await self.async_get_headers(
-            token_type="no",
-            headers={"Content-Type": "application/x-www-form-urlencoded"},
-        )
+        headers = {
+            "Accept": "application/json",
+            "Accept-Charset": "utf-8",
+            "User-Agent": HDR_USER_AGENT,
+            "X-App-Name": "myAudi",
+            "X-App-Version": HDR_XAPP_VERSION,
+            "Content-Type": "application/x-www-form-urlencoded",
+        }
         if refresh_token:
             mbboauth_data = {
                 "grant_type": "refresh_token",
