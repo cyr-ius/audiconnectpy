@@ -202,7 +202,7 @@ class AudiService:
     async def async_get_capabilities(self, vin: str) -> VehicleDataResponse:
         """Get capabilities."""
         url = "https://emea.bff.cariad.digital"
-        headers = await self._auth.async_get_headers()
+        headers = await self._auth.async_get_headers(token_type="idk")
         data = await self._auth.get(
             f"{url}/vehicle/v1/vehicles/{vin.upper()}/capabilities", headers=headers
         )
@@ -243,35 +243,35 @@ class AudiService:
     async def async_get_personal_data(self) -> Any:
         """Get Honk & Flash status."""
         url = f"{self._auth.profil_url}/customers/{self._auth.user_id}"
-        headers = await self._auth.async_get_headers()
+        headers = await self._auth.async_get_headers(token_type="idk")
         data = await self._auth.get(f"{url}/personalData", headers=headers)
         return data
 
     async def async_get_real_car_data(self) -> Any:
         """Get Honk & Flash status."""
         url = f"{self._auth.profil_url}/customers/{self._auth.user_id}"
-        headers = await self._auth.async_get_headers()
+        headers = await self._auth.async_get_headers(token_type="idk")
         data = await self._auth.get(f"{url}/realCarData", headers=headers)
         return data
 
     async def async_get_mbb_status(self) -> Any:
         """Get Honk & Flash status."""
         url = f"{self._auth.profil_url}/customers/{self._auth.user_id}"
-        headers = await self._auth.async_get_headers()
+        headers = await self._auth.async_get_headers(token_type="idk")
         data = await self._auth.get(f"{url}/mbbStatusData", headers=headers)
         return data
 
     async def async_get_identity_data(self) -> Any:
         """Get Honk & Flash status."""
         url = f"{self._auth.profil_url}/customers/{self._auth.user_id}"
-        headers = await self._auth.async_get_headers()
+        headers = await self._auth.async_get_headers(token_type="idk")
         data = await self._auth.get(f"{url}/identityData", headers=headers)
         return data
 
     # async def async_get_users(self, vin: str) -> Any:
     #     """Get users."""
     #     url = "https://userinformationservice.apps.emea.vwapps.io/iaa"
-    #     headers = await self._auth.async_get_headers()
+    #     headers = await self._auth.async_get_headers(token_type="idk")
     #     data = await self._auth.get(f"{url}/uic/v1/vin/{vin.upper()}/users", headers=headers)
     #     return data
 
@@ -314,6 +314,7 @@ class AudiService:
         data = '<?xml version="1.0" encoding= "UTF-8" ?>'
         data += f'<rluAction xmlns="http://audi.de/connect/rlu"><action>{"lock" if lock else "unlock"}</action></rluAction>'
         headers = await self._auth.async_get_headers(
+            token_type="idk",
             headers={
                 "Content-Type": "application/vnd.vwg.mbb.RemoteLockUnlock_v1_0_0+xml"
             },
