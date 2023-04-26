@@ -130,13 +130,15 @@ class Auth:
 
     async def get(self, url: str, **kwargs: Any) -> Any:
         """GET request."""
-        headers = kwargs.pop("headers", await self.async_get_headers(token_type="mbb"))
+        if (headers := kwargs.pop("headers", None)) is None:
+            headers = await self.async_get_headers(token_type="mbb")
         response = await self.request(METH_GET, url, headers=headers, **kwargs)
         return response
 
     async def put(self, url: str, data: Any = None, **kwargs: Any) -> Any:
         """PUT request."""
-        headers = kwargs.pop("headers", await self.async_get_headers(token_type="mbb"))
+        if (headers := kwargs.pop("headers", None)) is None:
+            headers = await self.async_get_headers(token_type="mbb")
         response = await self.request(
             METH_PUT, url, headers=headers, data=data, **kwargs
         )
@@ -146,7 +148,8 @@ class Auth:
         self, url: str, data: Any = None, use_json: bool = True, **kwargs: Any
     ) -> Any:
         """POST request."""
-        headers = kwargs.pop("headers", await self.async_get_headers(token_type="mbb"))
+        if (headers := kwargs.pop("headers", None)) is None:
+            headers = await self.async_get_headers(token_type="mbb")
         if use_json and data:
             data = json.dumps(data)
         response = await self.request(
@@ -422,7 +425,7 @@ class Auth:
 
     async def async_get_headers(
         self,
-        token_type: Literal["idk", "mbb", "audi", "no"] = "idk",
+        token_type: Literal["idk", "mbb", "audi"] | None = None,
         headers: dict[str, Any] | None = None,
         okhttp: bool = False,
         security_token: str | None = None,
