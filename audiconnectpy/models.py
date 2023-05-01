@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
+from datetime import datetime as dt
 from typing import TYPE_CHECKING, Any, Literal
 
 from .exceptions import HttpRequestError, ServiceNotFoundError, TimeoutExceededError
@@ -133,7 +134,7 @@ class VehicleDataResponse:
         return self._vehicle_data
 
     def _get_attributes(self) -> dict[str, Any]:
-        attrs: dict[str, Any] = {}
+        attrs: dict[str, Any] = {"last_access": dt.now()}
 
         default = self.data.getr("CurrentVehicleDataByRequestResponse.vehicleData.data")
         vehicle_data = self.data.getr(
