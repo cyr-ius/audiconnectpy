@@ -20,7 +20,7 @@ from .models import (
     UsersDataResponse,
     VehicleDataResponse,
 )
-from .util import get_attr, to_byte_array
+from .util import ExtendedDict, to_byte_array
 
 MAX_RESPONSE_ATTEMPTS = 10
 REQUEST_STATUS_SLEEP = 10
@@ -83,7 +83,7 @@ class AudiService:
         data = await self._auth.post(
             f"{url}/bs/vsr/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/requests"
         )
-        request_id: str = get_attr(data, "CurrentVehicleDataResponse.requestId")
+        request_id: str = data.getr("CurrentVehicleDataResponse.requestId")
         await self.async_check_request_succeeded(
             f"{url}/bs/vsr/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/requests/{request_id}/jobstatus",
             "refresh vehicle data",
@@ -151,7 +151,7 @@ class AudiService:
             params=params,
         )
         td_sorted = sorted(
-            get_attr(data, "tripDataList.tripData"),
+            data.getr("tripDataList.tripData"),
             key=lambda k: k["overallMileage"],  # type: ignore[no-any-return]
             reverse=True,
         )
@@ -165,7 +165,9 @@ class AudiService:
             td_current["tripID"] = trip["tripID"]
             td_current["startMileage"] = trip["startMileage"]
 
-        return TripDataResponse(td_current), TripDataResponse(td_reset_trip)
+        return TripDataResponse(ExtendedDict(td_current)), TripDataResponse(
+            ExtendedDict(td_reset_trip)
+        )
 
     async def async_get_operations_list(self, vin: str) -> Any:
         """Get operation data."""
@@ -230,7 +232,7 @@ class AudiService:
         )
         if "data" not in resp:
             raise AudiException("Invalid json in vehicle information")
-        return resp["data"]
+        return resp
 
     async def async_get_honkflash(self, vin: str) -> Any:
         """Get Honk & Flash status."""
@@ -323,14 +325,14 @@ class AudiService:
             ),
         )
 
-        res = await self._auth.post(
+        rsp = await self._auth.post(
             f"{url}/bs/rlu/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/actions",
             headers=headers,
             data=data,
             use_json=False,
         )
 
-        request_id = get_attr(res, "rluActionResponse.requestId")
+        request_id = rsp.getr("rluActionResponse.requestId")
         await self.async_check_request_succeeded(
             f"{url}/bs/rlu/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/requests/{request_id}/status",
             "lock vehicle" if lock else "unlock vehicle",
@@ -377,16 +379,13 @@ class AudiService:
         #     else {"action": {"type": "stopClimatisation"}}
         # )
 
-        headers = await self._auth.async_get_action_headers(
-            "application/json", security_token
-        )
-        res = await self._auth.post(
+        rsp = await self._auth.post(
             f"{url}/bs/climatisation/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/climater/actions",
             headers=headers,
             data=data,
             use_json=False,
         )
-        actionid = get_attr(res, "action.actionId")
+        actionid = rsp.getr("action.actionId")
         await self.async_check_request_succeeded(
             f"{url}/bs/climatisation/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/climater/actions/{actionid}",
             "start climatisation" if start else "stop climatisation",
@@ -423,27 +422,13 @@ class AudiService:
         #         }
         #     }
         # )
-        data = {
-            "action": {
-                "type": "setSettings",
-                "settings": {
-                    "targetTemperature": temperature,
-                    "climatisationWithoutHVpower": True,
-                    "heaterSource": self._heater_source,
-                    "climaterElementSettings": {
-                        "isClimatisationAtUnlock": False,
-                        "isMirrorHeatingEnabled": True,
-                    },
-                },
-            }
-        }
-        headers = await self._auth.async_get_action_headers("application/json", None)
-        res = await self._auth.post(
+        # headers = await self._auth.async_get_action_headers("application/json", None)
+        rsp = await self._auth.post(
             f"{url}/bs/climatisation/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/climater/actions",
             headers=headers,
             data=data,
         )
-        actionid = get_attr(res, "action.actionId")
+        actionid = rsp.getr("action.actionId")
         await self.async_check_request_succeeded(
             f"{url}/bs/climatisation/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/climater/actions/{actionid}",
             "set target temperature",
@@ -537,30 +522,18 @@ class AudiService:
         """Set charger."""
         # OpenHab "startCharging","stopCharging"
         url = await self._async_get_home_region(vin.upper())
-        # data = {"action": {"type": "selectChargingMode", "settings": {"chargeModeSelection": {"value":"timerBasedCharging"} } } }
-        data = {"action": {"type": "start" if start else "stop"}}
-        if start and timer:
-            data = {
-                "action": {
-                    "type": "selectChargingMode",
-                    "settings": {
-                        "chargeModeSelection": {"value": "timerBasedCharging"}
-                    },
-                }
-            }
-        # data = '<?xml version="1.0" encoding= "UTF-8" ?>'
-        # data += f'<action><type>{"true" if start else "false"}</type></action>'
-        # headers = await self._auth.async_get_action_headers(
-        #     "application/vnd.vwg.mbb.ChargerAction_v1_0_0+xml", None
-        # )
-        headers = await self._auth.async_get_action_headers("application/json", None)
-        res = await self._auth.post(
+        data = '<?xml version="1.0" encoding= "UTF-8" ?>'
+        data += f'<action><type>{"true" if start else "false"}</type></action>'
+        headers = await self._auth.async_get_action_headers(
+            "application/vnd.vwg.mbb.ChargerAction_v1_0_0+xml", None
+        )
+        rsp = await self._auth.post(
             f"{url}/bs/batterycharge/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/charger/actions",
             headers=headers,
             data=data,
         )
 
-        actionid = get_attr(res, "action.actionId")
+        actionid = rsp.getr("action.actionId")
         await self.async_check_request_succeeded(
             f"{url}/bs/batterycharge/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/charger/actions/{actionid}",
             "start charger" if start else "stop charger",
@@ -577,13 +550,13 @@ class AudiService:
         headers = await self._auth.async_get_action_headers(
             "application/vnd.vwg.mbb.ChargerAction_v1_0_0+xml", None
         )
-        res = await self._auth.post(
+        rsp = await self._auth.post(
             f"{url}/bs/batterycharge/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/charger/actions",
             headers=headers,
             data=data,
             use_json=False,
         )
-        actionid = get_attr(res, "action.actionId")
+        actionid = rsp.getr("action.actionId")
         await self.async_check_request_succeeded(
             f"{url}/bs/batterycharge/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/charger/actions/{actionid}",
             "set charger max current",
@@ -608,13 +581,13 @@ class AudiService:
         headers = await self._auth.async_get_action_headers(
             "application/vnd.vwg.mbb.ClimaterAction_v1_0_0+xml", None
         )
-        res = await self._auth.post(
+        rsp = await self._auth.post(
             f"{url}/bs/climatisation/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/climater/actions",
             headers=headers,
             data=data,
             use_json=False,
         )
-        actionid = get_attr(res, "action.actionId")
+        actionid = rsp.getr("action.actionId")
         await self.async_check_request_succeeded(
             f"{url}/bs/climatisation/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/climater/actions/{actionid}",
             "start window heating" if start else "stop window heating",
@@ -669,9 +642,9 @@ class AudiService:
         for _ in range(MAX_RESPONSE_ATTEMPTS):
             await asyncio.sleep(REQUEST_STATUS_SLEEP)
 
-            res = await self._auth.get(url)
+            rsp = await self._auth.get(url)
 
-            status = get_attr(res, path)
+            status = rsp.getr(path)
 
             if status is None or (failed is not None and status == failed):
                 raise HttpRequestError(("Cannot %s, return code '%s'", action, status))
@@ -695,10 +668,10 @@ class AudiService:
         self._home_region[vin] = "https://msg.volkswagen.de/fs-car"
         self._home_region_setter[vin] = "https://mal-1a.prd.ece.vwg-connect.com/api"
         try:
-            res = await self._auth.get(
+            rsp = await self._auth.get(
                 f"{self._home_region_setter[vin]}/cs/vds/v1/vehicles/{vin}/homeRegion"
             )
-            uri = get_attr(res, "homeRegion.baseUri.content")
+            uri = rsp.getr("homeRegion.baseUri.content")
             if uri and uri != self._home_region_setter[vin]:
                 self._home_region[vin] = uri.replace("mal-", "fal-").replace(
                     "/api", "/fs-car"
@@ -728,14 +701,14 @@ class AudiService:
 
         # Challenge
         headers = await self._auth.async_get_headers(token_type="mbb", okhttp=True)
-        body = await self._auth.get(
+        rsp = await self._auth.get(
             f"{url}/rolesrights/authorization/v2/vehicles/{vin.upper()}/services/{action}/security-pin-auth-requested",
             headers=headers,
         )
 
-        sec_token = get_attr(body, "securityPinAuthInfo.securityToken")
-        challenge: str = get_attr(
-            body, "securityPinAuthInfo.securityPinTransmission.challenge"
+        sec_token = rsp.getr("securityPinAuthInfo.securityToken")
+        challenge: str = rsp.getr(
+            "securityPinAuthInfo.securityPinTransmission.challenge"
         )
 
         # Response

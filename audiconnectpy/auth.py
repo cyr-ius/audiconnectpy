@@ -25,7 +25,7 @@ from .exceptions import (
     ServiceNotFoundError,
     TimeoutExceededError,
 )
-from .util import get_attr, jload, json_loads
+from .util import json_loads
 
 TIMEOUT = 120
 DELAY = 10
@@ -368,7 +368,7 @@ class Auth:
         # Get markets to get language
         markets_json = await self.request("GET", f"{MARKET_URL}/markets", None)
 
-        country_spec = get_attr(markets_json, "countries.countrySpecifications")
+        country_spec = markets_json.getr("countries.countrySpecifications")
         if self._country.upper() not in country_spec:
             raise AudiException("Country not found")
 
@@ -517,16 +517,14 @@ class Auth:
             "stage": "live",
             "config": "myaudi",
         }
-        azs_token_rsptxt = await self.request(
+        azs_token_json = await self.request(
             "POST",
             self._audi_baseurl + "/token",
             json.dumps(asz_req_data),
             headers=headers,
             allow_redirects=False,
         )
-        azs_token_json = jload(azs_token_rsptxt)
         _LOGGER.debug("AZS Token: %s", azs_token_json)
-
         return azs_token_json
 
     async def _async_get_idk_token(self, **kwargs: Any) -> Any:
@@ -561,14 +559,13 @@ class Auth:
         # IDK token request
         encoded_idk_data = urlencode(idk_data, encoding="utf-8").replace("+", "%20")
 
-        idk_token_rsptxt = await self.post(
+        idk_token_json = await self.post(
             self._token_endpoint_url,
             encoded_idk_data,
             headers=headers,
             allow_redirects=False,
             use_json=False,
         )
-        idk_token_json = jload(idk_token_rsptxt)
         _LOGGER.debug("IDK Token: %s", idk_token_json)
 
         return idk_token_json
@@ -590,13 +587,12 @@ class Auth:
             "appVersion": HDR_XAPP_VERSION,
             "appId": "de.myaudi.mobile.assistant",
         }
-        mbboauth_client_reg_rsptxt = await self.post(
+        mbboauth_client_reg_json = await self.post(
             self._mbb_baseurl + "/mobile/register/v1",
             mbboauth_reg_data,
             headers=headers,
             allow_redirects=False,
         )
-        mbboauth_client_reg_json = jload(mbboauth_client_reg_rsptxt)
         return mbboauth_client_reg_json.get("client_id")
 
     async def _async_get_mbb_token(self, **kwargs: Any) -> Any:
@@ -628,14 +624,12 @@ class Auth:
         encoded_mbboauth_data = urlencode(mbboauth_data, encoding="utf-8").replace(
             "+", "%20"
         )
-        mbboauth_rsptxt = await self.post(
+        mbboauth_json = await self.post(
             self._mbb_baseurl + "/mobile/oauth2/v1/token",
             encoded_mbboauth_data,
             headers=headers,
             allow_redirects=False,
             use_json=False,
         )
-        mbboauth_json = jload(mbboauth_rsptxt)
         _LOGGER.debug("MBB Token: %s", mbboauth_json)
-
         return mbboauth_json
