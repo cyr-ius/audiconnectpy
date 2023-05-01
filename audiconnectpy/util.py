@@ -15,7 +15,7 @@ from .exceptions import TimeoutExceededError
 _LOGGER = logging.getLogger(__name__)
 
 
-class ExtendedDict(dict):  # type: ignore
+class ExtendedDict(dict[Any, Any]):
     """Extend dictionnary class."""
 
     def getr(self, keys: str, default: Any = None) -> Any:
