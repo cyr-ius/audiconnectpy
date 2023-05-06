@@ -20,11 +20,14 @@ class ExtendedDict(dict[Any, Any]):
 
     def getr(self, keys: str, default: Any = None) -> Any:
         """Get recursive attribut."""
-        return reduce(
+        reduce_value: Any = reduce(
             lambda d, key: d.get(key, default) if isinstance(d, dict) else default,
             keys.split("."),
             self,
         )
+        if isinstance(reduce_value, dict):
+            return ExtendedDict(reduce_value)
+        return reduce_value
 
 
 def to_byte_array(hex_string: str) -> list[int]:
