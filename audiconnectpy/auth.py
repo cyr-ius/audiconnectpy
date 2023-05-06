@@ -25,7 +25,7 @@ from .exceptions import (
     ServiceNotFoundError,
     TimeoutExceededError,
 )
-from .util import json_loads
+from .helpers import json_loads
 
 TIMEOUT = 120
 DELAY = 10

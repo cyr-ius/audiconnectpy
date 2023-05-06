@@ -9,6 +9,7 @@ from typing import Any, Literal
 
 from .auth import Auth
 from .exceptions import AudiException, HttpRequestError, TimeoutExceededError
+from .helpers import ExtendedDict, to_byte_array
 from .models import (
     ChargerDataResponse,
     ClimaterDataResponse,
@@ -20,7 +21,6 @@ from .models import (
     UsersDataResponse,
     VehicleDataResponse,
 )
-from .util import ExtendedDict, to_byte_array
 
 MAX_RESPONSE_ATTEMPTS = 10
 REQUEST_STATUS_SLEEP = 10

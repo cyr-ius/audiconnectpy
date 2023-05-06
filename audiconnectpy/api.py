@@ -7,9 +7,9 @@ from aiohttp import ClientSession
 
 from .auth import Auth
 from .exceptions import AudiException
+from .helpers import ExtendedDict
 from .models import Globals, Vehicle
 from .services import AudiService
-from .util import ExtendedDict
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -55,7 +55,7 @@ class AudiConnect:
         try:
             if len(self._audi_vehicles) == 0:
                 vehicles_response = await self.services.async_get_vehicle_information()
-                for response in vehicles_response.getr("data.userVehicles", {}):
+                for response in vehicles_response.getr("data.userVehicles", []):
                     self._audi_vehicles.append(
                         Vehicle(ExtendedDict(response), self.services)
                     )

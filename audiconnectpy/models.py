@@ -7,7 +7,7 @@ from datetime import datetime as dt
 from typing import TYPE_CHECKING, Any, Literal
 
 from .exceptions import HttpRequestError, ServiceNotFoundError, TimeoutExceededError
-from .util import ExtendedDict, retry
+from .helpers import ExtendedDict, retry
 
 if TYPE_CHECKING:
     from .services import AudiService
@@ -114,7 +114,7 @@ class VehicleDataResponse:
 
     def __init__(self, data: ExtendedDict, has_pin: bool = False) -> None:
         """Initialize."""
-        self.data: ExtendedDict = data
+        self.data = data
         self.has_pin = has_pin
         self.measure_time = None
         self.send_time = None
@@ -303,10 +303,10 @@ class ChargerDataResponse:
     @property
     def attributes(self) -> dict[str, Any]:
         """Attributes properties."""
-        settings = ExtendedDict(self.data.getr("charger.settings", {}))
-        status = ExtendedDict(self.data.getr("charger.status", {}))
-        charging = ExtendedDict(status.get("chargingStatusData", {}))
-        cruising = ExtendedDict(status.get("cruisingRangeStatusData", {}))
+        settings = self.data.getr("charger.settings", {})
+        status = self.data.getr("charger.status", {})
+        charging = status.get("chargingStatusData", {})
+        cruising = status.get("cruisingRangeStatusData", {})
         attrs = {
             "max_charge_current": settings.getr("maxChargeCurrent.content"),
             "charging_state": charging.getr("chargingState.content"),
@@ -348,8 +348,8 @@ class ClimaterDataResponse:
     def attributes(self) -> dict[str, Any]:
         """Attributes properties."""
         attrs = {}
-        settings = ExtendedDict(self.data.getr("climater.settings"))
-        status = ExtendedDict(self.data.getr("climater.status"))
+        settings = self.data.getr("climater.settings")
+        status = self.data.getr("climater.status")
         attrs = {
             "climatisation_state": status.getr(
                 "climatisationStatusData.climatisationState.content"
@@ -503,11 +503,11 @@ class TripDataResponse:
 class Vehicle:
     """Vehicle class."""
 
-    def __init__(self, data: Any, audi_service: AudiService) -> None:
+    def __init__(self, data: ExtendedDict, audi_service: AudiService) -> None:
         """Initialize."""
         self._audi_service = audi_service
-        self.vin = data.get("vin")
-        self.csid = data.get("csid")
+        self.vin: str = data.get("vin", "")
+        self.csid: str = data.get("csid", "")
         self.model = data.getr("vehicle.media.longName", "")
         self.model_year = data.getr("vehicle.core.modelYear")
         if (nickname := data.get("nickname")) is not None and len(nickname) > 0:
