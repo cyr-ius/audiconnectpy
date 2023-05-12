@@ -432,7 +432,9 @@ class PositionDataResponse:
     def attributes(self) -> dict[str, Any]:
         """Attributes properties."""
         attrs = {}
-        if coordinate := self.data.getr("findCarResponse.Position.carCoordinate"):
+        if isinstance(self.data, ExtendedDict) and (
+            coordinate := self.data.getr("findCarResponse.Position.carCoordinate")
+        ):
             timestamp = self.data.getr("findCarResponse.Position.timestampCarSentUTC")
             attrs = {
                 "position": {
@@ -444,6 +446,8 @@ class PositionDataResponse:
                     ),
                 }
             }
+        else:
+            _LOGGER.warning("Position format is incorrect %s", self.data)
         return attrs
 
 
