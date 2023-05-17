@@ -426,6 +426,8 @@ class PositionDataResponse:
     @property
     def is_supported(self) -> bool:
         """Supported status."""
+        if not isinstance(self.data, ExtendedDict):
+            _LOGGER.warning("Position format is incorrect %s", self.data)  # type: ignore
         return self.data.getr("findCarResponse.Position") is not None
 
     @property
