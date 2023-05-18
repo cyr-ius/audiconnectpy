@@ -54,6 +54,8 @@ class AudiService:
         data = await self._auth.get(
             f"{url}/usermanagement/users/v1/{self.brand}/{self.country}/vehicles"
         )
+        if not isinstance(data, ExtendedDict):
+            _LOGGER.warning("Format is incorrect %s", data)
         return data
 
     async def async_get_vehicle_details(self, vin: str) -> Any:
@@ -67,6 +69,8 @@ class AudiService:
             f"{url}/vehicleMgmt/vehicledata/v2/{self.brand}/{self.country}/vehicles/{vin.upper()}/",
             headers=headers,
         )
+        if not isinstance(data, ExtendedDict):
+            _LOGGER.warning("Format is incorrect %s", data)
         return data
 
     async def async_get_vehicle(self, vin: str) -> VehicleDataResponse:
@@ -75,6 +79,8 @@ class AudiService:
         data = await self._auth.get(
             f"{url}/bs/vsr/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/status"
         )
+        if not isinstance(data, ExtendedDict):
+            _LOGGER.warning("Format is incorrect %s", data)
         return VehicleDataResponse(data, self._spin is not None)
 
     async def async_refresh_vehicle_data(self, vin: str) -> None:
@@ -98,6 +104,8 @@ class AudiService:
         data = await self._auth.get(
             f"{url}/bs/cf/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/position"
         )
+        if not isinstance(data, ExtendedDict):
+            _LOGGER.warning("Format is incorrect %s", data)
         return PositionDataResponse(data)
 
     async def async_get_destinations(self, vin: str) -> DestinationDataResponse:
@@ -106,6 +114,8 @@ class AudiService:
         data = await self._auth.get(
             f"{url}/destinationfeedservice/mydestinations/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/destinations"
         )
+        if not isinstance(data, ExtendedDict):
+            _LOGGER.warning("Format is incorrect %s", data)
         return DestinationDataResponse(data)
 
     async def async_get_history(self, vin: str) -> HistoryDataResponse:
@@ -114,6 +124,8 @@ class AudiService:
         data = await self._auth.get(
             f"{url}/bs/dwap/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/history"
         )
+        if not isinstance(data, ExtendedDict):
+            _LOGGER.warning("Format is incorrect %s", data)
         return HistoryDataResponse(data)
 
     async def async_get_vehicule_users(self, vin: str) -> UsersDataResponse:
@@ -128,6 +140,8 @@ class AudiService:
         data = await self._auth.get(
             f"{url}/bs/batterycharge/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/charger"
         )
+        if not isinstance(data, ExtendedDict):
+            _LOGGER.warning("Format is incorrect %s", data)
         return ChargerDataResponse(data)
 
     async def async_get_tripdata(
@@ -150,6 +164,8 @@ class AudiService:
             f"{url}/bs/tripstatistics/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/tripdata/{kind}",
             params=params,
         )
+        if not isinstance(data, ExtendedDict):
+            _LOGGER.warning("Format is incorrect %s", data)
         td_sorted = sorted(
             data.getr("tripDataList.tripData"),
             key=lambda k: k["overallMileage"],  # type: ignore[no-any-return]
@@ -175,6 +191,8 @@ class AudiService:
         data = await self._auth.get(
             f"{url}/rolesrights/operationlist/v3/vehicles/{vin.upper()}"
         )
+        if not isinstance(data, ExtendedDict):
+            _LOGGER.warning("Format is incorrect %s", data)
         return data
 
     async def async_get_climater(self, vin: str) -> ClimaterDataResponse:
@@ -183,6 +201,8 @@ class AudiService:
         data = await self._auth.get(
             f"{url}/bs/climatisation/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/climater"
         )
+        if not isinstance(data, ExtendedDict):
+            _LOGGER.warning("Format is incorrect %s", data)
         return ClimaterDataResponse(data)
 
     async def async_get_preheater(self, vin: str) -> PreheaterDataResponse:
@@ -191,6 +211,8 @@ class AudiService:
         data = await self._auth.get(
             f"{url}/bs/rs/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/status"
         )
+        if not isinstance(data, ExtendedDict):
+            _LOGGER.warning("Format is incorrect %s", data)
         return PreheaterDataResponse(data)
 
     async def async_get_climater_timer(self, vin: str) -> Any:
@@ -199,6 +221,8 @@ class AudiService:
         data = await self._auth.get(
             f"{url}/bs/departuretimer/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/timer"
         )
+        if not isinstance(data, ExtendedDict):
+            _LOGGER.warning("Format is incorrect %s", data)
         return data
 
     async def async_get_capabilities(self, vin: str) -> VehicleDataResponse:
@@ -208,6 +232,8 @@ class AudiService:
         data = await self._auth.get(
             f"{url}/vehicle/v1/vehicles/{vin.upper()}/capabilities", headers=headers
         )
+        if not isinstance(data, ExtendedDict):
+            _LOGGER.warning("Format is incorrect %s", data)
         return VehicleDataResponse(data, self._spin is not None)
 
     async def async_get_vehicle_information(self) -> Any:
@@ -239,6 +265,8 @@ class AudiService:
         data = await self._auth.get(
             f"{url}/bs/rhf/v1/{self.brand}/{self.country}/configuration"
         )
+        if not isinstance(data, ExtendedDict):
+            _LOGGER.warning("Format is incorrect %s", data)
         return data
 
     async def async_get_personal_data(self) -> Any:
@@ -246,6 +274,8 @@ class AudiService:
         url = f"{self._auth.profil_url}/customers/{self._auth.user_id}"
         headers = await self._auth.async_get_headers(token_type="idk")
         data = await self._auth.get(f"{url}/personalData", headers=headers)
+        if not isinstance(data, ExtendedDict):
+            _LOGGER.warning("Format is incorrect %s", data)
         return data
 
     async def async_get_real_car_data(self) -> Any:
@@ -253,6 +283,8 @@ class AudiService:
         url = f"{self._auth.profil_url}/customers/{self._auth.user_id}"
         headers = await self._auth.async_get_headers(token_type="idk")
         data = await self._auth.get(f"{url}/realCarData", headers=headers)
+        if not isinstance(data, ExtendedDict):
+            _LOGGER.warning("Format is incorrect %s", data)
         return data
 
     async def async_get_mbb_status(self) -> Any:
@@ -260,6 +292,8 @@ class AudiService:
         url = f"{self._auth.profil_url}/customers/{self._auth.user_id}"
         headers = await self._auth.async_get_headers(token_type="idk")
         data = await self._auth.get(f"{url}/mbbStatusData", headers=headers)
+        if not isinstance(data, ExtendedDict):
+            _LOGGER.warning("Format is incorrect %s", data)
         return data
 
     async def async_get_identity_data(self) -> Any:
@@ -267,6 +301,8 @@ class AudiService:
         url = f"{self._auth.profil_url}/customers/{self._auth.user_id}"
         headers = await self._auth.async_get_headers(token_type="idk")
         data = await self._auth.get(f"{url}/identityData", headers=headers)
+        if not isinstance(data, ExtendedDict):
+            _LOGGER.warning("Format is incorrect %s", data)
         return data
 
     # async def async_get_users(self, vin: str) -> Any:
@@ -282,6 +318,8 @@ class AudiService:
         data = await self._auth.get(
             f"{url}/bs/geofencing/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/geofencingAlerts"
         )
+        if not isinstance(data, ExtendedDict):
+            _LOGGER.warning("Format is incorrect %s", data)
         return data
 
     async def async_get_fences_config(self, vin: str) -> Any:
@@ -290,6 +328,8 @@ class AudiService:
         data = await self._auth.get(
             f"{url}/bs/geofencing/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/geofencingConfiguration"
         )
+        if not isinstance(data, ExtendedDict):
+            _LOGGER.warning("Format is incorrect %s", data)
         return data
 
     async def async_get_speed_alert(self, vin: str) -> Any:
@@ -298,6 +338,8 @@ class AudiService:
         data = await self._auth.get(
             f"{url}/bs/speedalert/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/speedAlerts"
         )
+        if not isinstance(data, ExtendedDict):
+            _LOGGER.warning("Format is incorrect %s", data)
         return data
 
     async def async_get_speed_config(self, vin: str) -> Any:
@@ -306,6 +348,8 @@ class AudiService:
         data = await self._auth.get(
             f"{url}/bs/speedalert/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/speedAlertConfiguration"
         )
+        if not isinstance(data, ExtendedDict):
+            _LOGGER.warning("Format is incorrect %s", data)
         return data
 
     async def async_lock(self, vin: str, lock: bool) -> None:

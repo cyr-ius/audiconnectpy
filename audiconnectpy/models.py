@@ -271,18 +271,24 @@ class PreheaterDataResponse:
     @property
     def is_supported(self) -> bool:
         """Supported status."""
+        if not isinstance(self.data, ExtendedDict):
+            _LOGGER.warning("Preheater format is incorrect %s", self.data)  # type: ignore
         return self.data.getr("statusResponse.climatisationStateReport") is not None
 
     @property
     def attributes(self) -> dict[str, Any]:
         """Attributes properties."""
-        report = self.data.getr("statusResponse.climatisationStateReport", {})
-        attrs = {
-            "preheater_state": report,
-            "preheater_active": report.get("climatisationState"),
-            "preheater_duration": report.get("climatisationDuration"),
-            "preheater_remaining": report.get("remainingClimateTime"),
-        }
+        attrs: dict[str, Any] = {}
+        if isinstance(self.data, ExtendedDict):
+            report: ExtendedDict = self.data.getr(
+                "statusResponse.climatisationStateReport", {}
+            )
+            attrs = {
+                "preheater_state": report,
+                "preheater_active": report.get("climatisationState"),
+                "preheater_duration": report.get("climatisationDuration"),
+                "preheater_remaining": report.get("remainingClimateTime"),
+            }
         return attrs
 
 
@@ -295,6 +301,8 @@ class ChargerDataResponse:
     @property
     def is_supported(self) -> bool:
         """Supported status."""
+        if not isinstance(self.data, ExtendedDict):
+            _LOGGER.warning("Charger format is incorrect %s", self.data)  # type: ignore
         return (
             self.data.getr("charger.settings") is not None
             or self.data.getr("charger.status") is not None
@@ -303,30 +311,36 @@ class ChargerDataResponse:
     @property
     def attributes(self) -> dict[str, Any]:
         """Attributes properties."""
-        settings = self.data.getr("charger.settings", {})
-        status = self.data.getr("charger.status", {})
-        charging = status.get("chargingStatusData", {})
-        cruising = status.get("cruisingRangeStatusData", {})
-        attrs = {
-            "max_charge_current": settings.getr("maxChargeCurrent.content"),
-            "charging_state": charging.getr("chargingState.content"),
-            "actual_charge_rate": charging.getr("actualChargeRate.content"),
-            "actual_charge_rate_unit": charging.getr("chargeRateUnit.content"),
-            "charging_power": charging.getr("chargingPower.content"),
-            "charging_mode": charging.getr("chargingMode.content"),
-            "energy_flow": charging.getr("energyFlow.content"),
-            "primary_engine_type": cruising.getr("engineTypeFirstEngine.content"),
-            "secondary_engine_type": cruising.getr("engineTypeSecondEngine.content"),
-            "hybrid_range": cruising.getr("hybridRange.content"),
-            "primary_engine_range": cruising.getr("primaryEngineRange.content"),
-            "secondary_engine_range": cruising.getr("secondaryEngineRange.content"),
-            "state_of_charge": status.getr("batteryStatusData.stateOfCharge.content"),
-            "plug_state": status.getr("plugStatusData.plugState.content"),
-            "plug_lock": status.getr("plugStatusData.lockState.content"),
-            "remaining_charging_time": status.getr(
-                "batteryStatusData.remainingChargingTime.content"
-            ),
-        }
+        attrs = {}
+        if isinstance(self.data, ExtendedDict):
+            settings = self.data.getr("charger.settings", {})
+            status = self.data.getr("charger.status", {})
+            charging = status.get("chargingStatusData", {})
+            cruising = status.get("cruisingRangeStatusData", {})
+            attrs = {
+                "max_charge_current": settings.getr("maxChargeCurrent.content"),
+                "charging_state": charging.getr("chargingState.content"),
+                "actual_charge_rate": charging.getr("actualChargeRate.content"),
+                "actual_charge_rate_unit": charging.getr("chargeRateUnit.content"),
+                "charging_power": charging.getr("chargingPower.content"),
+                "charging_mode": charging.getr("chargingMode.content"),
+                "energy_flow": charging.getr("energyFlow.content"),
+                "primary_engine_type": cruising.getr("engineTypeFirstEngine.content"),
+                "secondary_engine_type": cruising.getr(
+                    "engineTypeSecondEngine.content"
+                ),
+                "hybrid_range": cruising.getr("hybridRange.content"),
+                "primary_engine_range": cruising.getr("primaryEngineRange.content"),
+                "secondary_engine_range": cruising.getr("secondaryEngineRange.content"),
+                "state_of_charge": status.getr(
+                    "batteryStatusData.stateOfCharge.content"
+                ),
+                "plug_state": status.getr("plugStatusData.plugState.content"),
+                "plug_lock": status.getr("plugStatusData.lockState.content"),
+                "remaining_charging_time": status.getr(
+                    "batteryStatusData.remainingChargingTime.content"
+                ),
+            }
         return attrs
 
 
@@ -339,6 +353,8 @@ class ClimaterDataResponse:
     @property
     def is_supported(self) -> bool:
         """Supported status."""
+        if not isinstance(self.data, ExtendedDict):
+            _LOGGER.warning("Climater format is incorrect %s", self.data)  # type: ignore
         return (
             self.data.getr("climater.settings") is not None
             or self.data.getr("climater.status") is not None
@@ -348,18 +364,19 @@ class ClimaterDataResponse:
     def attributes(self) -> dict[str, Any]:
         """Attributes properties."""
         attrs = {}
-        settings = self.data.getr("climater.settings")
-        status = self.data.getr("climater.status")
-        attrs = {
-            "climatisation_state": status.getr(
-                "climatisationStatusData.climatisationState.content"
-            ),
-            "outdoor_temperature": status.getr(
-                "temperatureStatusData.outdoorTemperature.content"
-            ),
-            "climatisation_heater_src": settings.getr("heaterSource.content"),
-            "climatisation_target_temp": settings.getr("targetTemperature.content"),
-        }
+        if isinstance(self.data, ExtendedDict):
+            settings = self.data.getr("climater.settings")
+            status = self.data.getr("climater.status")
+            attrs = {
+                "climatisation_state": status.getr(
+                    "climatisationStatusData.climatisationState.content"
+                ),
+                "outdoor_temperature": status.getr(
+                    "temperatureStatusData.outdoorTemperature.content"
+                ),
+                "climatisation_heater_src": settings.getr("heaterSource.content"),
+                "climatisation_target_temp": settings.getr("targetTemperature.content"),
+            }
         return attrs
 
 
