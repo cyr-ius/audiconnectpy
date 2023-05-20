@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from datetime import datetime as dt
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Literal
 
 from .exceptions import HttpRequestError, ServiceNotFoundError, TimeoutExceededError
 from .helpers import ExtendedDict, retry
@@ -129,19 +129,19 @@ class VehicleDataResponse:
         return self.attributes is not None
 
     @property
-    def attributes(self) -> Any:
+    def attributes(self) -> ExtendedDict:
         """Attributes properties."""
         return self._vehicle_data
 
-    def _get_attributes(self) -> dict[str, Any]:
-        attrs: dict[str, Any] = {"last_access": dt.now()}
+    def _get_attributes(self) -> ExtendedDict:
+        attrs = ExtendedDict({"last_access": dt.now()})
 
         default = self.data.getr("CurrentVehicleDataByRequestResponse.vehicleData.data")
         vehicle_data = self.data.getr(
             "StoredVehicleDataResponse.vehicleData.data", default
         )
         if vehicle_data is None:
-            return attrs
+            return ExtendedDict(attrs)
 
         for raw_data in vehicle_data:
             for raw_field in raw_data.get("field", {}):
@@ -177,8 +177,8 @@ class VehicleDataResponse:
         return attrs
 
     @staticmethod
-    def _metadatas(attrs: dict[str, Any]) -> dict[str, Any]:
-        metadatas: dict[str, Any] = {}
+    def _metadatas(attrs: ExtendedDict) -> ExtendedDict:
+        metadatas = ExtendedDict({})
 
         # Windows open status
         left_check: int | None = attrs.get("state_left_front_window")
@@ -271,25 +271,21 @@ class PreheaterDataResponse:
     @property
     def is_supported(self) -> bool:
         """Supported status."""
-        if not isinstance(self.data, ExtendedDict):
-            _LOGGER.warning("Preheater format is incorrect %s", self.data)  # type: ignore
         return self.data.getr("statusResponse.climatisationStateReport") is not None
 
     @property
-    def attributes(self) -> dict[str, Any]:
+    def attributes(self) -> ExtendedDict:
         """Attributes properties."""
-        attrs: dict[str, Any] = {}
-        if isinstance(self.data, ExtendedDict):
-            report: ExtendedDict = self.data.getr(
-                "statusResponse.climatisationStateReport", {}
-            )
-            attrs = {
-                "preheater_state": report,
-                "preheater_active": report.get("climatisationState"),
-                "preheater_duration": report.get("climatisationDuration"),
-                "preheater_remaining": report.get("remainingClimateTime"),
-            }
-        return attrs
+        report: ExtendedDict = self.data.getr(
+            "statusResponse.climatisationStateReport", {}
+        )
+        attrs = {
+            "preheater_state": report,
+            "preheater_active": report.get("climatisationState"),
+            "preheater_duration": report.get("climatisationDuration"),
+            "preheater_remaining": report.get("remainingClimateTime"),
+        }
+        return ExtendedDict(attrs)
 
 
 @dataclass
@@ -301,47 +297,39 @@ class ChargerDataResponse:
     @property
     def is_supported(self) -> bool:
         """Supported status."""
-        if not isinstance(self.data, ExtendedDict):
-            _LOGGER.warning("Charger format is incorrect %s", self.data)  # type: ignore
         return (
             self.data.getr("charger.settings") is not None
             or self.data.getr("charger.status") is not None
         )
 
     @property
-    def attributes(self) -> dict[str, Any]:
+    def attributes(self) -> ExtendedDict:
         """Attributes properties."""
-        attrs = {}
-        if isinstance(self.data, ExtendedDict):
-            settings = self.data.getr("charger.settings", {})
-            status = self.data.getr("charger.status", {})
-            charging = status.get("chargingStatusData", {})
-            cruising = status.get("cruisingRangeStatusData", {})
-            attrs = {
-                "max_charge_current": settings.getr("maxChargeCurrent.content"),
-                "charging_state": charging.getr("chargingState.content"),
-                "actual_charge_rate": charging.getr("actualChargeRate.content"),
-                "actual_charge_rate_unit": charging.getr("chargeRateUnit.content"),
-                "charging_power": charging.getr("chargingPower.content"),
-                "charging_mode": charging.getr("chargingMode.content"),
-                "energy_flow": charging.getr("energyFlow.content"),
-                "primary_engine_type": cruising.getr("engineTypeFirstEngine.content"),
-                "secondary_engine_type": cruising.getr(
-                    "engineTypeSecondEngine.content"
-                ),
-                "hybrid_range": cruising.getr("hybridRange.content"),
-                "primary_engine_range": cruising.getr("primaryEngineRange.content"),
-                "secondary_engine_range": cruising.getr("secondaryEngineRange.content"),
-                "state_of_charge": status.getr(
-                    "batteryStatusData.stateOfCharge.content"
-                ),
-                "plug_state": status.getr("plugStatusData.plugState.content"),
-                "plug_lock": status.getr("plugStatusData.lockState.content"),
-                "remaining_charging_time": status.getr(
-                    "batteryStatusData.remainingChargingTime.content"
-                ),
-            }
-        return attrs
+        settings = self.data.getr("charger.settings", {})
+        status = self.data.getr("charger.status", {})
+        charging = status.get("chargingStatusData", {})
+        cruising = status.get("cruisingRangeStatusData", {})
+        attrs = {
+            "max_charge_current": settings.getr("maxChargeCurrent.content"),
+            "charging_state": charging.getr("chargingState.content"),
+            "actual_charge_rate": charging.getr("actualChargeRate.content"),
+            "actual_charge_rate_unit": charging.getr("chargeRateUnit.content"),
+            "charging_power": charging.getr("chargingPower.content"),
+            "charging_mode": charging.getr("chargingMode.content"),
+            "energy_flow": charging.getr("energyFlow.content"),
+            "primary_engine_type": cruising.getr("engineTypeFirstEngine.content"),
+            "secondary_engine_type": cruising.getr("engineTypeSecondEngine.content"),
+            "hybrid_range": cruising.getr("hybridRange.content"),
+            "primary_engine_range": cruising.getr("primaryEngineRange.content"),
+            "secondary_engine_range": cruising.getr("secondaryEngineRange.content"),
+            "state_of_charge": status.getr("batteryStatusData.stateOfCharge.content"),
+            "plug_state": status.getr("plugStatusData.plugState.content"),
+            "plug_lock": status.getr("plugStatusData.lockState.content"),
+            "remaining_charging_time": status.getr(
+                "batteryStatusData.remainingChargingTime.content"
+            ),
+        }
+        return ExtendedDict(attrs)
 
 
 @dataclass
@@ -353,31 +341,27 @@ class ClimaterDataResponse:
     @property
     def is_supported(self) -> bool:
         """Supported status."""
-        if not isinstance(self.data, ExtendedDict):
-            _LOGGER.warning("Climater format is incorrect %s", self.data)  # type: ignore
         return (
             self.data.getr("climater.settings") is not None
             or self.data.getr("climater.status") is not None
         )
 
     @property
-    def attributes(self) -> dict[str, Any]:
+    def attributes(self) -> ExtendedDict:
         """Attributes properties."""
-        attrs = {}
-        if isinstance(self.data, ExtendedDict):
-            settings = self.data.getr("climater.settings")
-            status = self.data.getr("climater.status")
-            attrs = {
-                "climatisation_state": status.getr(
-                    "climatisationStatusData.climatisationState.content"
-                ),
-                "outdoor_temperature": status.getr(
-                    "temperatureStatusData.outdoorTemperature.content"
-                ),
-                "climatisation_heater_src": settings.getr("heaterSource.content"),
-                "climatisation_target_temp": settings.getr("targetTemperature.content"),
-            }
-        return attrs
+        settings = self.data.getr("climater.settings", {})
+        status = self.data.getr("climater.status", {})
+        attrs = {
+            "climatisation_state": status.getr(
+                "climatisationStatusData.climatisationState.content"
+            ),
+            "outdoor_temperature": status.getr(
+                "temperatureStatusData.outdoorTemperature.content"
+            ),
+            "climatisation_heater_src": settings.getr("heaterSource.content"),
+            "climatisation_target_temp": settings.getr("targetTemperature.content"),
+        }
+        return ExtendedDict(attrs)
 
 
 @dataclass
@@ -392,10 +376,10 @@ class DestinationDataResponse:
         return self.attributes is not None
 
     @property
-    def attributes(self) -> dict[str, Any]:
+    def attributes(self) -> ExtendedDict:
         """Attributes properties."""
         attrs = self.data
-        return attrs
+        return ExtendedDict(attrs)
 
 
 @dataclass
@@ -410,10 +394,10 @@ class HistoryDataResponse:
         return self.attributes is not None
 
     @property
-    def attributes(self) -> dict[str, Any]:
+    def attributes(self) -> ExtendedDict:
         """Attributes properties."""
         attrs = self.data
-        return attrs
+        return ExtendedDict(attrs)
 
 
 @dataclass
@@ -428,10 +412,10 @@ class UsersDataResponse:
         return self.attributes is not None
 
     @property
-    def attributes(self) -> dict[str, Any]:
+    def attributes(self) -> ExtendedDict:
         """Attributes properties."""
         attrs = self.data
-        return attrs
+        return ExtendedDict(attrs)
 
 
 @dataclass
@@ -443,31 +427,26 @@ class PositionDataResponse:
     @property
     def is_supported(self) -> bool:
         """Supported status."""
-        if not isinstance(self.data, ExtendedDict):
-            _LOGGER.warning("Position format is incorrect %s", self.data)  # type: ignore
         return self.data.getr("findCarResponse.Position") is not None
 
     @property
-    def attributes(self) -> dict[str, Any]:
+    def attributes(self) -> ExtendedDict:
         """Attributes properties."""
-        attrs = {}
-        if isinstance(self.data, ExtendedDict) and (
-            coordinate := self.data.getr("findCarResponse.Position.carCoordinate")
-        ):
-            timestamp = self.data.getr("findCarResponse.Position.timestampCarSentUTC")
-            attrs = {
-                "position": {
-                    "latitude": coordinate["latitude"] / 1000000,
-                    "longitude": coordinate["longitude"] / 1000000,
+        coordinate = self.data.getr("findCarResponse.Position.carCoordinate", {})
+        timestamp = self.data.getr("findCarResponse.Position.timestampCarSentUTC")
+        attrs = {
+            "position": ExtendedDict(
+                {
+                    "latitude": coordinate.get("latitude", 0) / 1000000,
+                    "longitude": coordinate.get("longitude", 0) / 1000000,
                     "timestamp": timestamp,
                     "parktime": self.data.getr(
                         "findCarResponse.parkingTimeUTC", timestamp
                     ),
                 }
-            }
-        else:
-            _LOGGER.warning("Position format is incorrect %s", self.data)
-        return attrs
+            )
+        }
+        return ExtendedDict(attrs)
 
 
 @dataclass
@@ -479,48 +458,27 @@ class TripDataResponse:
     @property
     def is_supported(self) -> bool:
         """Supported status."""
-        return self.data is not None
+        return self.data.get("tripID") is not None
 
     @property
-    def attributes(self) -> dict[str, Any]:
+    def attributes(self) -> ExtendedDict:
         """Attributes properties."""
-        trip_id = self.data["tripID"]
-        average_electricengine_consumption = (
-            (float(self.data["averageElectricEngineConsumption"]) / 10)
-            if "averageElectricEngineConsumption" in self.data
-            else None
-        )
-        average_fuel_consumption = (
-            float(self.data["averageFuelConsumption"]) / 10
-            if "averageFuelConsumption" in self.data
-            else None
-        )
-        average_speed = (
-            int(self.data["averageSpeed"]) if "averageSpeed" in self.data else None
-        )
-        mileage = int(self.data["mileage"]) if "mileage" in self.data else None
-        start_mileage = (
-            int(self.data["startMileage"]) if "startMileage" in self.data else None
-        )
-        travel_time = (
-            int(self.data["traveltime"]) if "traveltime" in self.data else None
-        )
-        timestamp = self.data["timestamp"] if "timestamp" in self.data else None
-        overall_mileage = (
-            int(self.data["overallMileage"]) if "overallMileage" in self.data else None
-        )
-
-        return {
-            "tripID": trip_id,
-            "averageElectricEngineConsumption": average_electricengine_consumption,
-            "averageFuelConsumption": average_fuel_consumption,
-            "averageSpeed": average_speed,
-            "mileage": mileage,
-            "startMileage": start_mileage,
-            "traveltime": travel_time,
-            "timestamp": timestamp,
-            "overallMileage": overall_mileage,
+        attrs = {
+            "tripID": self.data.get("tripID"),
+            "averageElectricEngineConsumption": (
+                float(self.data.get("averageElectricEngineConsumption", 0)) / 10
+            ),
+            "averageFuelConsumption": (
+                float(self.data.get("averageFuelConsumption", 0)) / 10
+            ),
+            "averageSpeed": int(self.data.get("averageSpeed", 0)),
+            "mileage": int(self.data.get("mileage", 0)),
+            "startMileage": int(self.data.get("startMileage", 0)),
+            "traveltime": int(self.data.get("traveltime", 0)),
+            "timestamp": self.data.get("timestamp"),
+            "overallMileage": int(self.data.get("overallMileage", 0)),
         }
+        return ExtendedDict(attrs)
 
 
 class Vehicle:
