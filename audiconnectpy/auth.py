@@ -25,7 +25,7 @@ from .exceptions import (
     ServiceNotFoundError,
     TimeoutExceededError,
 )
-from .helpers import json_loads
+from .helpers import ExtendedDict, json_loads
 
 TIMEOUT = 120
 DELAY = 10
@@ -100,28 +100,30 @@ class Auth:
                 "Error occurred while communicating with Audit Connect."
             ) from error
 
-        _LOGGER.debug("RESPONSE HEADERS: %s", response.headers)
-        _LOGGER.debug(
-            "RESPONSE: %s ,return_code '%s'",
-            (await response.read()).decode("utf8"),
-            response.status,
-        )
-
         content_type = response.headers.get("Content-Type", "")
+        contents = (await response.read()).decode("utf8")
+
+        _LOGGER.debug("RESPONSE HEADERS: %s", response.headers)
+        _LOGGER.debug("RESPONSE: %s ,return_code '%s'", contents, response.status)
+
         if response.status // 100 in [4, 5]:
-            contents = await response.read()
             response.close()
-            if content_type == "application/json":
-                raise ServiceNotFoundError(
-                    response.status, json.loads(contents.decode("utf8"))
-                )
-            raise ServiceNotFoundError(response.status, contents.decode("utf8"))
+            if "application/json" in content_type:
+                raise ServiceNotFoundError(response.status, json.loads(contents))
+            raise ServiceNotFoundError(response.status, contents)
 
         if raw_reply and raw_rsp is False:
             return response
 
         if "application/json" in content_type:
             rsp = await response.json(loads=json_loads)
+        elif (
+            headers
+            and "application/json" in headers.get("Accept", "")
+            and contents is None
+        ):
+            _LOGGER.debug("JSON FIX: Accept is JSON but Response is None")
+            rsp = ExtendedDict({})
         else:
             rsp = await response.text()
 
