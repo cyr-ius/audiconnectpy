@@ -145,7 +145,7 @@ class AudiService:
         """Get trip data."""
         if kind not in ["short", "long", "cyclic"]:
             raise AudiException(f"Syntax error, {kind} must be 'short'|'long|'cyclic'")
-        kind.replace("short", "shortTerm").replace("long", "longTerm")
+        knd = kind.replace("short", "shortTerm").replace("long", "longTerm")
         url = await self._async_get_home_region(vin.upper())
         params = {
             "type": "list",
@@ -156,7 +156,7 @@ class AudiService:
             ),
         }
         data = await self._auth.get(
-            f"{url}/bs/tripstatistics/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/tripdata/{kind}",
+            f"{url}/bs/tripstatistics/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/tripdata/{knd}",
             params=params,
         )
         data = data if data else ExtendedDict()
