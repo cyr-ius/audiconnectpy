@@ -556,8 +556,6 @@ class Vehicle:
                     self.vin,
                     str(error).rstrip("\n"),
                 )
-            else:
-                self.support_vehicle = result.is_supported
 
     @retry(exceptions=TimeoutExceededError, tries=3, delay=2)
     async def async_update_position(self) -> None:
@@ -583,8 +581,6 @@ class Vehicle:
                     self.vin,
                     str(error).rstrip("\n"),
                 )
-            else:
-                self.support_position = result.is_supported
 
     @retry(exceptions=TimeoutExceededError, tries=3, delay=2)
     async def async_update_climater(self) -> None:
@@ -609,8 +605,6 @@ class Vehicle:
                     self.vin,
                     str(error).rstrip("\n"),
                 )
-            else:
-                self.support_climater = result.is_supported
 
     @retry(exceptions=TimeoutExceededError, tries=3, delay=2)
     async def async_update_preheater(self) -> None:
@@ -635,8 +629,6 @@ class Vehicle:
                     self.vin,
                     str(error).rstrip("\n"),
                 )
-            else:
-                self.support_preheater = result.is_supported
 
     @retry(exceptions=TimeoutExceededError, tries=3, delay=2)
     async def async_update_charger(self) -> None:
@@ -661,8 +653,6 @@ class Vehicle:
                     self.vin,
                     str(error).rstrip("\n"),
                 )
-            else:
-                self.support_charger = result.is_supported
 
     @retry(exceptions=TimeoutExceededError, tries=3, delay=2)
     async def async_update_tripdata(
