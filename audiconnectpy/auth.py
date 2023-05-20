@@ -120,7 +120,7 @@ class Auth:
         elif (
             headers
             and "application/json" in headers.get("Accept", "")
-            and contents is None
+            and contents == ""
         ):
             _LOGGER.debug("JSON FIX: Accept is JSON but Response is None")
             rsp = ExtendedDict({})
