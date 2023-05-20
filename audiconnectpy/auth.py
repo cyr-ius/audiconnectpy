@@ -86,8 +86,8 @@ class Auth:
         """Request url with method."""
         try:
             async with async_timeout.timeout(TIMEOUT):
+                _LOGGER.debug("REQUEST HEADERS: %s", headers)
                 _LOGGER.debug("REQUEST: %s", url)
-                # _LOGGER.debug("HEADERS: %s", headers)
                 response = await self._session.request(
                     method, url, headers=headers, data=data, **kwargs
                 )
@@ -100,6 +100,7 @@ class Auth:
                 "Error occurred while communicating with Audi Connect."
             ) from error
 
+        _LOGGER.debug("RESPONSE HEADERS: %s", response.headers)
         _LOGGER.debug(
             "RESPONSE: %s ,return_code '%s'",
             (await response.read()).decode("utf8"),

@@ -54,8 +54,7 @@ class AudiService:
         data = await self._auth.get(
             f"{url}/usermanagement/users/v1/{self.brand}/{self.country}/vehicles"
         )
-        if not isinstance(data, ExtendedDict):
-            _LOGGER.warning("Format is incorrect %s", data)
+        data = data if data else ExtendedDict()
         return data
 
     async def async_get_vehicle_details(self, vin: str) -> Any:
@@ -69,8 +68,7 @@ class AudiService:
             f"{url}/vehicleMgmt/vehicledata/v2/{self.brand}/{self.country}/vehicles/{vin.upper()}/",
             headers=headers,
         )
-        if not isinstance(data, ExtendedDict):
-            _LOGGER.warning("Format is incorrect %s", data)
+        data = data if data else ExtendedDict()
         return data
 
     async def async_get_vehicle(self, vin: str) -> VehicleDataResponse:
@@ -79,8 +77,7 @@ class AudiService:
         data = await self._auth.get(
             f"{url}/bs/vsr/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/status"
         )
-        if not isinstance(data, ExtendedDict):
-            _LOGGER.warning("Format is incorrect %s", data)
+        data = data if data else ExtendedDict()
         return VehicleDataResponse(data, self._spin is not None)
 
     async def async_refresh_vehicle_data(self, vin: str) -> None:
@@ -89,6 +86,7 @@ class AudiService:
         data = await self._auth.post(
             f"{url}/bs/vsr/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/requests"
         )
+        data = data if data else ExtendedDict()
         request_id: str = data.getr("CurrentVehicleDataResponse.requestId")
         await self.async_check_request_succeeded(
             f"{url}/bs/vsr/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/requests/{request_id}/jobstatus",
@@ -104,8 +102,7 @@ class AudiService:
         data = await self._auth.get(
             f"{url}/bs/cf/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/position"
         )
-        if not isinstance(data, ExtendedDict):
-            _LOGGER.warning("Format is incorrect %s", data)
+        data = data if data else ExtendedDict()
         return PositionDataResponse(data)
 
     async def async_get_destinations(self, vin: str) -> DestinationDataResponse:
@@ -114,8 +111,7 @@ class AudiService:
         data = await self._auth.get(
             f"{url}/destinationfeedservice/mydestinations/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/destinations"
         )
-        if not isinstance(data, ExtendedDict):
-            _LOGGER.warning("Format is incorrect %s", data)
+        data = data if data else ExtendedDict()
         return DestinationDataResponse(data)
 
     async def async_get_history(self, vin: str) -> HistoryDataResponse:
@@ -124,14 +120,14 @@ class AudiService:
         data = await self._auth.get(
             f"{url}/bs/dwap/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/history"
         )
-        if not isinstance(data, ExtendedDict):
-            _LOGGER.warning("Format is incorrect %s", data)
+        data = data if data else ExtendedDict()
         return HistoryDataResponse(data)
 
     async def async_get_vehicule_users(self, vin: str) -> UsersDataResponse:
         """Get ufers of vehicle."""
         url = await self._async_get_home_region(vin.upper())
         data = await self._auth.get(f"{url}/bs/uic/v1/{vin.upper()}/users")
+        data = data if data else ExtendedDict()
         return UsersDataResponse(data)
 
     async def async_get_charger(self, vin: str) -> ChargerDataResponse:
@@ -140,8 +136,7 @@ class AudiService:
         data = await self._auth.get(
             f"{url}/bs/batterycharge/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/charger"
         )
-        if not isinstance(data, ExtendedDict):
-            _LOGGER.warning("Format is incorrect %s", data)
+        data = data if data else ExtendedDict()
         return ChargerDataResponse(data)
 
     async def async_get_tripdata(
@@ -164,8 +159,7 @@ class AudiService:
             f"{url}/bs/tripstatistics/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/tripdata/{kind}",
             params=params,
         )
-        if not isinstance(data, ExtendedDict):
-            _LOGGER.warning("Format is incorrect %s", data)
+        data = data if data else ExtendedDict()
         td_sorted = sorted(
             data.getr("tripDataList.tripData"),
             key=lambda k: k["overallMileage"],  # type: ignore[no-any-return]
@@ -191,8 +185,7 @@ class AudiService:
         data = await self._auth.get(
             f"{url}/rolesrights/operationlist/v3/vehicles/{vin.upper()}"
         )
-        if not isinstance(data, ExtendedDict):
-            _LOGGER.warning("Format is incorrect %s", data)
+        data = data if data else ExtendedDict()
         return data
 
     async def async_get_climater(self, vin: str) -> ClimaterDataResponse:
@@ -201,8 +194,7 @@ class AudiService:
         data = await self._auth.get(
             f"{url}/bs/climatisation/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/climater"
         )
-        if not isinstance(data, ExtendedDict):
-            _LOGGER.warning("Format is incorrect %s", data)
+        data = data if data else ExtendedDict()
         return ClimaterDataResponse(data)
 
     async def async_get_preheater(self, vin: str) -> PreheaterDataResponse:
@@ -211,8 +203,7 @@ class AudiService:
         data = await self._auth.get(
             f"{url}/bs/rs/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/status"
         )
-        if not isinstance(data, ExtendedDict):
-            _LOGGER.warning("Format is incorrect %s", data)
+        data = data if data else ExtendedDict()
         return PreheaterDataResponse(data)
 
     async def async_get_climater_timer(self, vin: str) -> Any:
@@ -221,8 +212,7 @@ class AudiService:
         data = await self._auth.get(
             f"{url}/bs/departuretimer/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/timer"
         )
-        if not isinstance(data, ExtendedDict):
-            _LOGGER.warning("Format is incorrect %s", data)
+        data = data if data else ExtendedDict()
         return data
 
     async def async_get_capabilities(self, vin: str) -> VehicleDataResponse:
@@ -232,8 +222,7 @@ class AudiService:
         data = await self._auth.get(
             f"{url}/vehicle/v1/vehicles/{vin.upper()}/capabilities", headers=headers
         )
-        if not isinstance(data, ExtendedDict):
-            _LOGGER.warning("Format is incorrect %s", data)
+        data = data if data else ExtendedDict()
         return VehicleDataResponse(data, self._spin is not None)
 
     async def async_get_vehicle_information(self) -> Any:
@@ -256,6 +245,7 @@ class AudiService:
         resp = await self._auth.post(
             url, data=data, headers=headers, allow_redirects=False
         )
+        resp = resp if resp else ExtendedDict()
         if "data" not in resp:
             raise AudiException("Invalid json in vehicle information")
         return resp
@@ -266,8 +256,7 @@ class AudiService:
         data = await self._auth.get(
             f"{url}/bs/rhf/v1/{self.brand}/{self.country}/configuration"
         )
-        if not isinstance(data, ExtendedDict):
-            _LOGGER.warning("Format is incorrect %s", data)
+        data = data if data else ExtendedDict()
         return data
 
     async def async_get_personal_data(self) -> Any:
@@ -275,8 +264,7 @@ class AudiService:
         url = f"{self._auth.profil_url}/customers/{self._auth.user_id}"
         headers = await self._auth.async_get_headers(token_type="idk")
         data = await self._auth.get(f"{url}/personalData", headers=headers)
-        if not isinstance(data, ExtendedDict):
-            _LOGGER.warning("Format is incorrect %s", data)
+        data = data if data else ExtendedDict()
         return data
 
     async def async_get_real_car_data(self) -> Any:
@@ -284,8 +272,7 @@ class AudiService:
         url = f"{self._auth.profil_url}/customers/{self._auth.user_id}"
         headers = await self._auth.async_get_headers(token_type="idk")
         data = await self._auth.get(f"{url}/realCarData", headers=headers)
-        if not isinstance(data, ExtendedDict):
-            _LOGGER.warning("Format is incorrect %s", data)
+        data = data if data else ExtendedDict()
         return data
 
     async def async_get_mbb_status(self) -> Any:
@@ -293,8 +280,7 @@ class AudiService:
         url = f"{self._auth.profil_url}/customers/{self._auth.user_id}"
         headers = await self._auth.async_get_headers(token_type="idk")
         data = await self._auth.get(f"{url}/mbbStatusData", headers=headers)
-        if not isinstance(data, ExtendedDict):
-            _LOGGER.warning("Format is incorrect %s", data)
+        data = data if data else ExtendedDict()
         return data
 
     async def async_get_identity_data(self) -> Any:
@@ -302,8 +288,7 @@ class AudiService:
         url = f"{self._auth.profil_url}/customers/{self._auth.user_id}"
         headers = await self._auth.async_get_headers(token_type="idk")
         data = await self._auth.get(f"{url}/identityData", headers=headers)
-        if not isinstance(data, ExtendedDict):
-            _LOGGER.warning("Format is incorrect %s", data)
+        data = data if data else ExtendedDict()
         return data
 
     # async def async_get_users(self, vin: str) -> Any:
@@ -311,6 +296,7 @@ class AudiService:
     #     url = "https://userinformationservice.apps.emea.vwapps.io/iaa"
     #     headers = await self._auth.async_get_headers(token_type="idk")
     #     data = await self._auth.get(f"{url}/uic/v1/vin/{vin.upper()}/users", headers=headers)
+    #     data = data if data else ExtendedDict()
     #     return data
 
     async def async_get_fences(self, vin: str) -> Any:
@@ -319,8 +305,7 @@ class AudiService:
         data = await self._auth.get(
             f"{url}/bs/geofencing/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/geofencingAlerts"
         )
-        if not isinstance(data, ExtendedDict):
-            _LOGGER.warning("Format is incorrect %s", data)
+        data = data if data else ExtendedDict()
         return data
 
     async def async_get_fences_config(self, vin: str) -> Any:
@@ -329,8 +314,7 @@ class AudiService:
         data = await self._auth.get(
             f"{url}/bs/geofencing/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/geofencingConfiguration"
         )
-        if not isinstance(data, ExtendedDict):
-            _LOGGER.warning("Format is incorrect %s", data)
+        data = data if data else ExtendedDict()
         return data
 
     async def async_get_speed_alert(self, vin: str) -> Any:
@@ -339,8 +323,7 @@ class AudiService:
         data = await self._auth.get(
             f"{url}/bs/speedalert/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/speedAlerts"
         )
-        if not isinstance(data, ExtendedDict):
-            _LOGGER.warning("Format is incorrect %s", data)
+        data = data if data else ExtendedDict()
         return data
 
     async def async_get_speed_config(self, vin: str) -> Any:
@@ -349,8 +332,7 @@ class AudiService:
         data = await self._auth.get(
             f"{url}/bs/speedalert/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/speedAlertConfiguration"
         )
-        if not isinstance(data, ExtendedDict):
-            _LOGGER.warning("Format is incorrect %s", data)
+        data = data if data else ExtendedDict()
         return data
 
     async def async_lock(self, vin: str, lock: bool) -> None:
@@ -375,7 +357,7 @@ class AudiService:
             data=data,
             use_json=False,
         )
-
+        rsp = rsp if rsp else ExtendedDict()
         request_id = rsp.getr("rluActionResponse.requestId")
         await self.async_check_request_succeeded(
             f"{url}/bs/rlu/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/requests/{request_id}/status",
@@ -429,6 +411,7 @@ class AudiService:
             data=data,
             use_json=False,
         )
+        rsp = rsp if rsp else ExtendedDict()
         actionid = rsp.getr("action.actionId")
         await self.async_check_request_succeeded(
             f"{url}/bs/climatisation/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/climater/actions/{actionid}",
@@ -472,6 +455,7 @@ class AudiService:
             headers=headers,
             data=data,
         )
+        rsp = rsp if rsp else ExtendedDict()
         actionid = rsp.getr("action.actionId")
         await self.async_check_request_succeeded(
             f"{url}/bs/climatisation/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/climater/actions/{actionid}",
@@ -576,7 +560,7 @@ class AudiService:
             headers=headers,
             data=data,
         )
-
+        rsp = rsp if rsp else ExtendedDict()
         actionid = rsp.getr("action.actionId")
         await self.async_check_request_succeeded(
             f"{url}/bs/batterycharge/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/charger/actions/{actionid}",
@@ -600,6 +584,7 @@ class AudiService:
             data=data,
             use_json=False,
         )
+        rsp = rsp if rsp else ExtendedDict()
         actionid = rsp.getr("action.actionId")
         await self.async_check_request_succeeded(
             f"{url}/bs/batterycharge/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/charger/actions/{actionid}",
@@ -631,6 +616,7 @@ class AudiService:
             data=data,
             use_json=False,
         )
+        rsp = rsp if rsp else ExtendedDict()
         actionid = rsp.getr("action.actionId")
         await self.async_check_request_succeeded(
             f"{url}/bs/climatisation/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/climater/actions/{actionid}",
@@ -715,6 +701,7 @@ class AudiService:
             rsp = await self._auth.get(
                 f"{self._home_region_setter[vin]}/cs/vds/v1/vehicles/{vin}/homeRegion"
             )
+            rsp = rsp if rsp else ExtendedDict()
             uri = rsp.getr("homeRegion.baseUri.content")
             if uri and uri != self._home_region_setter[vin]:
                 self._home_region[vin] = uri.replace("mal-", "fal-").replace(
@@ -749,7 +736,7 @@ class AudiService:
             f"{url}/rolesrights/authorization/v2/vehicles/{vin.upper()}/services/{action}/security-pin-auth-requested",
             headers=headers,
         )
-
+        rsp = rsp if rsp else ExtendedDict()
         sec_token = rsp.getr("securityPinAuthInfo.securityToken")
         challenge: str = rsp.getr(
             "securityPinAuthInfo.securityPinTransmission.challenge"
