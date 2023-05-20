@@ -626,7 +626,7 @@ class AudiService:
         )
 
     async def set_control_duration(self, vin: str, duration: int) -> None:
-        """Set max current."""
+        """Set control duration."""
         self._control_duration[vin] = duration
 
     async def async_set_honkflash(
@@ -638,12 +638,8 @@ class AudiService:
         rsp_position = await self._auth.get(
             f"{url}/bs/cf/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/position"
         )
-        position = (
-            rsp_position.get("findCarResponse", {})
-            .get("Position", {})
-            .get("carCoordinate")
-        )
-
+        rsp_position = rsp_position if rsp_position else ExtendedDict()
+        position = rsp_position.get("findCarResponse.Position.carCoordinate")
         headers = await self._auth.async_get_action_headers("application/json", None)
         data = {
             "honkAndFlashRequest": {
