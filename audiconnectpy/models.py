@@ -307,8 +307,8 @@ class ChargerDataResponse:
         """Attributes properties."""
         settings = self.data.getr("charger.settings", {})
         status = self.data.getr("charger.status", {})
-        charging = status.get("chargingStatusData", {})
-        cruising = status.get("cruisingRangeStatusData", {})
+        charging = status.getr("chargingStatusData", {})
+        cruising = status.getr("cruisingRangeStatusData", {})
         attrs = {
             "max_charge_current": settings.getr("maxChargeCurrent.content"),
             "charging_state": charging.getr("chargingState.content"),
