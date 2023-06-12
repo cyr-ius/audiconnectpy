@@ -161,11 +161,11 @@ class AudiService:
         )
         data = data if data else ExtendedDict()
         td_sorted = sorted(
-            data.getr("tripDataList.tripData"),
+            data.getr("tripDataList.tripData", []),
             key=lambda k: k["overallMileage"],  # type: ignore[no-any-return]
             reverse=True,
         )
-        td_current = td_sorted[0]
+        td_current = td_sorted[0] if len(td_sorted) > 0 else {}
         td_reset_trip = {}
 
         for trip in td_sorted:

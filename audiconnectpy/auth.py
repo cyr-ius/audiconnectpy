@@ -123,7 +123,7 @@ class Auth:
             and contents == ""
         ):
             _LOGGER.debug("JSON FIX: Accept is JSON but Response is None")
-            rsp = ExtendedDict({})
+            rsp = ExtendedDict()
         else:
             rsp = await response.text()
 
