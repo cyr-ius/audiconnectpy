@@ -97,7 +97,7 @@ class Auth:
             ) from error
         except (aiohttp.ClientError, socket.gaierror) as error:
             raise HttpRequestError(
-                "Error occurred while communicating with Audit Connect."
+                "Error occurred while communicating with Audi Connect."
             ) from error
 
         _LOGGER.debug(
