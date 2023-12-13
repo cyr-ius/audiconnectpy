@@ -479,7 +479,7 @@ class Globals:
     """Global variables."""
 
     def __init__(self, unit: str) -> None:
-        """Initiliaze."""
+        """Initilaze."""
         global UNIT_SYSTEM  # pylint: disable=global-variable-undefined
         UNIT_SYSTEM = f"{unit}"  # type: ignore
 
@@ -507,9 +507,9 @@ def to_byte_array(hex_string: str) -> list[int]:
 def set_attr(
     identity: str, value: Any, unit: str | None = None
 ) -> dict[Any, dict[str, Any]]:
-    """Check attribut in Identies class and return dictionnary.
+    """Check attribute in Identities class and return dictionary.
 
-    This returned dict contain attribut , type , device class, icon , unit
+    This returned dict contain attribute , type , device class, icon , unit
     and turn_mode (Function that performs an action)
     the evaluation method makes it possible to interpret the value returned
     by Audi Connect and to adapt it to an exploitable value
