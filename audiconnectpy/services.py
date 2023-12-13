@@ -402,22 +402,20 @@ class AudiService:
         headers = await self._auth.async_get_action_headers(
             "application/vnd.vwg.mbb.ClimaterAction_v1_0_0+xml", None
         )
-        # data = json.dumps(
-        #     {
-        #         "action": {
-        #             "type": "setSettings",
-        #             "settings": {
-        #                 "targetTemperature": temperature,
-        #                 "climatisationWithoutHVpower": True,
-        #                 "heaterSource": source,
-        #                 "climaterElementSettings": {
-        #                     "isClimatisationAtUnlock": False,
-        #                     "isMirrorHeatingEnabled": True,
-        #                 },
+        # data = {
+        #     "action": {
+        #         "type": "setSettings",
+        #         "settings": {
+        #             "targetTemperature": temperature,
+        #             "climatisationWithoutHVpower": True,
+        #             "heaterSource": source,
+        #             "climaterElementSettings": {
+        #                 "isClimatisationAtUnlock": False,
+        #                 "isMirrorHeatingEnabled": True,
         #             },
-        #         }
+        #         },
         #     }
-        # )
+        # }
         # headers = await self._auth.async_get_action_headers("application/json", None)
         res = await self._auth.post(
             f"{url}/bs/climatisation/v1/{self._type}/{self._country}/vehicles/{vin.upper()}/climater/actions",
