@@ -20,7 +20,7 @@ class Globals:
     """Global variables."""
 
     def __init__(self, unit: str) -> None:
-        """Initiliaze."""
+        """Initilaze."""
         global UNIT_SYSTEM  # pylint: disable=global-variable-undefined
         UNIT_SYSTEM = f"{unit}"  # type: ignore
 

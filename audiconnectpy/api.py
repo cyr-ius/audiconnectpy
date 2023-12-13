@@ -26,7 +26,7 @@ class AudiConnect:
         spin: int,
         unit_system: str = "metric",
     ) -> None:
-        """Initilaze."""
+        """Initialize."""
         Globals(unit_system)
         self._audi_vehicles: list[Vehicle] = []
         self._auth = Auth(session)

@@ -16,10 +16,10 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class ExtendedDict(dict[Any, Any]):
-    """Extend dictionnary class."""
+    """Extend dictionary class."""
 
     def getr(self, keys: str, default: Any = None) -> Any:
-        """Get recursive attribut."""
+        """Get recursive attribute."""
         reduce_value: Any = reduce(
             lambda d, key: d.get(key, default) if isinstance(d, dict) else default,
             keys.split("."),
