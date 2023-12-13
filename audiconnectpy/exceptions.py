@@ -6,7 +6,7 @@ class AudiException(Exception):
 
 
 class AuthorizationError(AudiException):
-    """Authentification error."""
+    """Authentication error."""
 
 
 class HttpRequestError(AudiException):

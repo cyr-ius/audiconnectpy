@@ -26,7 +26,7 @@ class AudiConnect:
         spin: int,
         unit_system: str = "metric",
     ) -> None:
-        """Initiliaze."""
+        """Initialize."""
         Globals(unit_system)
         self._audi_vehicles: list[Vehicle] = []
         self._auth = Auth(session)
@@ -40,7 +40,7 @@ class AudiConnect:
         self.vehicles: dict[str, Vehicle] = {}
 
     async def async_login(self) -> bool:
-        """Login and retreive tokens."""
+        """Login and retrieve tokens."""
         if not self.is_connected:
             self.is_connected = await self._auth.async_connect(
                 self._username, self._password, self._country

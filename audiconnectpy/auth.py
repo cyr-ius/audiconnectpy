@@ -599,7 +599,7 @@ class Auth:
         return mbboauth_client_reg_json.get("client_id")
 
     async def _async_get_mbb_token(self, **kwargs: Any) -> Any:
-        """Authentification to IDK."""
+        """Authentication to IDK."""
         refresh_token = kwargs.get("refresh_token")
         id_token = kwargs.get("id_token")
         headers = {
