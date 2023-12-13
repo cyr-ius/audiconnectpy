@@ -513,20 +513,31 @@ class AudiService:
             use_json=True,
         )
 
-    async def async_charger(self, vin: str, start: bool) -> None:
+    async def async_charger(self, vin: str, start: bool, timer: bool = False) -> None:
         """Set charger."""
         # OpenHab "startCharging","stopCharging"
         url = await self._async_get_home_region(vin.upper())
-        data = '<?xml version="1.0" encoding= "UTF-8" ?>'
-        data += f'<action><type>{"true" if start else "false"}</type></action>'
-        headers = await self._auth.async_get_action_headers(
-            "application/vnd.vwg.mbb.ChargerAction_v1_0_0+xml", None
-        )
+        # data = {"action": {"type": "selectChargingMode", "settings": {"chargeModeSelection": {"value":"timerBasedCharging"} } } }
+        data = {"action": {"type": "start" if start else "stop"}}
+        if start and timer:
+            data = {
+                "action": {
+                    "type": "selectChargingMode",
+                    "settings": {
+                        "chargeModeSelection": {"value": "timerBasedCharging"}
+                    },
+                }
+            }
+        # data = '<?xml version="1.0" encoding= "UTF-8" ?>'
+        # data += f'<action><type>{"true" if start else "false"}</type></action>'
+        # headers = await self._auth.async_get_action_headers(
+        #     "application/vnd.vwg.mbb.ChargerAction_v1_0_0+xml", None
+        # )
+        headers = await self._auth.async_get_action_headers("application/json", None)
         res = await self._auth.post(
             f"{url}/bs/batterycharge/v1/{self._type}/{self._country}/vehicles/{vin.upper()}/charger/actions",
             headers=headers,
             data=data,
-            use_json=False,
         )
 
         actionid = get_attr(res, "action.actionId")
