@@ -62,24 +62,11 @@
       "xclientid",
       "xqmauth"
     ],
-    "python.linting.flake8Enabled": true,
-    "python.linting.flake8Args": [
-      "--ignore=E501,W504,E712,W503,E203,E226,E231"
-    ],
-    "python.formatting.provider": "black",
     "editor.formatOnSave": true,
-    "python.linting.pycodestyleEnabled": true,
-    "python.linting.pycodestyleArgs": ["--ignore=E203,E501,W503"],
-    "python.linting.pydocstyleEnabled": true,
-    "python.linting.pydocstyleArgs": ["-ignore=D203,D213,E203"],
-    "python.linting.pylintArgs": [
-      "--disable=too-many-lines, missing-module-docstring, missing-function-docstring, missing-class-docstring, invalid-name,line-too-long"
-    ],
     "git.allowNoVerifyCommit": false,
     "cSpell.enabled": false,
     "cSpell.language": "en, fr",
     "python.testing.pytestArgs": ["--continue-on-collection-errors"],
-    "python.linting.pylintEnabled": true
   },
   "launch": {
     "version": "0.2.0",
