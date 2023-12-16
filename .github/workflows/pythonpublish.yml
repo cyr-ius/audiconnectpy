@@ -1,3 +1,4 @@
+---
 name: Upload Python Package
 
 on:
@@ -12,12 +13,17 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     name: Deploy to PyPi
+    # Specifying a GitHub environment is optional, but strongly encouraged
+    environment: release
+    permissions:
+      # IMPORTANT: this permission is mandatory for trusted publishing
+      id-token: write
     steps:
       - name: 📥 Checkout the repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.x"
 
@@ -33,9 +39,4 @@ jobs:
           cat ./setup.py
 
       - name: 🚀 Publish to PyPi
-        env:
-          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-        run: |
-          python setup.py sdist bdist_wheel
-          twine upload dist/*
+        uses: pypa/gh-action-pypi-publish@release/v1
