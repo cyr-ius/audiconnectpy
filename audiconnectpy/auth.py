@@ -47,9 +47,9 @@ class Auth:
         """Initialize."""
         self._session = session
         if proxy:
-            self.__proxy: dict[  # pylint: disable=unused-private-member
+            self.__proxy: dict[
                 str, str
-            ] | None = {
+            ] | None = {  # pylint: disable=unused-private-member
                 "http": proxy,
                 "https": proxy,
             }
@@ -97,7 +97,7 @@ class Auth:
             ) from error
         except (aiohttp.ClientError, socket.gaierror) as error:
             raise HttpRequestError(
-                "Error occurred while communicating with Audit Connect."
+                "Error occurred while communicating with Audi Connect."
             ) from error
 
         content_type = response.headers.get("Content-Type", "")
