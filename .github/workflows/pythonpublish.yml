@@ -37,6 +37,11 @@ jobs:
           export version=${{ github.ref }}
           sed -i "s|replace_by_workflow|${version##*/}|" ./pyproject.toml
 
+      - name: Build package
+        shell: bash
+        run: |
+          python3 -m build
+
       - name: 🚀 Publish to PyPi
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
         uses: pypa/gh-action-pypi-publish@release/v1
