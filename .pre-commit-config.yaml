@@ -53,4 +53,4 @@ repos:
           - --py311-plus
           - --force
           - --keep-updates
-        files: ^custom_components/.+\.py$
+        files: ^./.+\.py$
