@@ -1,3 +1,40 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name        = "audiconnectpy"
+version     = "replace_by_workflow"
+license     = {text = "GPL-3"}
+description = "Provides asynchronous authentication and access to Audi Connect"
+readme      = "README.md"
+authors     = [
+    {name = "Cyr-ius", email = "cyr-ius@ipocus.net"}
+]
+keywords    = ["connect", "async", "audi"]
+classifiers = [
+    "Programming Language :: Python",
+    "Development Status :: 5 - Production/Stable",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Framework :: AsyncIO",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+requires-python = ">=3.10.0"
+dependencies    = [
+    "aiohttp>=3.8.1",
+]
+
+[tool.setuptools]
+platforms = ["any"]
+zip-safe  = false
+include-package-data = true
+
 [tool.isort]
 # https://github.com/PyCQA/isort/wiki/isort-Settings
 profile = "black"
@@ -9,7 +46,7 @@ disable = [
 ]
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.11"
 check_untyped_defs = true
 disallow_any_generics = true
 disallow_incomplete_defs = true
