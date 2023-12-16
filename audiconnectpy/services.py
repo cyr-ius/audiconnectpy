@@ -548,16 +548,44 @@ class AudiService:
         """Set charger."""
         # OpenHab "startCharging","stopCharging"
         url = await self._async_get_home_region(vin.upper())
-        data = '<?xml version="1.0" encoding= "UTF-8" ?>'
-        data += f'<action><type>{"true" if start else "false"}</type></action>'
+        # data = '<?xml version="1.0" encoding= "UTF-8" ?>'
+        # data += f'<action><type>{"true" if start else "false"}</type></action>'
+        # headers = await self._auth.async_get_action_headers(
+        #     "application/vnd.vwg.mbb.ChargerAction_v1_0_0+xml", None
+        # )
+        action = (
+            "P_START_CLIMA_EL"
+            if self._heater_source == "electric"
+            else "P_START_CLIMA_AU"
+        )
+        security_token = await self._async_get_security_token(
+            vin, "rclima_v1/operations/" + (action if start else "P_QSTOPACT")
+        )
         headers = await self._auth.async_get_action_headers(
-            "application/vnd.vwg.mbb.ChargerAction_v1_0_0+xml", None
+            "application/json", security_token
+        )
+        data = (
+            {
+                "action": {
+                    "type": "startClimatisation",
+                    "settings": {
+                        "targetTemperature": 2940,
+                        "climatisationWithoutHVpower": True,
+                        "heaterSource": self._heater_source,
+                        "climaterElementSettings": {
+                            "isClimatisationAtUnlock": False,
+                            "isMirrorHeatingEnabled": True,
+                        },
+                    },
+                }
+            }
+            if start
+            else {"action": {"type": "stopClimatisation"}}
         )
         rsp = await self._auth.post(
             f"{url}/bs/batterycharge/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/charger/actions",
             headers=headers,
             data=data,
-            use_json=False,
         )
         rsp = rsp if rsp else ExtendedDict()
         actionid = rsp.getr("action.actionId")
@@ -572,11 +600,19 @@ class AudiService:
     async def async_set_charger_max(self, vin: str, current: float = 32) -> None:
         """Set max current."""
         url = await self._async_get_home_region(vin.upper())
-        data = '<?xml version="1.0" encoding= "UTF-8" ?>'
-        data += f"<action><type>setSettings</type><settings><maxChargeCurrent>{int(current)}</maxChargeCurrent></settings></action>"
-        headers = await self._auth.async_get_action_headers(
-            "application/vnd.vwg.mbb.ChargerAction_v1_0_0+xml", None
-        )
+        # data = '<?xml version="1.0" encoding= "UTF-8" ?>'
+        # data += f"<action><type>setSettings</type><settings><maxChargeCurrent>{int(current)}</maxChargeCurrent></settings></action>"
+        # headers = await self._auth.async_get_action_headers(
+        #     "application/vnd.vwg.mbb.ChargerAction_v1_0_0+xml", None
+        # )
+
+        data = {
+            "action": {
+                "settings": {"maxChargeCurrent": int(current)},
+                "type": "setSettings",
+            }
+        }
+        headers = await self._auth.async_get_action_headers("application/json", None)
         rsp = await self._auth.post(
             f"{url}/bs/batterycharge/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/charger/actions",
             headers=headers,
@@ -592,6 +628,10 @@ class AudiService:
             FAILED,
             "action.actionState",
         )
+
+    async def async_set_charger_min(self, vin: str, level: int) -> None:
+        """Set the desired minimum charge level for departure schedules."""
+        raise NotImplementedError()
 
     async def set_heater_source(
         self, vin: str, mode: Literal["electric", "auxiliary", "automatic"]
