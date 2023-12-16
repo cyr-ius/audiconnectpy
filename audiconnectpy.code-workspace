@@ -67,7 +67,11 @@
     "cSpell.enabled": false,
     "cSpell.language": "en, fr",
     "python.testing.pytestArgs": ["--continue-on-collection-errors"],
-    "editor.defaultFormatter": "charliermarsh.ruff"
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.codeActionsOnSave": {
+      "source.fixAll": true,
+      "source.organizeImports": true
+    },
   },
   "launch": {
     "version": "0.2.0",
