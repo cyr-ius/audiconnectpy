@@ -238,12 +238,14 @@ class AudiService:
         data = {
             "query": "query vehicleList {\n userVehicles {\n vin\n mappingVin\n vehicle { core { modelYear\n }\n media { shortName\n longName }\n }\n csid\n commissionNumber\n type\n devicePlatform\n mbbConnect\n userRole {\n role\n }\n vehicle {\n classification {\n driveTrain\n }\n }\n nickname\n }\n}"
         }
-
         url = "https://app-api.live-my.audi.com/vgql/v1/graphql"
-        if self._country == "US":
+        if self.country == "US":
             url = "https://app-api.my.aoa.audi.com/vgql/v1/graphql"
         resp = await self._auth.post(
-            url, data=data, headers=headers, allow_redirects=False
+            url,
+            data=data,
+            headers=headers,
+            allow_redirects=False,
         )
         resp = resp if resp else ExtendedDict()
         if "data" not in resp:
