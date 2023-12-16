@@ -47,9 +47,9 @@ class Auth:
         """Initialize."""
         self._session = session
         if proxy:
-            self.__proxy: dict[  # pylint: disable=unused-private-member
+            self.__proxy: dict[
                 str, str
-            ] | None = {
+            ] | None = {  # pylint: disable=unused-private-member
                 "http": proxy,
                 "https": proxy,
             }
