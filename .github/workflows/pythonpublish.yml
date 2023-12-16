@@ -35,7 +35,7 @@ jobs:
       - name: 🔢 Set version number
         run: |
           export version=${{ github.ref }}
-          sed -i "s|replace_by_workflow|${version##*/}|" ./setup.py
+          sed -i "s|replace_by_workflow|${version##*/}|" ./pyproject.toml
           cat ./setup.py
 
       - name: 🚀 Publish to PyPi
