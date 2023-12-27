@@ -71,7 +71,7 @@
     "editor.codeActionsOnSave": {
       "source.fixAll": true,
       "source.organizeImports": true
-    },
+    }
   },
   "launch": {
     "version": "0.2.0",
