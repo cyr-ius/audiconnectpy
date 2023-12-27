@@ -62,7 +62,7 @@ class AudiConnect:
             for vehicle in self._audi_vehicles:
                 await self._async_add_or_update_vehicle(vehicle, vinlist)
             return True
-        except IOError as exception:
+        except OSError as exception:
             # Force a re-login in case of failure/exception
             self.is_connected = False
             _LOGGER.exception(exception)

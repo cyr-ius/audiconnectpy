@@ -6,9 +6,10 @@ import json
 import logging
 import random
 import time
+from collections.abc import Callable
 from datetime import datetime
 from functools import reduce
-from typing import Any, Callable
+from typing import Any
 
 from .exceptions import TimeoutExceededError
 

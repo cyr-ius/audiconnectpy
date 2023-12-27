@@ -238,10 +238,7 @@ class Auth:
         # 2022-01-29: new HTML response uses a js two build the html form data + button.
         # Therefore it's not possible to extract hmac and other form data.
         # --> extract hmac from embedded js snippet.
-        regex_res = re.findall(
-            '"hmac"\s*:\s*"[0-9a-fA-F]+"',  # noqa: W605 pylint: disable=anomalous-backslash-in-string
-            email_rsptxt,
-        )
+        regex_res = re.findall(r'"hmac"\s*:\s*"[0-9a-fA-F]+"', email_rsptxt)
         if regex_res:
             submit_url = submit_url.replace("identifier", "authenticate")
             submit_data["hmac"] = regex_res[0].split(":")[1].strip('"')

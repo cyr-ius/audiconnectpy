@@ -45,7 +45,7 @@ repos:
       # Will require manual work, before submitting changes!
       # pre-commit run --hook-stage manual python-typing-update --all-files
       - id: python-typing-update
-        # stages: [manual]
+        stages: [manual]
         args:
           - --py311-plus
           - --force
