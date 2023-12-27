@@ -1,11 +1,9 @@
 -r requirements.txt
 
-black
-flake8
-mypy
 pre-commit
-pyannotate
-pylint
 pytest
 pytest-asyncio
 ruff
+yamllint
+codespell
+python-typing-update

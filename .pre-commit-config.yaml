@@ -6,6 +6,8 @@ repos:
       - id: ruff
         args:
           - --fix
+      - id: ruff-format
+        files: ^(/.+)?[^/]+\.py$
   - repo: https://github.com/psf/black-pre-commit-mirror
     rev: 23.12.1
     hooks:
@@ -50,4 +52,4 @@ repos:
           - --py311-plus
           - --force
           - --keep-updates
-        files: ^.+\.py$
+        files: ^(/.+)?[^/]+\.py$
