@@ -7,3 +7,4 @@ ruff
 yamllint
 codespell
 python-typing-update
+types-beautifulsoup4

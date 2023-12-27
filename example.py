@@ -35,11 +35,11 @@ async def main() -> None:
                 _LOGGER.info(vehicle.model)
                 _LOGGER.info(vehicle.support_charger)
                 _LOGGER.info(vehicle.support_climater)
-                _LOGGER.info(vehicle.support_cyclic)
-                _LOGGER.info(vehicle.support_long_term)
+                _LOGGER.info(vehicle.support_trip_cyclic)
+                _LOGGER.info(vehicle.support_trip_long)
+                _LOGGER.info(vehicle.support_trip_short)
                 _LOGGER.info(vehicle.support_position)
                 _LOGGER.info(vehicle.support_preheater)
-                _LOGGER.info(vehicle.support_short_term)
                 _LOGGER.info(vehicle.support_vehicle)
 
                 for attr, state in vehicle.states.items():

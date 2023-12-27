@@ -162,7 +162,7 @@ class AudiService:
         data = data if data else ExtendedDict()
         td_sorted = sorted(
             data.getr("tripDataList.tripData", []),
-            key=lambda k: k["overallMileage"],  # type: ignore[no-any-return]
+            key=lambda k: k["overallMileage"],
             reverse=True,
         )
         td_current = td_sorted[0] if len(td_sorted) > 0 else {}
@@ -389,7 +389,7 @@ class AudiService:
 
         # data = '<?xml version="1.0" encoding= "UTF-8" ?>'
         # data += f'<action><type>{"startClimatisation" if start else "stopClimatisation"}</type>'
-        # data += f"<settings><heaterSource>{self._heater_source}</heaterSource></settings></action>"
+        # data += f"<settings><heaterSource>{self._heater_source[vin]}</heaterSource></settings></action>"
         # headers = await self._auth.async_get_action_headers(
         #     "application/vnd.vwg.mbb.ClimaterAction_v1_0_2+json", security_token
         # )
@@ -559,7 +559,7 @@ class AudiService:
         # )
         action = (
             "P_START_CLIMA_EL"
-            if self._heater_source == "electric"
+            if self._heater_source[vin] == "electric"
             else "P_START_CLIMA_AU"
         )
         security_token = await self._async_get_security_token(
@@ -575,7 +575,7 @@ class AudiService:
                     "settings": {
                         "targetTemperature": 2940,
                         "climatisationWithoutHVpower": True,
-                        "heaterSource": self._heater_source,
+                        "heaterSource": self._heater_source[vin],
                         "climaterElementSettings": {
                             "isClimatisationAtUnlock": False,
                             "isMirrorHeatingEnabled": True,
