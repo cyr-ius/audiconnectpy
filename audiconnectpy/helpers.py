@@ -9,6 +9,7 @@ import time
 from collections.abc import Callable
 from datetime import datetime
 from functools import reduce
+from hashlib import sha512
 from typing import Any
 
 from .exceptions import TimeoutExceededError
@@ -112,3 +113,11 @@ def retry(
         return newfn
 
     return decorator
+
+
+def spin_hash(spin, challenge: str) -> str:
+    """Generate security pin hash."""
+    pin = to_byte_array(str(spin))
+    byte_challenge = to_byte_array(challenge)
+    b_pin = bytes(pin + byte_challenge)
+    return sha512(b_pin).hexdigest().upper()
