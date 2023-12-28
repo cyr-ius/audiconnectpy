@@ -408,7 +408,7 @@ class Auth:
         _LOGGER.debug("RevocationEndpoint: %s", self._revocation_endpoint_url)
 
     async def async_get_action_headers(
-        self, content_type: str, security_token: str | None
+        self, content_type: str, security_token: str | None, x_security: bool = False
     ) -> dict[str, str]:
         """Return header for vehicle action."""
         headers = {
@@ -416,8 +416,11 @@ class Auth:
             "User-Agent": "okhttp/3.11.0",
         }
 
-        if security_token:
+        if security_token and x_security is False:
             headers.update({"x-mbbSecToken": security_token})
+
+        if security_token and x_security is True:
+            headers.update({"X-securityToken": security_token})
 
         headers = await self.async_get_headers(token_type="mbb", headers=headers)
 
@@ -445,6 +448,7 @@ class Auth:
             token_type = "mbb"
 
         if token_type in ["mbb", "idk", "audi"]:
+            _LOGGER.debug("TOKEN TYPE: %s", token_type)
             await self.async_refresh_tokens()
             match token_type:
                 case "idk":
