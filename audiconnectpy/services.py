@@ -339,7 +339,6 @@ class AudiService:
 
     async def async_lock(self, vin: str, lock: bool) -> None:
         """Set lock."""
-        # OpenHab "lock","unlock"
         url = await self._async_get_home_region(vin.upper())
         data = '<?xml version="1.0" encoding= "UTF-8" ?>'
         data += f'<rluAction xmlns="http://audi.de/connect/rlu"><action>{"lock" if lock else "unlock"}</action></rluAction>'
@@ -371,41 +370,26 @@ class AudiService:
 
     async def async_climater(self, vin: str, start: bool) -> None:
         """Set Climatisation."""
-        # OpenHab "startClimatisation","stopClimatisation"
         url = await self._async_get_home_region(vin.upper())
-        heater_source = self._heater_source.get(vin, "electric")
-        action = (
-            "P_START_CLIMA_EL" if heater_source == "electric" else "P_START_CLIMA_AU"
+        headers = await self._auth.async_get_action_headers("application/json", None)
+        data = (
+            {
+                "action": {
+                    "type": "startClimatisation",
+                    "settings": {
+                        "targetTemperature": 2940,
+                        "climatisationWithoutHVpower": True,
+                        "heaterSource": self.set_heater_source[vin],
+                        "climaterElementSettings": {
+                            "isClimatisationAtUnlock": False,
+                            "isMirrorHeatingEnabled": True,
+                        },
+                    },
+                }
+            }
+            if start
+            else {"action": {"type": "stopClimatisation"}}
         )
-        security_token = await self._async_get_security_token(
-            vin, "rclima_v1/operations/" + (action if start else "P_QSTOPACT")
-        )
-        data = '<?xml version="1.0" encoding= "UTF-8" ?>'
-        data += f'<action><type>{"startClimatisation" if start else "stopClimatisation"}</type>'
-        data += f"<settings><heaterSource>{heater_source}</heaterSource></settings></action>"
-        headers = await self._auth.async_get_action_headers(
-            "application/vnd.vwg.mbb.ClimaterAction_v1_0_0+xml", security_token
-        )
-
-        # data = '<?xml version="1.0" encoding= "UTF-8" ?>'
-        # data += f'<action><type>{"startClimatisation" if start else "stopClimatisation"}</type>'
-        # data += f"<settings><heaterSource>{self._heater_source[vin]}</heaterSource></settings></action>"
-        # headers = await self._auth.async_get_action_headers(
-        #     "application/vnd.vwg.mbb.ClimaterAction_v1_0_2+json", security_token
-        # )
-        # data = (
-        #     {
-        #         "action": {
-        #             "type": "startClimatisation",
-        #             "settings": {
-        #                 "climatisationWithoutHVpower": "without_hv_power",
-        #                 "heaterSource": heater_source,
-        #             },
-        #         }
-        #     }
-        #     if start
-        #     else {"action": {"type": "stopClimatisation"}}
-        # )
 
         rsp = await self._auth.post(
             f"{url}/bs/climatisation/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/climater/actions",
@@ -427,31 +411,21 @@ class AudiService:
         """Set Climatisation temperature."""
         temperature = int(round(temperature, 1) * 10 + 2731)
         url = await self._async_get_home_region(vin.upper())
-        heater_source = self._heater_source.get(vin, "electric")
-        data = '<?xml version="1.0" encoding= "UTF-8" ?>'
-        data += f"<action><type>setSettings</type><settings><targetTemperature>{temperature}</targetTemperature>"
-        data += "<climatisationWithoutHVpower>false</climatisationWithoutHVpower>"
-        data += f"<heaterSource>{heater_source}</heaterSource></settings></action>"
-        headers = await self._auth.async_get_action_headers(
-            "application/vnd.vwg.mbb.ClimaterAction_v1_0_0+xml", None
-        )
-        # data = json.dumps(
-        #     {
-        #         "action": {
-        #             "type": "setSettings",
-        #             "settings": {
-        #                 "targetTemperature": temperature,
-        #                 "climatisationWithoutHVpower": True,
-        #                 "heaterSource": heater_source,
-        #                 "climaterElementSettings": {
-        #                     "isClimatisationAtUnlock": False,
-        #                     "isMirrorHeatingEnabled": True,
-        #                 },
-        #             },
-        #         }
-        #     }
-        # )
-        # headers = await self._auth.async_get_action_headers("application/json", None)
+        headers = await self._auth.async_get_action_headers("application/json", None)
+        data = {
+            "action": {
+                "type": "setSettings",
+                "settings": {
+                    "targetTemperature": temperature,
+                    "climatisationWithoutHVpower": True,
+                    "heaterSource": self.set_heater_source[vin],
+                    "climaterElementSettings": {
+                        "isClimatisationAtUnlock": False,
+                        "isMirrorHeatingEnabled": True,
+                    },
+                },
+            }
+        }
         rsp = await self._auth.post(
             f"{url}/bs/climatisation/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/climater/actions",
             headers=headers,
@@ -469,7 +443,6 @@ class AudiService:
 
     async def async_pre_heating(self, vin: str, start: bool) -> None:
         """Set pre heater."""
-        # OpenHab "startPreHeat","stopPreHeat"
         url = await self._async_get_home_region(vin.upper())
         security_token = await self._async_get_security_token(
             vin, "rheating_v1/operations/" + ("P_QSACT" if start else "P_QSTOPACT")
@@ -508,23 +481,11 @@ class AudiService:
 
     async def async_ventilation(self, vin: str, start: bool) -> None:
         """Set ventilation."""
-        # OpenHab "startVentilation","stopVentilation"
         url = await self._async_get_home_region(vin.upper())
         duration = self._control_duration.get(vin, 60)
         security_token = await self._async_get_security_token(
             vin, "rheating_v1/operations/" + ("P_QSACT" if start else "P_QSTOPACT")
         )
-        # data = '<?xml version="1.0" encoding= "UTF-8" ?>'
-        # data += '<performAction xmlns="http://audi.de/connect/rs">'
-        # data += f'<quickstart><active>{"true" if start else "false"}</active>'
-        # data += (
-        #     f"<climatisationDuration>{self._control_duration}</climatisationDuration>"
-        # )
-        # data += " <startMode>ventilation</startMode></quickstart></performAction>"
-        # headers = await self._auth.async_get_action_headers(
-        #     "application/vnd.vwg.mbb.RemoteStandheizung_v2_0_0+xml", security_token
-        # )
-
         headers = await self._auth.async_get_action_headers(
             "application/vnd.vwg.mbb.RemoteStandheizung_v2_0_2+json", security_token
         )
@@ -548,44 +509,29 @@ class AudiService:
             data=data,
         )
 
-    async def async_charger(self, vin: str, start: bool, timer: bool = False) -> None:
-        """Set charger."""
-        # OpenHab "startCharging","stopCharging"
+    async def async_battery_charger(
+        self, vin: str, start: bool, timer: bool = False
+    ) -> None:
+        """Set battery charger."""
         url = await self._async_get_home_region(vin.upper())
-        # data = '<?xml version="1.0" encoding= "UTF-8" ?>'
-        # data += f'<action><type>{"true" if start else "false"}</type></action>'
-        # headers = await self._auth.async_get_action_headers(
-        #     "application/vnd.vwg.mbb.ChargerAction_v1_0_0+xml", None
-        # )
-        action = (
-            "P_START_CLIMA_EL"
-            if self._heater_source[vin] == "electric"
-            else "P_START_CLIMA_AU"
-        )
-        security_token = await self._async_get_security_token(
-            vin, "rclima_v1/operations/" + (action if start else "P_QSTOPACT")
-        )
-        headers = await self._auth.async_get_action_headers(
-            "application/json", security_token
-        )
-        data = (
-            {
+        headers = await self._auth.async_get_action_headers("application/json", None)
+        if start and timer:
+            data = {
                 "action": {
-                    "type": "startClimatisation",
+                    "type": "selectChargingMode",
                     "settings": {
-                        "targetTemperature": 2940,
-                        "climatisationWithoutHVpower": True,
-                        "heaterSource": self._heater_source[vin],
-                        "climaterElementSettings": {
-                            "isClimatisationAtUnlock": False,
+                        "chargeModeSelection": {
+                            "value": "timerBasedCharging",
                             "isMirrorHeatingEnabled": True,
                         },
                     },
                 }
             }
-            if start
-            else {"action": {"type": "stopClimatisation"}}
-        )
+        elif start:
+            data = {"action": {"type": "start"}}
+        else:
+            data = {"action": {"type": "stop"}}
+
         rsp = await self._auth.post(
             f"{url}/bs/batterycharge/v1/{self.brand}/{self.country}/vehicles/{vin.upper()}/charger/actions",
             headers=headers,
@@ -604,12 +550,6 @@ class AudiService:
     async def async_set_charger_max(self, vin: str, current: float = 32) -> None:
         """Set max current."""
         url = await self._async_get_home_region(vin.upper())
-        # data = '<?xml version="1.0" encoding= "UTF-8" ?>'
-        # data += f"<action><type>setSettings</type><settings><maxChargeCurrent>{int(current)}</maxChargeCurrent></settings></action>"
-        # headers = await self._auth.async_get_action_headers(
-        #     "application/vnd.vwg.mbb.ChargerAction_v1_0_0+xml", None
-        # )
-
         data = {
             "action": {
                 "settings": {"maxChargeCurrent": int(current)},
@@ -646,7 +586,6 @@ class AudiService:
 
     async def async_window_heating(self, vin: str, start: bool) -> None:
         """Set window heating."""
-        # OpenHab "startWindowHeating","stopWindowHeating"
         url = await self._async_get_home_region(vin.upper())
         data = '<?xml version="1.0" encoding= "UTF-8" ?>'
         data += f"<action><type>{'startWindowHeating' if start else 'stopWindowHeating'}</type></action>"
