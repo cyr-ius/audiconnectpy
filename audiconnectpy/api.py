@@ -33,7 +33,6 @@ class AudiConnect:
         country: str = "DE",
         spin: int | None = None,
         unit_system: str = "metric",
-        apiLevel: int = 2,
     ) -> None:
         """Initialize."""
         Globals(unit_system)
