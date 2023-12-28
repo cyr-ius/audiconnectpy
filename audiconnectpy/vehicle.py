@@ -35,6 +35,9 @@ class Vehicle(AudiService):
         else:
             self.title = data.getr("vehicle.media.shortName", self.vin)
 
+        self.api_level_climatisation: int = 2
+        self.api_level_ventilation: int = 2
+        self.api_level_charger: int = 1
         self.states: ExtendedDict = ExtendedDict()
         self.support_charger: bool | None = None
         self.support_climater: bool | None = None
@@ -231,3 +234,9 @@ class Vehicle(AudiService):
                 )
             else:
                 setattr(self, f"support_trip_{kind}", True)
+
+    def set_api_level(
+        self, mode: Literal["climatisation", "ventilation"], value: int
+    ) -> None:
+        """Set API Level for Climatisation and Ventilation."""
+        setattr(self, f"api_level_{mode}", value)
