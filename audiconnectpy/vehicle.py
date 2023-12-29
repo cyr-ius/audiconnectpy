@@ -236,7 +236,8 @@ class Vehicle(AudiService):
                 setattr(self, f"support_trip_{kind}", True)
 
     def set_api_level(
-        self, mode: Literal["climatisation", "ventilation"], value: int
+        self, mode: Literal["climatisation", "ventilation", "charger"], value: int
     ) -> None:
-        """Set API Level for Climatisation and Ventilation."""
-        setattr(self, f"api_level_{mode}", value)
+        """Set API Level."""
+        if mode in ["climatisation", "ventilation", "charger"]:
+            setattr(self, f"api_level_{mode}", int(value))
