@@ -35,9 +35,9 @@ class Vehicle(AudiService):
         else:
             self.title = data.getr("vehicle.media.shortName", self.vin)
 
-        self.api_level_climatisation: int = 2
-        self.api_level_ventilation: int = 2
-        self.api_level_charger: int = 1
+        self.api_level_climatisation: int = 2  # 2 or 3
+        self.api_level_ventilation: int = 1  # 1 or other
+        self.api_level_charger: int = 1  # 1 or other
         self.states: ExtendedDict = ExtendedDict()
         self.support_charger: bool | None = None
         self.support_climater: bool | None = None
