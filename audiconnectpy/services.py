@@ -261,3 +261,14 @@ class AudiService(AudiActions):
         )
         data = data if data else ExtendedDict()
         return data
+
+    async def async_get_selectivestatus(self) -> VehicleDataResponse:
+        """Get capabilities."""
+        url = "https://emea.bff.cariad.digital"
+        headers = await self.auth.async_get_headers(token_type="idk")
+        data = await self.auth.get(
+            f"{url}/vehicle/v1/vehicles/{self.vin}/selectivestatus?jobs=access,charging,fuelStatus,climatisation,measurements",
+            headers=headers,
+        )
+        data = data if data else ExtendedDict()
+        return VehicleDataResponse(data, self.spin is not None)
