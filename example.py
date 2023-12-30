@@ -41,9 +41,24 @@ async def main() -> None:
                 _LOGGER.info(vehicle.support_position)
                 _LOGGER.info(vehicle.support_preheater)
                 _LOGGER.info(vehicle.support_vehicle)
-
+                _LOGGER.info(vehicle.support_honkflash)
+                _LOGGER.info(vehicle.support_climater_timer)
                 for attr, state in vehicle.states.items():
                     _LOGGER.info("%s: %s", attr, state.get("value"))
+
+                # vehicle.set_api_level("climatisation", 2)
+                # vehicle.set_api_level("ventilation", 1)
+                # vehicle.set_api_level("charger", 1)
+                # await vehicle.async_set_lock(True)
+                # await vehicle.async_set_battery_charger(True)
+                # await vehicle.async_set_charger_max(32)
+                # await vehicle.async_set_ventilation(True)
+                # await vehicle.async_set_pre_heating(True)
+                # await vehicle.async_set_climater(True)
+                # await vehicle.async_set_climater_temp(20.5)
+                # await vehicle.async_set_window_heating(True)
+                # await vehicle.async_set_honkflash(mode="flash",duration=15)
+
         except AudiException as error:
             _LOGGER.error(error)
 
