@@ -268,10 +268,7 @@ class AudiActions:
                     "action": {
                         "type": "selectChargingMode",
                         "settings": {
-                            "chargeModeSelection": {
-                                "value": "timerBasedCharging",
-                                "isMirrorHeatingEnabled": True,
-                            },
+                            "chargeModeSelection": {"value": "timerBasedCharging"},
                         },
                     }
                 }
