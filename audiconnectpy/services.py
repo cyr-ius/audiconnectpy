@@ -16,8 +16,10 @@ from .helpers import ExtendedDict
 from .models import (
     ChargerDataResponse,
     ClimaterDataResponse,
+    ClimaterTimerDataResponse,
     DestinationDataResponse,
     HistoryDataResponse,
+    HonkFlashDataResponse,
     PositionDataResponse,
     PreheaterDataResponse,
     TripDataResponse,
@@ -166,7 +168,7 @@ class AudiService(AudiActions):
             f"{self.url}/bs/departuretimer/v1/{BRAND}/{self.country}/vehicles/{self.vin}/timer"
         )
         data = data if data else ExtendedDict()
-        return data
+        return ClimaterTimerDataResponse(data)
 
     async def async_get_capabilities(self) -> VehicleDataResponse:
         """Get capabilities."""
@@ -184,7 +186,7 @@ class AudiService(AudiActions):
             f"{self.url}/bs/rhf/v1/{BRAND}/{self.country}/configuration"
         )
         data = data if data else ExtendedDict()
-        return data
+        return HonkFlashDataResponse(data)
 
     async def async_get_personal_data(self) -> Any:
         """Get Honk & Flash status."""

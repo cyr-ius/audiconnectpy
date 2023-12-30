@@ -46,6 +46,8 @@ class Vehicle(AudiService):
         self.support_trip_cyclic: bool | None = None
         self.support_trip_long: bool | None = None
         self.support_trip_short: bool | None = None
+        self.support_honkflash: bool | None = None
+        self.support_climater_timer: bool | None = None
         self.support_vehicle: bool | None = None
 
     async def async_fetch_data(self) -> bool:
@@ -62,6 +64,10 @@ class Vehicle(AudiService):
             await self.async_update_charger()
             info = "preheater"
             await self.async_update_preheater()
+            info = "climater_timer"
+            await self.async_update_climater_timer()
+            info = "honkflash"
+            await self.async_update_honkflash()
             for kind in ["short", "long", "cyclic"]:
                 info = kind
                 await self.async_update_tripdata(kind)
@@ -197,6 +203,56 @@ class Vehicle(AudiService):
             except HttpRequestError as error:
                 _LOGGER.error(
                     "Unable to obtain the vehicle charger state for %s: %s",
+                    self.vin,
+                    str(error).rstrip("\n"),
+                )
+
+    @retry(exceptions=TimeoutExceededError, tries=3, delay=2)
+    async def async_update_climater_timer(self) -> None:
+        """Update Climater timer."""
+        if self.support_climater_timer is not False:
+            try:
+                result = await self.async_get_climater_timer()
+                if result.is_supported:
+                    self.support_climater_timer = result.is_supported
+                    self.states.update(result.attributes)
+            except ServiceNotFoundError as error:
+                if error.args[0] in (401, 403, 502):
+                    self.support_climater_timer = False
+                else:
+                    _LOGGER.error(
+                        "Unable to obtain climater timer profil for %s: %s",
+                        self.vin,
+                        str(error).rstrip("\n"),
+                    )
+            except HttpRequestError as error:
+                _LOGGER.error(
+                    "Unable to obtain climater timer profil for %s: %s",
+                    self.vin,
+                    str(error).rstrip("\n"),
+                )
+
+    @retry(exceptions=TimeoutExceededError, tries=3, delay=2)
+    async def async_update_honkflash(self) -> None:
+        """Update Honk Flash."""
+        if self.support_honkflash is not False:
+            try:
+                result = await self.async_get_honkflash()
+                if result.is_supported:
+                    self.support_honkflash = result.is_supported
+                    self.states.update(result.attributes)
+            except ServiceNotFoundError as error:
+                if error.args[0] in (401, 403, 502):
+                    self.support_honkflash = False
+                else:
+                    _LOGGER.error(
+                        "Unable to obtain the honk flash configuration for %s: %s",
+                        self.vin,
+                        str(error).rstrip("\n"),
+                    )
+            except HttpRequestError as error:
+                _LOGGER.error(
+                    "Unable to obtain the honk flash configuration for %s: %s",
                     self.vin,
                     str(error).rstrip("\n"),
                 )

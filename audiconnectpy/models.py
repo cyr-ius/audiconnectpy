@@ -305,20 +305,27 @@ class ChargerDataResponse:
         cruising = status.getr("cruisingRangeStatusData", {})
         attrs = {
             "max_charge_current": settings.getr("maxChargeCurrent.content"),
+            # chargingStatusData
             "charging_state": charging.getr("chargingState.content"),
             "actual_charge_rate": charging.getr("actualChargeRate.content"),
             "actual_charge_rate_unit": charging.getr("chargeRateUnit.content"),
             "charging_power": charging.getr("chargingPower.content"),
             "charging_mode": charging.getr("chargingMode.content"),
             "energy_flow": charging.getr("energyFlow.content"),
+            # cruisingRangeStatusData
             "primary_engine_type": cruising.getr("engineTypeFirstEngine.content"),
             "secondary_engine_type": cruising.getr("engineTypeSecondEngine.content"),
             "hybrid_range": cruising.getr("hybridRange.content"),
             "primary_engine_range": cruising.getr("primaryEngineRange.content"),
             "secondary_engine_range": cruising.getr("secondaryEngineRange.content"),
-            "state_of_charge": status.getr("batteryStatusData.stateOfCharge.content"),
+            # PlugStatusData
             "plug_state": status.getr("plugStatusData.plugState.content"),
             "plug_lock": status.getr("plugStatusData.lockState.content"),
+            # ledStatusData
+            "led_color": status.getr("ledStatusData.ledColor.content"),
+            "led_state": status.getr("ledStatusData.ledState.content"),
+            # BatteryStatusData
+            "state_of_charge": status.getr("batteryStatusData.stateOfCharge.content"),
             "remaining_charging_time": status.getr(
                 "batteryStatusData.remainingChargingTime.content"
             ),
@@ -346,14 +353,17 @@ class ClimaterDataResponse:
         settings = self.data.getr("climater.settings", {})
         status = self.data.getr("climater.status", {})
         attrs = {
+            "climatisation_heater_src": settings.getr("heaterSource.content"),
+            "climatisation_target_temp": settings.getr("targetTemperature.content"),
             "climatisation_state": status.getr(
                 "climatisationStatusData.climatisationState.content"
+            ),
+            "climatisation_remaining_time": status.getr(
+                "climatisationStatusData.remainingClimatisationTime.content"
             ),
             "outdoor_temperature": status.getr(
                 "temperatureStatusData.outdoorTemperature.content"
             ),
-            "climatisation_heater_src": settings.getr("heaterSource.content"),
-            "climatisation_target_temp": settings.getr("targetTemperature.content"),
         }
         return ExtendedDict(attrs)
 
@@ -471,5 +481,61 @@ class TripDataResponse:
             "traveltime": int(self.data.get("traveltime", 0)),
             "timestamp": self.data.get("timestamp"),
             "overallMileage": int(self.data.get("overallMileage", 0)),
+        }
+        return ExtendedDict(attrs)
+
+
+@dataclass
+class ClimaterTimerDataResponse:
+    """Climater timer class."""
+
+    data: ExtendedDict
+
+    @property
+    def is_supported(self) -> bool:
+        """Supported status."""
+        return (
+            self.data.getr("timer.timersAndProfiles") is not None
+            or self.data.getr("timer.status") is not None
+        )
+
+    @property
+    def attributes(self) -> ExtendedDict:
+        """Attributes properties."""
+        profiles = self.data.getr("timer.timersAndProfiles", {})
+        # status = self.data.getr("climater_timer.timer.status", {})
+        attrs = {
+            "climater_timer_profil_list": profiles.getr(
+                "timerProfileList.timerProfile"
+            ),
+        }
+        return ExtendedDict(attrs)
+
+
+@dataclass
+class HonkFlashDataResponse:
+    """Climater timer class."""
+
+    data: ExtendedDict
+
+    @property
+    def is_supported(self) -> bool:
+        """Supported status."""
+        return self.data.getr("honkAndFlashConfiguration") is not None
+
+    @property
+    def attributes(self) -> ExtendedDict:
+        """Attributes properties."""
+        settings = self.data.getr("honkAndFlashConfiguration", {})
+        # status = self.data.getr("climater_timer.timer.status", {})
+        attrs = {
+            "honkflash_default_duration": settings.getr("defaultServiceDuration"),
+            "honkflash_max_duration": settings.getr("maximumServiceDuration"),
+            "honkflash_honk_forbidden": settings.getr("honkForbidden"),
+            "honkflash_flash_forbidden": settings.getr("flashForbidden"),
+            "honkflash_max_distance": settings.getr("maximumDistanceToVehicle"),
+            "honkflash_distance_restriction": settings.getr(
+                "distanceRestrictionForSignal"
+            ),
         }
         return ExtendedDict(attrs)
