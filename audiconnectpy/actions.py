@@ -76,6 +76,7 @@ class AudiActions:
                 + heater_source
                 + "</heaterSource></settings></action>"
             )
+            use_json = False
         else:
             headers = await self.auth.async_get_action_headers(
                 "application/json",
@@ -100,12 +101,13 @@ class AudiActions:
                 if start
                 else {"action": {"type": "stopClimatisation"}}
             )
+            use_json = True
 
         rsp = await self.auth.post(
             f"{self.url}/bs/climatisation/v1/{BRAND}/{self.country}/vehicles/{self.vin}/climater/actions",
             headers=headers,
             data=data,
-            use_json=False,
+            use_json=use_json,
         )
         rsp = rsp if rsp else ExtendedDict()
         actionid = rsp.getr("action.actionId")
@@ -137,6 +139,7 @@ class AudiActions:
                 + f"<heaterSource>{heater_source}</heaterSource>"
                 + "</settings></action>"
             )
+            use_json = False
         else:
             headers = await self.auth.async_get_action_headers("application/json", None)
             data = {
@@ -153,10 +156,12 @@ class AudiActions:
                     },
                 }
             }
+            use_json = True
         rsp = await self.auth.post(
             f"{self.url}/bs/climatisation/v1/{BRAND}/{self.country}/vehicles/{self.vin}/climater/actions",
             headers=headers,
             data=data,
+            use_json=use_json,
         )
         rsp = rsp if rsp else ExtendedDict()
         actionid = rsp.getr("action.actionId")
@@ -181,6 +186,7 @@ class AudiActions:
                 '<?xml version="1.0" encoding= "UTF-8" ?><performAction xmlns="http://audi.de/connect/rs">'
                 + f'<quickstart><active>{"true" if start else "false"}</active></quickstart></performAction>'
             )
+            use_json = False
         else:
             headers = await self.auth.async_get_action_headers(
                 "application/json", security_token
@@ -198,12 +204,13 @@ class AudiActions:
                 if start
                 else {"performAction": {"quickstop": {"active": False}}}
             )
+            use_json = True
 
         await self.auth.post(
             f"{self.url}/bs/rs/v1/{BRAND}/{self.country}/vehicles/{self.vin}/action",
             headers=headers,
             data=data,
-            use_json=False,
+            use_json=use_json,
         )
 
     async def async_set_ventilation(self, start: bool, duration: int = 60) -> None:
@@ -217,7 +224,7 @@ class AudiActions:
             )
             content = (
                 (
-                    +"<active>true</active>"
+                    "<active>true</active>"
                     + f"<climatisationDuration>{duration}</climatisationDuration>"
                     + "<startMode>ventilation</startMode>"
                 )
@@ -225,7 +232,7 @@ class AudiActions:
                 else "<active>false</active>"
             )
             data = f'<?xml version="1.0" encoding="UTF-8" ?><performAction xmlns="http://audi.de/connect/rs"><quickstart>{content}</quickstart></performAction>'
-
+            use_json = False
         else:
             headers = await self.auth.async_get_action_headers(
                 "application/vnd.vwg.mbb.RemoteStandheizung_v2_0_2+json", security_token
@@ -243,11 +250,13 @@ class AudiActions:
                 if start
                 else {"performAction": {"quickstop": {"active": False}}}
             )
+            use_json = True
 
         await self.auth.post(
             f"{self.url}/bs/rs/v1/{BRAND}/{self.country}/vehicles/{self.vin}/action",
             headers=headers,
             data=data,
+            use_json=use_json,
         )
 
     async def async_set_battery_charger(self, start: bool, timer: bool = False) -> None:
@@ -270,16 +279,19 @@ class AudiActions:
                 data = {"action": {"type": "start"}}
             else:
                 data = {"action": {"type": "stop"}}
+            use_json = True
         else:
             headers = await self.auth.async_get_action_headers(
                 "application/vnd.vwg.mbb.ChargerAction_v1_0_0+xml", None
             )
             data = f'<?xml version="1.0" encoding="UTF-8" ?><action><type>{"start" if start else "stop"}</type></action>'
+            use_json = False
 
         rsp = await self.auth.post(
             f"{self.url}/bs/batterycharge/v1/{BRAND}/{self.country}/vehicles/{self.vin}/charger/actions",
             headers=headers,
             data=data,
+            use_json=use_json,
         )
         rsp = rsp if rsp else ExtendedDict()
         actionid = rsp.getr("action.actionId")
@@ -301,6 +313,7 @@ class AudiActions:
                     "type": "setSettings",
                 }
             }
+            use_json = True
         else:
             headers = await self.auth.async_get_action_headers(
                 "application/vnd.vwg.mbb.ChargerAction_v1_0_0+xml", None
@@ -309,12 +322,13 @@ class AudiActions:
                 '<?xml version="1.0" encoding="UTF-8" ?><action><type>setSettings</type>'
                 + f"<settings><maxChargeCurrent>{current}</maxChargeCurrent></settings></action>"
             )
+            use_json = False
 
         rsp = await self.auth.post(
             f"{self.url}/bs/batterycharge/v1/{BRAND}/{self.country}/vehicles/{self.vin}/charger/actions",
             headers=headers,
             data=data,
-            use_json=False,
+            use_json=use_json,
         )
         rsp = rsp if rsp else ExtendedDict()
         actionid = rsp.getr("action.actionId")
@@ -359,7 +373,7 @@ class AudiActions:
             f"{self.url}/bs/cf/v1/{BRAND}/{self.country}/vehicles/{self.vin}/position"
         )
         rsp_position = rsp_position if rsp_position else ExtendedDict()
-        position = rsp_position.get("findCarResponse.Position.carCoordinate")
+        position = rsp_position.getr("findCarResponse.Position.carCoordinate")
         headers = await self.auth.async_get_action_headers("application/json", None)
         data = {
             "honkAndFlashRequest": {
