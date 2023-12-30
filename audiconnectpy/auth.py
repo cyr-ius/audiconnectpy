@@ -88,6 +88,7 @@ class Auth:
             async with async_timeout.timeout(TIMEOUT):
                 _LOGGER.debug("REQUEST HEADERS: %s", headers)
                 _LOGGER.debug("REQUEST: %s", url)
+                _LOGGER.debug("REQUEST DATA:%s", data)
                 response = await self._session.request(
                     method, url, headers=headers, data=data, **kwargs
                 )
