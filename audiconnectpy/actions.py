@@ -277,6 +277,14 @@ class AudiActions:
             else:
                 data = {"action": {"type": "stop"}}
             use_json = True
+        elif self.api_level_charger == 3:
+            headers = await self.auth.async_get_action_headers("application/json", None)
+            data = {
+                "action": {
+                    "type": "startBatteryCharging" if start else "stopBatteryCharging"
+                }
+            }
+            use_json = True
         else:
             headers = await self.auth.async_get_action_headers(
                 "application/vnd.vwg.mbb.ChargerAction_v1_0_0+xml", None
@@ -339,18 +347,28 @@ class AudiActions:
 
     async def async_set_window_heating(self, start: bool) -> None:
         """Set window heating."""
-        headers = await self.auth.async_get_action_headers(
-            "application/vnd.vwg.mbb.ClimaterAction_v1_0_0+xml", None
-        )
-        data = (
-            '<?xml version="1.0" encoding= "UTF-8" ?>'
-            + f"<action><type>{'startWindowHeating' if start else 'stopWindowHeating'}</type></action>"
-        )
+        if self.api_level_windows_heating == 2:
+            headers = await self.auth.async_get_action_headers("application/json", None)
+            data = {
+                "action": {
+                    "type": "startWindowHeating" if start else "stopWindowHeating"
+                }
+            }
+            use_json = True
+        else:
+            headers = await self.auth.async_get_action_headers(
+                "application/vnd.vwg.mbb.ClimaterAction_v1_0_0+xml", None
+            )
+            data = (
+                '<?xml version="1.0" encoding= "UTF-8" ?>'
+                + f"<action><type>{'startWindowHeating' if start else 'stopWindowHeating'}</type></action>"
+            )
+            use_json = False
         rsp = await self.auth.post(
             f"{self.url}/bs/climatisation/v1/{BRAND}/{self.country}/vehicles/{self.vin}/climater/actions",
             headers=headers,
             data=data,
-            use_json=False,
+            use_json=use_json,
         )
         rsp = rsp if rsp else ExtendedDict()
         actionid = rsp.getr("action.actionId")
