@@ -19,7 +19,7 @@ _LOGGER = logging.getLogger(__name__)
 VW_USERNAME = "xxxxxx@xxxx.xxx"
 VW_PASSWORD = "xxxxxxx"
 COUNTRY = "DE"
-SPIN = 1234
+SPIN = "1234"
 
 
 async def main() -> None:
