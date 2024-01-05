@@ -115,7 +115,7 @@ def retry(
     return decorator
 
 
-def spin_hash(spin, challenge: str) -> str:
+def spin_hash(spin: str, challenge: str) -> str:
     """Generate security pin hash."""
     pin = to_byte_array(str(spin))
     byte_challenge = to_byte_array(challenge)

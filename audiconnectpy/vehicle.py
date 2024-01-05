@@ -4,6 +4,7 @@ from __future__ import annotations
 import logging
 from typing import Literal
 
+from .actions import AudiActions
 from .auth import Auth
 from .exceptions import HttpRequestError, ServiceNotFoundError, TimeoutExceededError
 from .helpers import ExtendedDict, retry
@@ -12,7 +13,7 @@ from .services import AudiService
 _LOGGER = logging.getLogger(__name__)
 
 
-class Vehicle(AudiService):
+class Vehicle(AudiService, AudiActions):
     """Vehicle class."""
 
     def __init__(
@@ -25,7 +26,6 @@ class Vehicle(AudiService):
         spin: str | None = None,
     ) -> None:
         """Initialize."""
-        super().__init__(auth, country, spin, url, url_setter)
         self.vin: str = data.get("vin", "").upper()
         self.csid: str = data.get("csid", "")
         self.model = data.getr("vehicle.media.longName", "")
@@ -35,10 +35,12 @@ class Vehicle(AudiService):
         else:
             self.title = data.getr("vehicle.media.shortName", self.vin)
 
-        self.api_level_climatisation: int = 2  # 2 or 3
-        self.api_level_ventilation: int = 1  # 1 or other
-        self.api_level_charger: int = 1  # 1 or 2 or 3 (json)
-        self.api_level_windows_heating: int = 1  # 1 or 2 (json)
+        self.api_level = {
+            "climatisation": 2,  # 2 or 3
+            "ventilation": 1,  # 1 or other
+            "charger": 1,  # 1 or 2 or 3 (json)
+            "windows_heating": 1,  # 1 or 2 (json)
+        }
         self.states: ExtendedDict = ExtendedDict()
         self.support_charger: bool | None = None
         self.support_climater: bool | None = None
@@ -50,6 +52,8 @@ class Vehicle(AudiService):
         self.support_honkflash: bool | None = None
         self.support_climater_timer: bool | None = None
         self.support_vehicle: bool | None = None
+
+        super().__init__(auth, self.vin, url, url_setter, country, self.api_level, spin)
 
     async def async_fetch_data(self) -> bool:
         """Update."""
@@ -293,8 +297,10 @@ class Vehicle(AudiService):
                 setattr(self, f"support_trip_{kind}", True)
 
     def set_api_level(
-        self, mode: Literal["climatisation", "ventilation", "charger"], value: int
+        self,
+        mode: Literal["climatisation", "ventilation", "charger", "window_heating"],
+        value: int,
     ) -> None:
         """Set API Level."""
-        if mode in ["climatisation", "ventilation", "charger"]:
-            setattr(self, f"api_level_{mode}", int(value))
+        if mode in self.api_level.keys():
+            self.api_level[mode] = int(value)

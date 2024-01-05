@@ -31,7 +31,7 @@ class AudiConnect:
         username: str,
         password: str,
         country: str = "DE",
-        spin: int | None = None,
+        spin: str | None = None,
         unit_system: str = "metric",
     ) -> None:
         """Initialize."""
@@ -66,12 +66,12 @@ class AudiConnect:
                     (url, url_setter) = await self._async_fill_url(response["vin"])
                     self._audi_vehicles.append(
                         Vehicle(
-                            self.auth,
-                            ExtendedDict(response),
-                            url,
-                            url_setter,
-                            self._spin,
-                            self.country,
+                            auth=self.auth,
+                            data=ExtendedDict(response),
+                            url=url,
+                            url_setter=url_setter,
+                            country=self.country,
+                            spin=self._spin,
                         )
                     )
             for vehicle in self._audi_vehicles:

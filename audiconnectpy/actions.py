@@ -2,8 +2,10 @@
 from __future__ import annotations
 
 import asyncio
+from dataclasses import dataclass
 from typing import Any, Literal
 
+from .auth import Auth
 from .const import (
     BRAND,
     FAILED,
@@ -17,8 +19,17 @@ from .exceptions import HttpRequestError, TimeoutExceededError
 from .helpers import ExtendedDict, spin_hash
 
 
+@dataclass
 class AudiActions:
     """Actions on vehicle."""
+
+    auth: Auth
+    vin: str
+    url: str
+    url_setter: str
+    country: str
+    api_level: dict[str, int]
+    spin: str | None
 
     async def async_set_lock(self, lock: bool) -> None:
         """Set lock."""
@@ -29,7 +40,7 @@ class AudiActions:
             "application/vnd.vwg.mbb.RemoteLockUnlock_v1_0_0+xml",
             security_token,
         )
-        data = (
+        data: str | dict[str, Any] = (
             '<?xml version="1.0" encoding= "UTF-8" ?>'
             + f'<rluAction xmlns="http://audi.de/connect/rlu"><action>{"lock" if lock else "unlock"}</action></rluAction>'
         )
@@ -64,14 +75,14 @@ class AudiActions:
                 else "P_START_CLIMA_AU"
             )
         )
-        if self.api_level_climatisation == 3:
+        if self.api_level["climatisation"] == 3:
             # standard format with header source, e.g. E-Tron
             headers = await self.auth.async_get_action_headers(
                 "application/vnd.vwg.mbb.ClimaterAction_v1_0_0+xml;charset=utf-8",
                 security_token,
                 heater_source != "electric",
             )
-            data = (
+            data: str | dict[str, Any] = (
                 f'<?xml version="1.0" encoding="UTF-8"?><action><type>{"startClimatisation" if start else "stopClimatisation"}</type><settings><heaterSource>'
                 + heater_source
                 + "</heaterSource></settings></action>"
@@ -127,12 +138,12 @@ class AudiActions:
         """Set Climatisation temperature."""
         temperature = int(round(temperature, 1) * 10 + 2731)
 
-        if self.api_level_climatisation == 3:
+        if self.api_level["climatisation"] == 3:
             # standard format with header source, e.g. E-Tron
             headers = await self.auth.async_get_action_headers(
                 "application/vnd.vwg.mbb.ClimaterAction_v1_0_0+xml;charset=utf-8", None
             )
-            data = (
+            data: str | dict[str, Any] = (
                 '<?xml version="1.0" encoding="UTF-8"?><action><type>setSettings</type><settings>'
                 + f"<targetTemperature>{temperature}</targetTemperature>"
                 + "<climatisationWithoutHVpower>false</climatisationWithoutHVpower>"
@@ -178,11 +189,11 @@ class AudiActions:
         security_token = await self._async_get_security_token(
             "rheating_v1/operations/" + ("P_QSACT" if start else "P_QSTOPACT")
         )
-        if self.api_level_ventilation == 1:
+        if self.api_level["ventilation"] == 1:
             headers = await self.auth.async_get_action_headers(
                 "application/vnd.vwg.mbb.RemoteStandheizung_v2_0_0+xml", security_token
             )
-            data = (
+            data: str | dict[str, Any] = (
                 '<?xml version="1.0" encoding= "UTF-8" ?><performAction xmlns="http://audi.de/connect/rs">'
                 + f'<quickstart><active>{"true" if start else "false"}</active></quickstart></performAction>'
             )
@@ -218,7 +229,7 @@ class AudiActions:
         security_token = await self._async_get_security_token(
             "rheating_v1/operations/" + ("P_QSACT" if start else "P_QSTOPACT")
         )
-        if self.api_level_ventilation == 1:
+        if self.api_level["ventilation"] == 1:
             headers = await self.auth.async_get_action_headers(
                 "application/vnd.vwg.mbb.RemoteStandheizung_v2_0_0+xml", security_token
             )
@@ -231,7 +242,10 @@ class AudiActions:
                 if start
                 else "<active>false</active>"
             )
-            data = f'<?xml version="1.0" encoding="UTF-8" ?><performAction xmlns="http://audi.de/connect/rs"><quickstart>{content}</quickstart></performAction>'
+            data: str | dict[str, Any] = (
+                '<?xml version="1.0" encoding="UTF-8" ?><performAction xmlns="http://audi.de/connect/rs">'
+                f"<quickstart>{content}</quickstart></performAction>"
+            )
             use_json = False
         else:
             headers = await self.auth.async_get_action_headers(
@@ -261,10 +275,10 @@ class AudiActions:
 
     async def async_set_battery_charger(self, start: bool, timer: bool = False) -> None:
         """Set battery charger."""
-        if self.api_level_charger == 2:
+        if self.api_level["charger"] == 2:
             headers = await self.auth.async_get_action_headers("application/json", None)
             if start and timer:
-                data = {
+                data: str | dict[str, Any] = {
                     "action": {
                         "type": "selectChargingMode",
                         "settings": {
@@ -277,7 +291,7 @@ class AudiActions:
             else:
                 data = {"action": {"type": "stop"}}
             use_json = True
-        elif self.api_level_charger == 3:
+        elif self.api_level["charger"] == 3:
             headers = await self.auth.async_get_action_headers("application/json", None)
             data = {
                 "action": {
@@ -310,9 +324,9 @@ class AudiActions:
 
     async def async_set_charger_max(self, current: float = 32) -> None:
         """Set max current."""
-        if self.api_level_charger == 2:
+        if self.api_level["charger"] == 2:
             headers = await self.auth.async_get_action_headers("application/json", None)
-            data = {
+            data: str | dict[str, Any] = {
                 "action": {
                     "settings": {"maxChargeCurrent": int(current)},
                     "type": "setSettings",
@@ -347,9 +361,9 @@ class AudiActions:
 
     async def async_set_window_heating(self, start: bool) -> None:
         """Set window heating."""
-        if self.api_level_windows_heating == 2:
+        if self.api_level["windows_heating"] == 2:
             headers = await self.auth.async_get_action_headers("application/json", None)
-            data = {
+            data: str | dict[str, Any] = {
                 "action": {
                     "type": "startWindowHeating" if start else "stopWindowHeating"
                 }
@@ -390,7 +404,7 @@ class AudiActions:
         rsp_position = rsp_position if rsp_position else ExtendedDict()
         position = rsp_position.getr("findCarResponse.Position.carCoordinate")
         headers = await self.auth.async_get_action_headers("application/json", None)
-        data = {
+        data: str | dict[str, Any] = {
             "honkAndFlashRequest": {
                 "serviceOperationCode": "HONK_AND_FLASH"
                 if mode == "honk"

@@ -6,7 +6,6 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any, Literal
 
-from .actions import AudiActions
 from .auth import Auth
 from .const import (
     BRAND,
@@ -31,14 +30,16 @@ _LOGGER = logging.getLogger(__name__)
 
 
 @dataclass
-class AudiService(AudiActions):
+class AudiService:
     """Audi service."""
 
     auth: Auth
-    spin: int
-    country: str
+    vin: str
     url: str
     url_setter: str
+    country: str
+    api_level: dict[str, int]
+    spin: str | None
 
     async def async_get_vehicle_details(self) -> Any:
         """Get vehicle data."""
