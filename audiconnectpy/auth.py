@@ -46,14 +46,9 @@ class Auth:
     ) -> None:
         """Initialize."""
         self._session = session
-        if proxy:
-            self.__proxy: dict[str, str] | None = {  # pylint: disable=unused-private-member
-                "http": proxy,
-                "https": proxy,
-            }
-        else:
-            self.__proxy = None  # pylint: disable=unused-private-member
-
+        self.__proxy: dict[str, str] | None = (
+            {"http": proxy, "https": proxy} if proxy else None
+        )
         self._audi_baseurl = ""
         self._mbb_baseurl = MBB_URL
         self._token_endpoint_url = ""
