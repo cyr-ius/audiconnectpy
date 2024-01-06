@@ -35,7 +35,6 @@ platforms = ["any"]
 zip-safe  = false
 include-package-data = true
 
-
 [tool.ruff.flake8-pytest-style]
 fixture-parentheses = false
 
