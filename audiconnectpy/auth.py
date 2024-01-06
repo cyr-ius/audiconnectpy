@@ -3,20 +3,20 @@ from __future__ import annotations
 
 import asyncio
 import base64
+from datetime import datetime, timedelta
+from hashlib import sha256
 import json
 import logging
 import os
 import re
 import socket
-import uuid
-from datetime import datetime, timedelta
-from hashlib import sha256
 from typing import Any, Literal
 from urllib.parse import parse_qs, urlencode, urlparse
+import uuid
 
 import aiohttp
-import async_timeout
 from aiohttp.hdrs import METH_GET, METH_POST, METH_PUT
+import async_timeout
 from bs4 import BeautifulSoup
 
 from .exceptions import (
@@ -47,9 +47,7 @@ class Auth:
         """Initialize."""
         self._session = session
         if proxy:
-            self.__proxy: dict[
-                str, str
-            ] | None = {  # pylint: disable=unused-private-member
+            self.__proxy: dict[str, str] | None = {  # pylint: disable=unused-private-member
                 "http": proxy,
                 "https": proxy,
             }
