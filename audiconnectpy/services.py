@@ -64,8 +64,11 @@ class AudiService:
 
     async def async_get_stored_position(self) -> PositionDataResponse:
         """Get position data."""
+        url = "https://emea.bff.cariad.digital"
+        headers = await self.auth.async_get_headers(token_type="idk")
         data = await self.auth.get(
-            f"{self.url}/bs/cf/v1/{BRAND}/{self.country}/vehicles/{self.vin}/position"
+           f"{url}/vehicle/v1/vehicles/{self.vin}/parkingposition",
+            headers=headers,
         )
         data = data if data else ExtendedDict()
         return PositionDataResponse(data)
