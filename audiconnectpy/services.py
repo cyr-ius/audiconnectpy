@@ -67,7 +67,7 @@ class AudiService:
         url = "https://emea.bff.cariad.digital"
         headers = await self.auth.async_get_headers(token_type="idk")
         data = await self.auth.get(
-           f"{url}/vehicle/v1/vehicles/{self.vin}/parkingposition",
+            f"{url}/vehicle/v1/vehicles/{self.vin}/parkingposition",
             headers=headers,
         )
         data = data if data else ExtendedDict()
