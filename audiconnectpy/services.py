@@ -56,8 +56,11 @@ class AudiService:
 
     async def async_get_vehicle(self) -> VehicleDataResponse:
         """Get store data."""
+        url = "https://emea.bff.cariad.digital"
+        headers = await self.auth.async_get_headers(token_type="idk")
         data = await self.auth.get(
-            f"{self.url}/bs/vsr/v1/{BRAND}/{self.country}/vehicles/{self.vin}/status"
+            f"{url}/vehicle/v1/vehicles/{self.vin}/selectivestatus?jobs=access,charging,fuelStatus,climatisation,measurements",
+            headers=headers,
         )
         data = data if data else ExtendedDict()
         return VehicleDataResponse(data, self.spin is not None)
