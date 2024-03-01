@@ -440,7 +440,7 @@ class PositionDataResponse:
         attrs = {
                 "latitude": data.getr("lat", 0) / 1000000,
                 "longitude": data.getr("lon", 0) / 1000000,
-		"timestamp":= data.getr("carCapturedTimestamp"),			  
+		"timestamp": data.getr("carCapturedTimestamp"),			  
         }
         return ExtendedDict(attrs)
 
