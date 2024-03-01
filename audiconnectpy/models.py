@@ -430,25 +430,19 @@ class PositionDataResponse:
 
     @property
     def is_supported(self) -> bool:
-        """Supported status."""
-        return self.data.getr("findCarResponse.Position") is not None
+        """Supported status."""		
+        return self.data.getr("data.carCapturedTimestamp") is not None 
 
     @property
     def attributes(self) -> ExtendedDict:
         """Attributes properties."""
-        coordinate = self.data.getr("findCarResponse.Position.carCoordinate", {})
-        timestamp = self.data.getr("findCarResponse.Position.timestampCarSentUTC")
+		coordinate = self.data.getr("data", {})
+        timestamp = carCapturedTimestamp
         attrs = {
-            "position": ExtendedDict(
-                {
-                    "lat": coordinate.get("latitude", 0) / 1000000,
-                    "lon": coordinate.get("longitude", 0) / 1000000,
-                    "carCapturedTimestamp": timestamp,
-                    "parktime": self.data.getr(
-                        "findCarResponse.parkingTimeUTC", timestamp
-                    ),
-                }
+                    "latitude": coordinate.get("lat", 0) / 1000000,
+                    "longitude": coordinate.get("lon", 0) / 1000000,
             )
+			  
         }
         return ExtendedDict(attrs)
 
