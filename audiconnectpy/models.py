@@ -441,9 +441,9 @@ class PositionDataResponse:
         attrs = {
             "position": ExtendedDict(
                 {
-                    "latitude": coordinate.get("latitude", 0) / 1000000,
-                    "longitude": coordinate.get("longitude", 0) / 1000000,
-                    "timestamp": timestamp,
+                    "lat": coordinate.get("latitude", 0) / 1000000,
+                    "lon": coordinate.get("longitude", 0) / 1000000,
+                    "carCapturedTimestamp": timestamp,
                     "parktime": self.data.getr(
                         "findCarResponse.parkingTimeUTC", timestamp
                     ),
