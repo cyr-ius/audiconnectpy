@@ -63,7 +63,7 @@ class AudiService:
             headers=headers,
         )
         data = data if data else ExtendedDict()
-        return VehicleDataResponse(data)"""", self.spin is not None)"""
+        return VehicleDataResponse(data)""", self.spin is not None)"""
 
     async def async_get_stored_position(self) -> PositionDataResponse:
         """Get position data."""
