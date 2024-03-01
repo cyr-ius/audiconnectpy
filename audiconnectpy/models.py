@@ -26,7 +26,7 @@ class VehicleDataResponse:
     @property
     def is_supported(self) -> bool:
         """Supported status."""
-        return self.data.getr("fuelStatus.rangeStatus.value" != None)
+        return self.data.getr("fuelStatus.rangeStatus.value") is not None
 
     @property
     def attributes(self) -> ExtendedDict:
