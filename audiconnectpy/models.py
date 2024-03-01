@@ -51,7 +51,7 @@ class VehicleDataResponse:
         }
         return ExtendedDict(attrs)
 
-    @staticmethod
+    """@staticmethod
     def _metadatas(attrs: ExtendedDict) -> ExtendedDict:
         metadatas = ExtendedDict({})
 
@@ -134,7 +134,7 @@ class VehicleDataResponse:
             )
             metadatas.update({"any_tyre_problem": any_tyre_pressure})
 
-        return metadatas
+        return metadatas"""
 
 
 @dataclass
