@@ -431,14 +431,14 @@ class AudiActions:
             headers=headers,
         )
         data = data if data else ExtendedDict()
-        #request_id: str = data.getr("CurrentVehicleDataResponse.requestId")
-        #await self._async_check_request(
+        # request_id: str = data.getr("CurrentVehicleDataResponse.requestId")
+        # await self._async_check_request(
         #    f"{self.url}/bs/vsr/v1/{BRAND}/{self.country}/vehicles/{self.vin}/requests/{request_id}/jobstatus",
         #    "refresh vehicle data",
         #    REQUEST_SUCCESSFUL,
         #    REQUEST_FAILED,
         #    "requestStatusResponse.status",
-        #)
+        # )
 
     async def _async_check_request(
         self, url: str, action: str, success: str, failed: str, path: str
