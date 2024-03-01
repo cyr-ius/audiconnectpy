@@ -63,6 +63,7 @@ class AudiService:
             headers=headers,
         )
         data = data if data else ExtendedDict()
+        _LOGGER.debug("services.py - async_get_vehicle")
         return VehicleDataResponse(data, self.spin is not None)
 
     async def async_get_stored_position(self) -> PositionDataResponse:
@@ -74,6 +75,7 @@ class AudiService:
             headers=headers,
         )
         data = data if data else ExtendedDict()
+        _LOGGER.debug("services.py - async_get_stored_position")
         return PositionDataResponse(data)
 
     async def async_get_destinations(self) -> DestinationDataResponse:
@@ -185,6 +187,7 @@ class AudiService:
             f"{url}/vehicle/v1/vehicles/{self.vin}/capabilities", headers=headers
         )
         data = data if data else ExtendedDict()
+        _LOGGER.debug("services.py - async_get_capabilities")
         return VehicleDataResponse(data, self.spin is not None)
 
     async def async_get_honkflash(self) -> Any:
@@ -278,4 +281,5 @@ class AudiService:
             headers=headers,
         )
         data = data if data else ExtendedDict()
+        _LOGGER.debug("services.py - async_get_selectivestatus")
         return VehicleDataResponse(data, self.spin is not None)
