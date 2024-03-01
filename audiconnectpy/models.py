@@ -437,10 +437,10 @@ class PositionDataResponse:
     def attributes(self) -> ExtendedDict:
         """Attributes properties."""
         attrs = {
-            "latitude": self.data.get("lat", 0) / 1000000,
-            "longitude": self.data.get("lon", 0) / 1000000,
-            "timestamp": self.data.get("carCapturedTimestamp", timestamp),
-            "parktime": self.data.get("carCapturedTimestamp", timestamp),
+            "latitude": self.data.getr("data.lat", 0) / 1000000,
+            "longitude": self.data.getr("data.lon", 0) / 1000000,
+            "timestamp": self.data.getr("data."carCapturedTimestamp", timestamp),
+            "parktime": self.data.getr("data.carCapturedTimestamp", timestamp),
         }
         return ExtendedDict(attrs)
 
