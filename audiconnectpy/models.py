@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from datetime import datetime as dt
 
 from .helpers import ExtendedDict
 
@@ -23,12 +22,11 @@ class VehicleDataResponse:
     """Status class."""
 
     data: ExtendedDict
-    
+
     @property
     def is_supported(self) -> bool:
         """Supported status."""
-        return self.data.getr("fuelStatus.rangeStatus.value" is not None
-        )
+        return self.data.getr("fuelStatus.rangeStatus.value" != None)
 
     @property
     def attributes(self) -> ExtendedDict:
@@ -38,6 +36,7 @@ class VehicleDataResponse:
             "total_range": value.get("totalRange_km"),
         }
         return ExtendedDict(attrs)
+
 
 @dataclass
 class PreheaterDataResponse:
