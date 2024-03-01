@@ -134,6 +134,7 @@ class VehicleDataResponse:
         attrs = {
             "total_range": value.get("totalRange_km"),
         }
+        return ExtendedDict(attrs)
 
     def _get_attributes(self) -> ExtendedDict:
         attrs = ExtendedDict({"last_access": dt.now()})
