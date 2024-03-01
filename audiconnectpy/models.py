@@ -30,7 +30,6 @@ class VehicleDataResponse:
         self.send_time_utc = None
         self.measure_mileage = None
         self.send_mileage = None
-        self._vehicle_data = self._get_attributes()
 
     @property
     def is_supported(self) -> bool:
@@ -45,7 +44,6 @@ class VehicleDataResponse:
             "total_range": fuelStatusrangeStatusvalue.get("totalRange_km"),
         }
         return ExtendedDict(attrs)
-        return self._vehicle_data
 
     @staticmethod
     def _metadatas(attrs: ExtendedDict) -> ExtendedDict:
