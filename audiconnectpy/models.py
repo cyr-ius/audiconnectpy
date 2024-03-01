@@ -120,15 +120,16 @@ class VehicleDataResponse:
     @property
     def is_supported(self) -> bool:
         """Supported status."""
-        return self.attributes is not None 
-                or self.data.getr("fuelStatus.rangeStatus.value") is not None       
+        return ( self.attributes is not None 
+                or self.data.getr("fuelStatus.rangeStatus.value") is not None  
+               )
 
     @property
     def attributes(self) -> ExtendedDict:
         """Attributes properties."""
         return self._vehicle_data
 
-            value: ExtendedDict = self.data.getr("fuelStatus.rangeStatus.value", {})
+        value = self.data.getr("fuelStatus.rangeStatus.value", {})
         attrs = {
             "total_range": value.get("totalRange_km"),
         }
