@@ -4,6 +4,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from datetime import datetime as dt
+
 from .helpers import ExtendedDict
 
 _LOGGER = logging.getLogger(__name__)
