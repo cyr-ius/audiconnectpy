@@ -424,18 +424,21 @@ class AudiActions:
 
     async def async_refresh_vehicle_data(self) -> None:
         """Refresh vehicle data."""
+        url = "https://emea.bff.cariad.digital"
+        headers = await self.auth.async_get_headers(token_type="idk")
         data = await self.auth.post(
-            f"{self.url}/bs/vsr/v1/{BRAND}/{self.country}/vehicles/{self.vin}/requests"
+            f"{url}/vehicle/v1/vehicles/{self.vin}/pendingrequests",
+            headers=headers,
         )
         data = data if data else ExtendedDict()
-        request_id: str = data.getr("CurrentVehicleDataResponse.requestId")
-        await self._async_check_request(
-            f"{self.url}/bs/vsr/v1/{BRAND}/{self.country}/vehicles/{self.vin}/requests/{request_id}/jobstatus",
-            "refresh vehicle data",
-            REQUEST_SUCCESSFUL,
-            REQUEST_FAILED,
-            "requestStatusResponse.status",
-        )
+        #request_id: str = data.getr("CurrentVehicleDataResponse.requestId")
+        #await self._async_check_request(
+        #    f"{self.url}/bs/vsr/v1/{BRAND}/{self.country}/vehicles/{self.vin}/requests/{request_id}/jobstatus",
+        #    "refresh vehicle data",
+        #    REQUEST_SUCCESSFUL,
+        #    REQUEST_FAILED,
+        #    "requestStatusResponse.status",
+        #)
 
     async def _async_check_request(
         self, url: str, action: str, success: str, failed: str, path: str
