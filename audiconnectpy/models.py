@@ -443,7 +443,7 @@ class PositionDataResponse:
                     "latitude": self.data.get("lat", 0) / 1000000,
                     "longitude": self.data.get("lon", 0) / 1000000,
                     "timestamp": timestamp,
-                    "parktime": self.data.getr("carCapturedTimestamp", timestamp),
+                    "parktime": timestamp,
                 }
             )
         }
