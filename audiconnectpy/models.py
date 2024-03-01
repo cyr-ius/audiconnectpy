@@ -441,8 +441,8 @@ class PositionDataResponse:
                 {
                     "latitude": self.data.get("lat", 0) / 1000000,
                     "longitude": self.data.get("lon", 0) / 1000000,
-                    "timestamp": self.data.get("carCapturedTimestamp"),
-                    "parktime": self.data.get("carCapturedTimestamp"),
+                    "timestamp": self.data.getr("carCapturedTimestamp"),
+                    "parktime": self.data.getr("carCapturedTimestamp"),
                 }
             )
         }
