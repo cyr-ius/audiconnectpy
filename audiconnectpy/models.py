@@ -445,6 +445,7 @@ class PositionDataResponse:
                 "parktime": self.data.getr("data.carCapturedTimestamp"),
                 }
             )
+        }
         return ExtendedDict(attrs)
 
 
