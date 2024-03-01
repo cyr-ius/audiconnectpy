@@ -19,7 +19,18 @@ class Globals:
 
 
 class VehicleDataResponse:
-    """Preheater class."""
+    """Status class."""
+
+    def __init__(self, data: ExtendedDict, has_pin: bool = False) -> None:
+        """Initialize."""
+        self.data = data
+        self.has_pin = has_pin
+        self.measure_time = None
+        self.send_time = None
+        self.send_time_utc = None
+        self.measure_mileage = None
+        self.send_mileage = None
+        self._vehicle_data = self._get_attributes()
 
     data: ExtendedDict
 
