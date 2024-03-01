@@ -22,8 +22,6 @@ class Globals:
 class VehicleDataResponse:
     """Status class."""
 
-    data: ExtendedDict
-
     IDS = {
         "0x0": "unknown",
         "0x0101010001": "utc_time",
