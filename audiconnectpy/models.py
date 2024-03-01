@@ -125,9 +125,7 @@ class VehicleDataResponse:
     @property
     def attributes(self) -> ExtendedDict:
         """Attributes properties."""
-        fuelStatusrangeStatusvalue = self.data.getr(
-            "fuelStatus.rangeStatus.value", {}
-        )
+        fuelStatusrangeStatusvalue = self.data.getr("fuelStatus.rangeStatus.value", {})
         attrs = {
             "total_range": fuelStatusrangeStatusvalue.get("totalRange_km"),
         }
