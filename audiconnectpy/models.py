@@ -39,8 +39,12 @@ class VehicleDataResponse:
     @property
     def attributes(self) -> ExtendedDict:
         """Attributes properties."""
+        chargingbatteryStatusvalue = self.data.getr("charging.batteryStatus.value", {})
         fuelStatusrangeStatusvalue = self.data.getr("fuelStatus.rangeStatus.value", {})
         attrs = {
+            "state_of_charge": chargingbatteryStatusvalue.get("currentSOC_pct"),
+            "secondary_range": chargingbatteryStatusvalue.get("cruisingRangeElectric_km"),
+            "carType": fuelStatusrangeStatusvalue.get("carType"),
             "total_range": fuelStatusrangeStatusvalue.get("totalRange_km"),
         }
         return ExtendedDict(attrs)
