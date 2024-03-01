@@ -63,7 +63,7 @@ class AudiService:
             headers=headers,
         )
         data = data if data else ExtendedDict()
-        return VehicleDataResponse(data)""", self.spin is not None)"""
+        return VehicleDataResponse(data)
 
     async def async_get_stored_position(self) -> PositionDataResponse:
         """Get position data."""
@@ -185,7 +185,7 @@ class AudiService:
             f"{url}/vehicle/v1/vehicles/{self.vin}/capabilities", headers=headers
         )
         data = data if data else ExtendedDict()
-        return VehicleDataResponse(data, self.spin is not None)
+        return VehicleDataResponse(data)
 
     async def async_get_honkflash(self) -> Any:
         """Get Honk & Flash status."""
@@ -278,4 +278,4 @@ class AudiService:
             headers=headers,
         )
         data = data if data else ExtendedDict()
-        return VehicleDataResponse(data)""", self.spin is not None)"""
+        return VehicleDataResponse(data)
