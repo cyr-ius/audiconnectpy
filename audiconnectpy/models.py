@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-
+from datetime import datetime as dt
 from .helpers import ExtendedDict
 
 _LOGGER = logging.getLogger(__name__)
@@ -134,10 +134,6 @@ class VehicleDataResponse:
             "total_range": fuelStatusrangeStatusvalue.get("fuelStatusrangeStatusvalue"),
         }
         return ExtendedDict(attrs)
-
-    @property
-    def attributes(self) -> ExtendedDict:
-        """Attributes properties."""
         return self._vehicle_data
 
     def _get_attributes(self) -> ExtendedDict:
