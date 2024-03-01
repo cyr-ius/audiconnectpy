@@ -22,6 +22,24 @@ class Globals:
 class VehicleDataResponse:
     """Status class."""
 
+    data: ExtendedDict
+
+    @property
+    def is_supported(self) -> bool:
+        """Supported status."""
+        return self.data.getr("fuelStatus.rangeStatus.value") is not None
+
+    @property
+    def attributes(self) -> ExtendedDict:
+        """Attributes properties."""	
+        value: ExtendedDict = self.data.getr(
+            "fuelStatus.rangeStatus.value", {}
+        )
+        attrs = {
+            "total_range": value.get("totalRange_km"),
+        }
+        return ExtendedDict(attrs)
+
     IDS = {
         "0x0": "unknown",
         "0x0101010001": "utc_time",
