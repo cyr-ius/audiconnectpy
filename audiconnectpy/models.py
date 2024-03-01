@@ -43,7 +43,9 @@ class VehicleDataResponse:
         fuelStatusrangeStatusvalue = self.data.getr("fuelStatus.rangeStatus.value", {})
         attrs = {
             "state_of_charge": chargingbatteryStatusvalue.get("currentSOC_pct"),
-            "secondary_range": chargingbatteryStatusvalue.get("cruisingRangeElectric_km"),
+            "secondary_range": chargingbatteryStatusvalue.get(
+                "cruisingRangeElectric_km"
+            ),
             "carType": fuelStatusrangeStatusvalue.get("carType"),
             "total_range": fuelStatusrangeStatusvalue.get("totalRange_km"),
         }
