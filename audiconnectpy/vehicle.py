@@ -95,6 +95,12 @@ class Vehicle(AudiService, AudiActions):
                 if result.is_supported:
                     self.support_vehicle = result.is_supported
                     self.states.update(result.attributes)
+                else:
+                    _LOGGER.error(
+                        "Unable to obtain the vehicle is_supported false %s: %s",
+                        self.vin,
+                        str(error).rstrip("\n"),
+                    )
             except ServiceNotFoundError as error:
                 if error.args[0] in (401, 403, 502):
                     self.support_vehicle = False
