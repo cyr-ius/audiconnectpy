@@ -132,7 +132,7 @@ class VehicleDataResponse:
             "fuelStatus.rangeStatus.value", {}
         )
         attrs = {
-            "total_range": fuelStatusrangeStatusvalue.get("fuelStatusrangeStatusvalue"),
+            "total_range": fuelStatusrangeStatusvalue.get("totalRange_km"),
         }
         return ExtendedDict(attrs)
         return self._vehicle_data
