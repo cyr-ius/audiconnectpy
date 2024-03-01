@@ -439,8 +439,8 @@ class PositionDataResponse:
         attrs = {
             "latitude": self.data.getr("data.lat", 0) / 1000000,
             "longitude": self.data.getr("data.lon", 0) / 1000000,
-            "timestamp": timestamp,
-            "parktime": self.data.getr("data.carCapturedTimestamp", timestamp),
+            "timestamp": self.data.getr("data.carCapturedTimestamp"),
+            "parktime": self.data.getr("data.carCapturedTimestamp"),
         }
         return ExtendedDict(attrs)
 
