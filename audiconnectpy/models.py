@@ -523,15 +523,14 @@ class HonkFlashDataResponse:
     def attributes(self) -> ExtendedDict:
         """Attributes properties."""
         settings = self.data.getr("honkAndFlashConfiguration", {})
-        # status = self.data.getr("climater_timer.timer.status", {})
         attrs = {
             "honkflash_default_duration": settings.getr("defaultServiceDuration"),
             "honkflash_max_duration": settings.getr("maximumServiceDuration"),
             "honkflash_honk_forbidden": settings.getr("honkForbidden"),
-            "honkflash_flash_forbidden": settings.getr("flashForbidden"),
             "honkflash_max_distance": settings.getr("maximumDistanceToVehicle"),
             "honkflash_distance_restriction": settings.getr(
                 "distanceRestrictionForSignal"
             ),
+            "honkflash_flash_forbidden": settings.getr("flashForbidden"),
         }
         return ExtendedDict(attrs)
