@@ -1,4 +1,5 @@
 """Constants."""
+
 BRAND = "Audi"
 FAILED = "failed"
 MAX_RESPONSE_ATTEMPTS = 10
