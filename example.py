@@ -1,4 +1,5 @@
 """Example script."""
+
 import asyncio
 import logging
 
