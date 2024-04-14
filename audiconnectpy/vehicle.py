@@ -92,7 +92,7 @@ class Vehicle(AudiService, AudiActions):
         """Update vehicle status."""
         if self.support_vehicle is not False:
             try:
-                result = await self.async_get_vehicle()
+                result = await self.async_get_selectivestatus()
                 if result.is_supported:
                     self.support_vehicle = result.is_supported
                     self.states.update(result.attributes)

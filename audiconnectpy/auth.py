@@ -30,8 +30,8 @@ from .helpers import ExtendedDict, json_loads
 
 TIMEOUT = 120
 DELAY = 10
-HDR_XAPP_VERSION = "4.13.0"
-HDR_USER_AGENT = "myAudi-Android/4.13.0 (Build 800238275.2210271555) Android/11"
+HDR_XAPP_VERSION = "4.23.1"
+HDR_USER_AGENT = "Android/4.23.1 (Build 800240120.root project 'onetouch-android'.ext.buildTime) Android/11"
 MARKET_URL = "https://content.app.my.audi.com/service/mobileapp/configurations"
 CLIENT_ID = "09b6cbec-cd19-4589-82fd-363dfa8c24da@apps_vw-dilab_com"
 MBB_URL = "https://mbboauth-1d.prd.ece.vwg-connect.com/mbbcoauth"

@@ -2,15 +2,13 @@
 
 from __future__ import annotations
 
-import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+import logging
 from typing import Any, Literal
 
 from .auth import Auth
-from .const import (
-    BRAND,
-)
+from .const import BRAND
 from .exceptions import AudiException
 from .helpers import ExtendedDict
 from .models import (
@@ -65,9 +63,13 @@ class AudiService:
 
     async def async_get_stored_position(self) -> PositionDataResponse:
         """Get position data."""
+        headers = await self.auth.async_get_headers(token_type="idk")
+        region = "emea" if self.country.upper() != "US" else "na"
         data = await self.auth.get(
-            f"{self.url}/bs/cf/v1/{BRAND}/{self.country}/vehicles/{self.vin}/position"
+            f"https://{region}.bff.cariad.digital/vehicle/v1/vehicles/{self.vin}/parkingposition",
+            headers=headers,
         )
+
         data = data if data else ExtendedDict()
         return PositionDataResponse(data)
 
@@ -174,10 +176,11 @@ class AudiService:
 
     async def async_get_capabilities(self) -> VehicleDataResponse:
         """Get capabilities."""
-        url = "https://emea.bff.cariad.digital"
         headers = await self.auth.async_get_headers(token_type="idk")
+        region = "emea" if self.country.upper() != "US" else "na"
         data = await self.auth.get(
-            f"{url}/vehicle/v1/vehicles/{self.vin}/capabilities", headers=headers
+            f"https://{region}.bff.cariad.digital/vehicle/v1/vehicles/{self.vin}/capabilities",
+            headers=headers,
         )
         data = data if data else ExtendedDict()
         return VehicleDataResponse(data, self.spin is not None)
@@ -266,10 +269,37 @@ class AudiService:
 
     async def async_get_selectivestatus(self) -> VehicleDataResponse:
         """Get capabilities."""
-        url = "https://emea.bff.cariad.digital"
+        JOBS2QUERY = {
+            "access",
+            "activeVentilation",
+            "auxiliaryHeating",
+            "batteryChargingCare",
+            "batterySupport",
+            "charging",
+            "chargingProfiles",
+            "chargingTimers",
+            "climatisation",
+            "climatisationTimers",
+            "departureProfiles",
+            "departureTimers",
+            "emergencyCalling",
+            "fuelStatus",
+            "honkAndFlash",
+            "hybridCarAuxiliaryHeating",
+            "lvBattery",
+            "measurements",
+            "oilLevel",
+            "readiness",
+            "userCapabilities",
+            "vehicleHealthInspection",
+            "vehicleHealthWarnings",
+            "vehicleLights",
+        }
+        jobs = ",".join(JOBS2QUERY)
         headers = await self.auth.async_get_headers(token_type="idk")
+        region = "emea" if self.country.upper() != "US" else "na"
         data = await self.auth.get(
-            f"{url}/vehicle/v1/vehicles/{self.vin}/selectivestatus?jobs=access,charging,fuelStatus,climatisation,measurements",
+            f"https://{region}.bff.cariad.digital/vehicle/v1/vehicles/{self.vin}/selectivestatus?jobs={jobs}",
             headers=headers,
         )
         data = data if data else ExtendedDict()

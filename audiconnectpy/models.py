@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-import logging
 from dataclasses import dataclass
 from datetime import datetime as dt
+import logging
+from typing import Any
 
 from .helpers import ExtendedDict
 
@@ -131,107 +132,113 @@ class VehicleDataResponse:
     def _get_attributes(self) -> ExtendedDict:
         attrs = ExtendedDict({"last_access": dt.now()})
 
-        default = self.data.getr("CurrentVehicleDataByRequestResponse.vehicleData.data")
-        vehicle_data = self.data.getr(
-            "StoredVehicleDataResponse.vehicleData.data", default
-        )
+        vehicle_data = self.data
         if vehicle_data is None:
             return ExtendedDict(attrs)
 
-        for raw_data in vehicle_data:
-            for raw_field in raw_data.get("field", {}):
-                ids = raw_field.get("id")
-                value = raw_field.get("value")
-                unit = raw_field.get("unit")
-                if ids == "0x0101010001":
-                    self.measure_time = raw_field.get("tsCarCaptured")
-                    self.send_time = raw_field.get("tsCarSent")
-                    self.send_time_utc = raw_field.get("tsCarSentUtc")
-                    self.measure_mileage = raw_field.get("milCarCaptured")
-                    self.send_mileage = raw_field.get("milCarSent")
-                    attrs.update({"last_update_time": self.send_time_utc})
-
-                if identity := self.IDS.get(ids):
-                    try:
-                        attrs.update({identity: int(value)})
-                    except Exception:  # pylint: disable=broad-except
-                        try:
-                            attrs.update({identity: float(value)})
-                        except Exception:  # pylint: disable=broad-except
-                            attrs.update({identity: value})
-
-                    if UNIT_SYSTEM == "imperial" and unit == "km":  # type: ignore
-                        attrs[identity] = round(attrs[identity] * 0.621371, 2)
-
-                else:
-                    _LOGGER.error("%s not found", ids)
-
-        # Append meta sensors
-        attrs.update(self._metadatas(attrs))
-
+        for key, raw_data in vehicle_data.items():
+            match key:
+                case "access":
+                    data = raw_data.get("accessStatus", {}).get("value", {})
+                    windows_status = self.windows_status(
+                        self.map_name_status(data.get("windows"))
+                    )
+                    doors_status = self.doors_status(
+                        self.map_name_status(data.get("doors"))
+                    )
+                    attrs.update(
+                        {
+                            "overall_status": data.get("overallStatus"),
+                            "doors_lock_status": data.get("doorLockStatus"),
+                            "last_update_time": data.get("carCapturedTimestamp"),
+                            **windows_status,
+                            **doors_status,
+                        }
+                    )
+                case "userCapabilities":
+                    capabilities = raw_data.get("capabilitiesStatus", {}).get(
+                        "value", {}
+                    )
+                    caps = [capability.get("id") for capability in capabilities]
+                    attrs.update({"capabilities": caps})
+                case "fuelStatus":
+                    data = raw_data.get("rangeStatus", {}).get("value", {})
+                    primary_engine = data.get("primaryEngine", {})
+                    secondary_engine = data.get("secondaryEngine", {})
+                    attrs.update(
+                        {
+                            "primary_engine_type": primary_engine.get("type"),
+                            "tank_level_in_percentage": primary_engine.get(
+                                "currentFuelLevel_pct"
+                            ),
+                            "primary_engine_range": primary_engine.get(
+                                "remainingRange_km"
+                            ),
+                        }
+                    )
+                    if secondary_engine:
+                        attrs.update(
+                            {
+                                "secondary_engine_type": secondary_engine.get("type"),
+                                "secondary_engine_range": secondary_engine.get(
+                                    "remainingRange_km"
+                                ),
+                            }
+                        )
+                case "measurements":
+                    range = raw_data.get("rangeStatus", {}).get("value", {})
+                    # fuel_level = raw_data.get("fuelLevelStatus", {}).get("value", {})
+                    odometer = raw_data.get("odometerStatus", {}).get("value", {})
+                    attrs.update(
+                        {
+                            "measure_mileage": odometer.get("odometer"),
+                            "gasoline_range": range.get("gasolineRange"),
+                        }
+                    )
+                case "oiLevel":
+                    data = raw_data.get("oilLevelStatus", {}).get("value", {})
+                    attrs.update({"oil_level_status": data.get("value")})
+                case "vehicleLights":
+                    data = (
+                        raw_data.get("lightsStatus", {})
+                        .get("value", {})
+                        .get("lights", [])
+                    )
+                    for light in data:
+                        attrs.update(
+                            {
+                                f"lights_{light.get('name')}_turn_off": light.get(
+                                    "status"
+                                )
+                                == "Off"
+                            }
+                        )
+                case "vehicleHealthInspection":
+                    data = raw_data.get("maintenanceStatus", {}).get("value", {})
+                    attrs.update(
+                        {
+                            "maintenance_interval_time_to_inspection": data.get(
+                                "inspectionDue_days"
+                            ),
+                            "maintenance_interval_distance_to_inspection": data.get(
+                                "inspectionDue_km"
+                            ),
+                            "total_range": data.get("mileage_km"),
+                            "maintenance_interval_distance_to_oil_change": data.get(
+                                "oilServiceDue_km"
+                            ),
+                            "maintenance_interval_time_to_oil_change": data.get(
+                                "oilServiceDue_days"
+                            ),
+                        }
+                    )
+                case "vehicleHealthWarnings":
+                    data = raw_data.get("warningLights", {}).get("value", {})
         return attrs
 
     @staticmethod
-    def _metadatas(attrs: ExtendedDict) -> ExtendedDict:
+    def tyres_status(attrs: ExtendedDict) -> ExtendedDict:
         metadatas = ExtendedDict({})
-
-        # Windows open status
-        left_check: int | None = attrs.get("state_left_front_window")
-        left_rear_check: int | None = attrs.get("state_left_rear_window")
-        right_check: int | None = attrs.get("state_right_front_window")
-        right_rear_check: int | None = attrs.get("state_right_rear_window")
-        if None not in [left_check, left_rear_check, right_check, right_rear_check]:
-            any_window_open = (
-                left_check != 3
-                and left_rear_check != 3
-                and right_check != 3
-                and right_rear_check != 3
-            )
-            metadatas.update({"any_window_open": any_window_open})
-
-        # Doors lock status
-        left_check = attrs.get("lock_state_left_front_door")
-        left_rear_check = attrs.get("lock_state_left_rear_door")
-        right_check = attrs.get("lock_state_right_front_door")
-        right_rear_check = attrs.get("lock_state_right_rear_door")
-        trunk_unlocked = attrs.get("lock_state_trunk_lid") != 2
-        if b_any_door_unlocked := (
-            None not in [left_check, left_rear_check, right_check, right_rear_check]
-        ):
-            any_door_unlocked = (
-                left_check != 2
-                and left_rear_check != 2
-                and right_check != 2
-                and right_rear_check != 2
-            )
-            metadatas.update({"any_door_unlocked": any_door_unlocked})
-
-        # Doors open status
-        left_check = attrs.get("open_state_left_front_door")
-        left_rear_check = attrs.get("open_state_left_rear_door")
-        right_check = attrs.get("open_state_right_front_door")
-        right_rear_check = attrs.get("open_state_right_rear_door")
-        trunk_open = attrs.get("open_state_trunk_lid") != 3
-        if b_any_door_open := (
-            None not in [left_check, left_rear_check, right_check, right_rear_check]
-        ):
-            any_door_open = (
-                left_check != 3
-                and left_rear_check != 3
-                and right_check != 3
-                and right_rear_check != 3
-            )
-            metadatas.update({"any_door_open": any_door_open})
-
-        # Door trunk status
-        if b_any_door_open and b_any_door_unlocked and trunk_open and trunk_unlocked:
-            if any_door_open and trunk_open:
-                metadatas.update({"doors_trunk_status": "Open"})
-            elif any_door_unlocked and trunk_unlocked:
-                metadatas.update({"doors_trunk_status": "Closed"})
-            else:
-                metadatas.update({"doors_trunk_status": "Locked"})
-
         # Tyre pressure status
         left_check = attrs.get("tyre_pressure_left_front_tyre_difference")
         left_rear_check = attrs.get("tyre_pressure_left_rear_tyre_difference")
@@ -255,6 +262,97 @@ class VehicleDataResponse:
             metadatas.update({"any_tyre_problem": any_tyre_pressure})
 
         return metadatas
+
+    @staticmethod
+    def windows_status(attrs: ExtendedDict) -> ExtendedDict:
+        # Windows open status
+        metadatas = ExtendedDict({})
+        left_open = "closed" not in attrs.get("frontLeft", [])
+        left_rear_open = "closed" not in attrs.get("rearLeft", [])
+        right_open = "closed" not in attrs.get("frontRight", [])
+        right_rear_open = "closed" not in attrs.get("rearRight", [])
+        any_window_open = (
+            left_open and left_rear_open and right_open and right_rear_open
+        )
+        metadatas.update(
+            {
+                "open_left_front_window": left_open,
+                "open_left_rear_window": left_rear_open,
+                "open_right_front_window": right_open,
+                "open_right_rear_window": right_rear_open,
+                "open_any_window": any_window_open,
+            }
+        )
+
+        if "unsupported" not in attrs.get("roofCover"):
+            metadatas.update(
+                {"open_roof_cover": "closed" not in attrs.get("roofCover", [])}
+            )
+        if "unsupported" not in attrs.get("sunRoof"):
+            metadatas.update(
+                {"open_sun_roof": "closed" not in attrs.get("sunRoof", [])}
+            )
+
+        return metadatas
+
+    @staticmethod
+    def doors_status(attrs: ExtendedDict) -> ExtendedDict:
+        # Doors lock status
+        metadatas = ExtendedDict({})
+        left_unlock = "locked" not in attrs.get("frontLeft", [])
+        left_rear_unlock = "locked" not in attrs.get("rearLeft", [])
+        right_unlock = "locked" not in attrs.get("frontRight", [])
+        right_rear_unlock = "locked" not in attrs.get("rearRight", [])
+        trunk_unlock = "locked" not in attrs.get("trunk", [])
+        unlock_any_door = (
+            left_unlock and left_rear_unlock and right_unlock and right_rear_unlock
+        )
+        metadatas.update(
+            {
+                "lock_left_front_door": left_unlock,
+                "lock_left_rear_door": left_rear_unlock,
+                "lock_right_front_door": right_unlock,
+                "lock_right_rear_door": right_rear_unlock,
+                "lock_trunk": trunk_unlock,
+                "lock_any_door": unlock_any_door,
+                "lock_doors_trunk": True if unlock_any_door and trunk_unlock else False,
+            }
+        )
+
+        # Doors open status
+        left_open = "closed" not in attrs.get("frontLeft", [])
+        left_rear_open = "closed" not in attrs.get("rearLeft", [])
+        right_open = "closed" not in attrs.get("frontRight", [])
+        right_rear_open = "closed" not in attrs.get("rearRight", [])
+        trunk_open = "closed" not in attrs.get("trunk", [])
+        bonnet_open = "closed" not in attrs.get("bonnet", [])
+        open_any_door = (
+            left_open
+            and left_rear_open
+            and right_open
+            and right_rear_open
+            and trunk_open
+            and bonnet_open
+        )
+
+        metadatas.update(
+            {
+                "open_left_front_door": left_open,
+                "open_left_rear_door": left_rear_open,
+                "open_right_front_door": right_open,
+                "open_right_rear_door": right_rear_open,
+                "open_trunk": trunk_open,
+                "open_bonnet": bonnet_open,
+                "open_any_door": open_any_door,
+            }
+        )
+
+        return metadatas
+
+    @staticmethod
+    def map_name_status(array: dict[str, Any]) -> dict[str, Any]:
+        """Convert name/status to dictionary."""
+        return {item.get("name"): item.get("status") for item in array}
 
 
 @dataclass
@@ -432,22 +530,17 @@ class PositionDataResponse:
     @property
     def is_supported(self) -> bool:
         """Supported status."""
-        return self.data.getr("findCarResponse.Position") is not None
+        return self.data.get("data") is not None
 
     @property
     def attributes(self) -> ExtendedDict:
         """Attributes properties."""
-        coordinate = self.data.getr("findCarResponse.Position.carCoordinate", {})
-        timestamp = self.data.getr("findCarResponse.Position.timestampCarSentUTC")
         attrs = {
             "position": ExtendedDict(
                 {
-                    "latitude": coordinate.get("latitude", 0) / 1000000,
-                    "longitude": coordinate.get("longitude", 0) / 1000000,
-                    "timestamp": timestamp,
-                    "parktime": self.data.getr(
-                        "findCarResponse.parkingTimeUTC", timestamp
-                    ),
+                    "latitude": self.data.getr("data.lat", 0),
+                    "longitude": self.data.getr("data.lon", 0),
+                    "parktime": self.data.getr("data.carCapturedTimestamp"),
                 }
             )
         }
