@@ -3,6 +3,7 @@ on: pull_request
 
 permissions:
   pull-requests: write
+  contents: write
 
 jobs:
   dependency:
@@ -14,7 +15,6 @@ jobs:
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-
       - name: Enable auto-merge for Dependabot PRs
         run: gh pr merge --auto --merge "$PR_URL"
         env:
