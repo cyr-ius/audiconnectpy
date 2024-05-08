@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools","setuptools-scm", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name        = "audiconnectpy"
-version     = "replace_by_workflow"
+dynamic     = ["version"]
 license     = {text = "GPL-3"}
 description = "Provides asynchronous authentication and access to Audi Connect"
 readme      = "README.md"
@@ -30,6 +30,8 @@ dependencies    = [
     "aiohttp>=3.8.1",
     "bs4>=0.0.2",
 ]
+
+[tool.setuptools_scm]
 
 [tool.setuptools]
 platforms = ["any"]
