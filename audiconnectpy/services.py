@@ -69,7 +69,6 @@ class AudiService:
             f"https://{region}.bff.cariad.digital/vehicle/v1/vehicles/{self.vin}/parkingposition",
             headers=headers,
         )
-
         data = data if data else ExtendedDict()
         return PositionDataResponse(data)
 
@@ -80,6 +79,15 @@ class AudiService:
         )
         data = data if data else ExtendedDict()
         return DestinationDataResponse(data)
+
+    async def async_get_locations(self) -> DestinationDataResponse:
+        """Get destination data."""
+        headers = await self.auth.async_get_headers(token_type="here")
+        data = await self.auth.get(
+            "https://csm.cc.api.here.com/api/v1/location", headers=headers
+        )
+        data = data if data else ExtendedDict()
+        return data
 
     async def async_get_history(self) -> HistoryDataResponse:
         """Get history data."""
