@@ -135,9 +135,24 @@ class AudiActions:
         self,
         temperature: float = 19.5,
         heater_source: Literal["electric", "auxiliary", "automatic"] = "electric",
+        glass_heating: bool = True,
+        seat_fl: bool = False,
+        seat_fr: bool = False,
+        seat_rl: bool = False,
+        seat_rr: bool = False,
     ) -> None:
         """Set Climatisation temperature."""
+
+        # Default Temp
         temperature = int(round(temperature, 1) * 10 + 2731)
+
+        # Construct Zone Settings
+        zone_settings = [
+            {"value": {"isEnabled": seat_fl, "position": "frontLeft"}},
+            {"value": {"isEnabled": seat_fr, "position": "frontRight"}},
+            {"value": {"isEnabled": seat_rl, "position": "rearLeft"}},
+            {"value": {"isEnabled": seat_rr, "position": "rearRight"}},
+        ]
 
         if self.api_level["climatisation"] == 3:
             # standard format with header source, e.g. E-Tron
@@ -163,7 +178,8 @@ class AudiActions:
                         "heaterSource": heater_source,
                         "climaterElementSettings": {
                             "isClimatisationAtUnlock": False,
-                            "isMirrorHeatingEnabled": True,
+                            "isMirrorHeatingEnabled": glass_heating,
+                            "zoneSettings": {"zoneSetting": zone_settings},
                         },
                     },
                 }
@@ -425,17 +441,20 @@ class AudiActions:
 
     async def async_refresh_vehicle_data(self) -> None:
         """Refresh vehicle data."""
+        headers = await self.auth.async_get_headers(token_type="idk")
+        region = "emea" if self.country.upper() != "US" else "na"
         data = await self.auth.post(
-            f"{self.url}/bs/vsr/v1/{BRAND}/{self.country}/vehicles/{self.vin}/requests"
+            f"https://{region}.bff.cariad.digital/vehicle/v1/vehicles/{self.vin}/vehiclewakeup",
+            headers=headers,
         )
         data = data if data else ExtendedDict()
-        request_id: str = data.getr("CurrentVehicleDataResponse.requestId")
-        await self._async_check_request(
-            f"{self.url}/bs/vsr/v1/{BRAND}/{self.country}/vehicles/{self.vin}/requests/{request_id}/jobstatus",
+        request_id: str = data.getr("data.requestID")
+        await self._async_pending_request(
+            f"https://{region}.bff.cariad.digital/vehicle/v1/vehicles/{self.vin}/pendingrequests",
             "refresh vehicle data",
-            REQUEST_SUCCESSFUL,
-            REQUEST_FAILED,
-            "requestStatusResponse.status",
+            "successful",
+            "failed",
+            request_id,
         )
 
     async def _async_check_request(
@@ -449,6 +468,33 @@ class AudiActions:
             rsp = await self.auth.get(url)
 
             status = rsp.getr(path)
+
+            if status is None or (failed is not None and status == failed):
+                raise HttpRequestError(("Cannot %s, return code '%s'", action, status))
+
+            if status == success:
+                stauts_good = True
+                break
+
+        if stauts_good is False:
+            raise TimeoutExceededError(("Cannot %s, operation timed out", action))
+
+    async def _async_pending_request(
+        self, url: str, action: str, success: str, failed: str, request_id: str
+    ) -> None:
+        """Check request succeeded."""
+        stauts_good = False
+        headers = await self.auth.async_get_headers(token_type="idk")
+
+        for _ in range(MAX_RESPONSE_ATTEMPTS):
+            await asyncio.sleep(REQUEST_STATUS_SLEEP)
+            rsp = await self.auth.get(url, headers=headers)
+            status = None
+            if rsp and (data := rsp.get("data")):
+                for item in data:
+                    if item.get("id") == request_id:
+                        status = item.get("status")
+                        break
 
             if status is None or (failed is not None and status == failed):
                 raise HttpRequestError(("Cannot %s, return code '%s'", action, status))
