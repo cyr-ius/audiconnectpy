@@ -30,8 +30,8 @@ from .helpers import ExtendedDict, json_loads
 
 TIMEOUT = 120
 DELAY = 10
-HDR_XAPP_VERSION = "4.23.1"
-HDR_USER_AGENT = "Android/4.23.1 (Build 800240120.root project 'onetouch-android'.ext.buildTime) Android/11"
+HDR_XAPP_VERSION = "4.24.2"
+HDR_USER_AGENT = "Android/4.24.2 (Build 800240338.root project 'onetouch-android'.ext.buildTime) Android/11"
 MARKET_URL = "https://content.app.my.audi.com/service/mobileapp/configurations"
 CLIENT_ID = "09b6cbec-cd19-4589-82fd-363dfa8c24da@apps_vw-dilab_com"
 MBB_URL = "https://mbboauth-1d.prd.ece.vwg-connect.com/mbbcoauth"
@@ -63,6 +63,7 @@ class Auth:
         self.language = ""
         self._country = ""
         self._mbb_token: dict[str, Any] = {}
+        self._here_token: dict[str, Any] = {}
         self._mbb_token_expired: datetime | None = None
         self._idk_token: dict[str, str] = {}
         self._audi_token: dict[str, str] = {}
@@ -198,7 +199,7 @@ class Auth:
             "response_type": "code",
             "client_id": self._client_id,
             "redirect_uri": "myaudi:///",
-            "scope": "address profile badge birthdate birthplace nationalIdentifier nationality profession email vin phone nickname name picture mbb gallery openid",
+            "scope": "address badge birthdate birthplace email gallery mbb name nationalIdentifier nationality nickname phone picture profession profile vin openid",
             "state": str(uuid.uuid4()),
             "nonce": str(uuid.uuid4()),
             "prompt": "login",
@@ -305,7 +306,7 @@ class Auth:
 
         # Audi token
         self._audi_token = await self._async_get_azs_token(
-            self._idk_token["access_token"]
+            id_token=self._idk_token["id_token"]
         )
 
         # mbboauth client register
@@ -321,9 +322,15 @@ class Auth:
         self._mbb_token = await self._async_get_mbb_token(
             refresh_token=self._mbb_token["refresh_token"]
         )
+
         self._mbb_token["refresh_token"] = refresh_token
         self._mbb_token_expired = datetime.now() + timedelta(
             seconds=self._mbb_token["expires_in"]
+        )
+
+        # Here token
+        self._here_token = await self._async_get_here_token(
+            id_token=self._idk_token["id_token"]
         )
 
     async def async_refresh_tokens(self) -> None:
@@ -352,7 +359,12 @@ class Auth:
 
                 # Audi token
                 self._audi_token = await self._async_get_azs_token(
-                    self._idk_token["access_token"]
+                    id_token=self._idk_token["id_token"]
+                )
+
+                # Here token
+                self._here_token = await self._async_get_here_token(
+                    id_token=self._idk_token["id_token"]
                 )
 
             except AudiException as error:  # pylint: disable=broad-except
@@ -442,7 +454,7 @@ class Auth:
             )
             token_type = "mbb"
 
-        if token_type in ["mbb", "idk", "audi"]:
+        if token_type in ["mbb", "idk", "audi", "here"]:
             _LOGGER.debug("TOKEN TYPE: %s", token_type)
             await self.async_refresh_tokens()
             match token_type:
@@ -452,6 +464,8 @@ class Auth:
                     token = self._mbb_token.get("access_token")
                 case "audi":
                     token = self._audi_token.get("access_token")
+                case "here":
+                    token = self._here_token.get("access_token")
             defaults.update({"Authorization": f"Bearer {token}"})
         if self._x_client_id:
             defaults.update({"X-Client-ID": self._x_client_id})
@@ -500,7 +514,7 @@ class Auth:
             raise AudiException(f"Unknown form action: {action}")
         return username_post_url
 
-    async def _async_get_azs_token(self, access_token: str) -> Any:
+    async def _async_get_azs_token(self, **kwargs: Any) -> Any:
         """Get AZS Token."""
         headers = {
             "Accept": "application/json",
@@ -511,8 +525,8 @@ class Auth:
             "Content-Type": "application/json",
         }
         asz_req_data = {
-            "token": access_token,
             "grant_type": "id_token",
+            "token": kwargs.get("id_token"),
             "stage": "live",
             "config": "myaudi",
         }
@@ -595,9 +609,7 @@ class Auth:
         return mbboauth_client_reg_json.get("client_id")
 
     async def _async_get_mbb_token(self, **kwargs: Any) -> Any:
-        """Authentication to IDK."""
-        refresh_token = kwargs.get("refresh_token")
-        id_token = kwargs.get("id_token")
+        """Authentication to mbboauth-1d.prd.ece.vwg-connect.com."""
         headers = {
             "Accept": "application/json",
             "Accept-Charset": "utf-8",
@@ -607,17 +619,17 @@ class Auth:
             "X-Client-ID": self._x_client_id,
             "Content-Type": "application/x-www-form-urlencoded",
         }
-        if refresh_token:
+        if "refresh_token" in kwargs:
             mbboauth_data = {
                 "grant_type": "refresh_token",
-                "token": refresh_token,
+                "token": kwargs.get("refresh_token"),
                 "scope": "sc2:fal",
-                # "vin": vin,  << App uses a dedicated VIN here, but it works without, don't know
+                # "vin": vin,  #  << App uses a dedicated VIN here, but it works without, don't know
             }
         else:
             mbboauth_data = {
                 "grant_type": "id_token",
-                "token": id_token,
+                "token": kwargs.get("id_token"),
                 "scope": "sc2:fal",
             }
         encoded_mbboauth_data = urlencode(mbboauth_data, encoding="utf-8").replace(
@@ -632,3 +644,38 @@ class Auth:
         )
         _LOGGER.debug("MBB Token: %s", mbboauth_json)
         return mbboauth_json
+
+    async def _async_get_here_token(self, **kwargs: Any) -> Any:
+        """Authentication to Here.com."""
+        headers = {
+            "Accept": "application/json",
+            "Accept-Charset": "utf-8",
+            "User-Agent": HDR_USER_AGENT,
+            "X-Client-ID": self._x_client_id,
+            "Content-Type": "application/x-www-form-urlencoded",
+        }
+        if "refresh_token" in kwargs:
+            hereoauth_data = {
+                "grant_type": "refresh_token",
+                "token": kwargs.get("refresh_token"),
+                "scope": "sc2:here_a_t21-s",
+            }
+        else:
+            hereoauth_data = {
+                "grant_type": "id_token",
+                "token": kwargs.get("id_token"),
+                "scope": "sc2:here_a_t21-s",
+            }
+
+        encoded_hereoauth_data = urlencode(hereoauth_data, encoding="utf-8").replace(
+            "+", "%20"
+        )
+        hereoauth_json = await self.post(
+            self._mbb_baseurl + "/mobile/oauth2/v1/token",
+            encoded_hereoauth_data,
+            headers=headers,
+            allow_redirects=False,
+            use_json=False,
+        )
+        _LOGGER.debug("Here Token: %s", hereoauth_json)
+        return hereoauth_json
