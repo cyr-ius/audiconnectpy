@@ -285,12 +285,12 @@ class VehicleDataResponse:
             }
         )
 
-        if "unsupported" not in attrs.get("roofCover"):
+        if "unsupported" not in attrs.get("roofCover", {}):
             open_roof_cover = "closed" not in attrs.get("roofCover", [])
             metadatas.update({"open_roof_cover": open_roof_cover})
             windows_open.append(open_roof_cover)
 
-        if "unsupported" not in attrs.get("sunRoof"):
+        if "unsupported" not in attrs.get("sunRoof", {}):
             open_sun_roof = "closed" not in attrs.get("sunRoof", [])
             metadatas.update({"open_sun_roof": open_sun_roof})
             windows_open.append(open_sun_roof)
@@ -352,9 +352,9 @@ class VehicleDataResponse:
         return metadatas
 
     @staticmethod
-    def map_name_status(array: dict[str, Any]) -> dict[str, Any]:
+    def map_name_status(array: list[dict[str, Any]]) -> ExtendedDict:
         """Convert name/status to dictionary."""
-        return {item.get("name"): item.get("status") for item in array}
+        return ExtendedDict({item.get("name"): item.get("status") for item in array})
 
 
 @dataclass
@@ -535,18 +535,19 @@ class PositionDataResponse:
         return self.data.get("data") is not None
 
     @property
-    def attributes(self) -> ExtendedDict:
-        """Attributes properties."""
-        attrs = {
-            "position": ExtendedDict(
-                {
-                    "latitude": self.data.getr("data.lat", 0),
-                    "longitude": self.data.getr("data.lon", 0),
-                    "parktime": self.data.getr("data.carCapturedTimestamp"),
-                }
-            )
-        }
-        return ExtendedDict(attrs)
+    def longitude(self) -> float:
+        """Longitude."""
+        return self.data.getr("data.lon", 0)
+
+    @property
+    def latitude(self) -> float:
+        """Latitude."""
+        return self.data.getr("data.lat", 0)
+
+    @property
+    def last_access(self) -> dt:
+        """Latitude."""
+        return self.data.getr("data.carCapturedTimestamp")
 
 
 @dataclass
@@ -635,3 +636,27 @@ class HonkFlashDataResponse:
             ),
         }
         return ExtendedDict(attrs)
+
+
+@dataclass
+class LocationDataResponse:
+    """History location."""
+
+    data: ExtendedDict
+
+    @property
+    def is_supported(self) -> bool:
+        """Supported status."""
+        return self.data.get("data") is not None
+
+    @property
+    def proprietaries(self) -> list[ExtendedDict]:
+        """Return proprietaries."""
+        return [item for item in self.data.get("data", []) if "proprietaryData" in item]
+
+    @property
+    def addresses(self) -> list[ExtendedDict]:
+        """Return proprietaries."""
+        return [
+            item for item in self.data.get("data", []) if "proprietaryData" not in item
+        ]

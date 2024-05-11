@@ -10,8 +10,13 @@ from aiohttp import ClientSession
 from .auth import Auth
 from .const import (
     BRAND,
+    CLIENT_ID,
+    MARKET_URL,
+    MBB_URL,
+    URL_HERE_COM,
     URL_HOME_REGION,
     URL_HOME_REGION_SETTER,
+    URL_INFO_USER,
     URL_INFO_VEHICLE,
     URL_INFO_VEHICLE_US,
 )
@@ -46,17 +51,19 @@ class AudiConnect:
         self._spin = spin
         self.is_connected: bool = False
         self.vehicles: dict[str, Vehicle] = {}
+        self.uris: dict[str, str] = {}
 
     async def async_login(self) -> bool:
         """Login and retrieve tokens."""
         if not self.is_connected:
             self.is_connected = await self.auth.async_connect(
-                self._username, self._password, self.country
+                self._username, self._password, self.uris
             )
         return self.is_connected
 
     async def async_update(self, vinlist: list[str] | None = None) -> bool:
         """Update data."""
+        await self._async_retrieve_url_service()
         if not await self.async_login():
             return False
         # Update the state of all vehicles.
@@ -71,6 +78,7 @@ class AudiConnect:
                             data=ExtendedDict(response),
                             url=url,
                             url_setter=url_setter,
+                            uris=self.uris,
                             country=self.country,
                             spin=self._spin,
                         )
@@ -127,7 +135,7 @@ class AudiConnect:
         headers = await self.auth.async_get_headers(
             token_type="audi",
             headers={
-                "Accept-Language": f"{self.auth.language}-{self.country}",
+                "Accept-Language": f"{self.uris['language']}-{self.country}",
                 "Content-Type": "application/json",
                 "X-User-Country": self.country,
             },
@@ -152,3 +160,64 @@ class AudiConnect:
         )
         data = data if data else ExtendedDict()
         return data
+
+    async def _async_retrieve_url_service(self) -> None:
+        """Get urls for request."""
+        # Get markets to get language
+        global URL_SERVICES
+        country = self.country.upper()
+        markets_json = await self.auth.request("GET", f"{MARKET_URL}/markets", None)
+
+        country_spec = markets_json.getr("countries.countrySpecifications")
+        if country not in country_spec:
+            raise AudiException("Country not found")
+
+        language = country_spec[country].get("defaultLanguage")
+
+        # Get market config to get client_id , Authorization base url and mbbOAuth base url
+        services = await self.auth.request(
+            "GET", f"{MARKET_URL}/market/{country}/{language}", None
+        )
+
+        client_id = services.get("idkClientIDAndroidLive", CLIENT_ID)
+        audi_baseurl = services.get(
+            "myAudiAuthorizationServerProxyServiceURLProduction"
+        )
+        profil_url = (
+            services.get("idkCustomerProfileMicroserviceBaseURLLive", "") + "/v3"
+        )
+        mbb_baseurl = services.get("mbbOAuthBaseURLLive", MBB_URL)
+        cvvsb_base_url = services.get("connectedVehicleVehicleServiceBaseURLProduction")
+
+        _LOGGER.debug("Client id: %s", client_id)
+        _LOGGER.debug("Audi Base Url: %s", audi_baseurl)
+        _LOGGER.debug("Profil Base Url: %s", profil_url)
+        _LOGGER.debug("MBB Base Url: %s", mbb_baseurl)
+        _LOGGER.debug("ConnectedVehicle Base Url: %s", cvvsb_base_url)
+
+        # Get openId config to get authorizationEndpoint, tokenEndpoint, RevocationEndpoint
+        openid_url = services.get("idkLoginServiceConfigurationURLProduction")
+        _LOGGER.debug("IDK Base Url: %s", openid_url)
+        openid_json = await self.auth.request("GET", openid_url, None)
+
+        authorization_endpoint_url = openid_json.get("authorization_endpoint", "")
+        token_endpoint_url = openid_json.get("token_endpoint", "")
+        revocation_endpoint_url = openid_json.get("revocation_endpoint", "")
+
+        _LOGGER.debug("AuthEndpoint: %s", authorization_endpoint_url)
+        _LOGGER.debug("TokenEndpoint: %s", token_endpoint_url)
+        _LOGGER.debug("RevocationEndpoint: %s", revocation_endpoint_url)
+
+        self.uris = {
+            "client_id": client_id,
+            "audi_url": audi_baseurl,
+            "profil_url": profil_url,
+            "mbb_url": mbb_baseurl,
+            "here_url": URL_HERE_COM,
+            "cv_url": cvvsb_base_url,
+            "user_url": URL_INFO_USER,
+            "authorization_endpoint": authorization_endpoint_url,
+            "token_endpoint": token_endpoint_url,
+            "language": language,
+            "country": country,
+        }

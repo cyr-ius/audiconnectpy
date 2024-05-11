@@ -52,7 +52,7 @@ def obj_parser(obj: dict[str, Any]) -> dict[str, Any]:
     return obj
 
 
-def json_loads(jsload: str | bytes) -> Any:
+def json_loads(jsload: str | bytes) -> ExtendedDict:
     """Json load."""
     data_dict = json.loads(jsload, object_hook=obj_parser)
     return ExtendedDict(data_dict)

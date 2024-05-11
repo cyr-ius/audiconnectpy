@@ -18,6 +18,7 @@ from .models import (
     DestinationDataResponse,
     HistoryDataResponse,
     HonkFlashDataResponse,
+    LocationDataResponse,
     PositionDataResponse,
     PreheaterDataResponse,
     TripDataResponse,
@@ -36,6 +37,7 @@ class AudiService:
     vin: str
     url: str
     url_setter: str
+    uris: dict[str, str]
     country: str
     api_level: dict[str, int]
     spin: str | None
@@ -61,17 +63,6 @@ class AudiService:
         data = data if data else ExtendedDict()
         return VehicleDataResponse(data, self.spin is not None)
 
-    async def async_get_stored_position(self) -> PositionDataResponse:
-        """Get position data."""
-        headers = await self.auth.async_get_headers(token_type="idk")
-        region = "emea" if self.country.upper() != "US" else "na"
-        data = await self.auth.get(
-            f"https://{region}.bff.cariad.digital/vehicle/v1/vehicles/{self.vin}/parkingposition",
-            headers=headers,
-        )
-        data = data if data else ExtendedDict()
-        return PositionDataResponse(data)
-
     async def async_get_destinations(self) -> DestinationDataResponse:
         """Get destination data."""
         data = await self.auth.get(
@@ -80,14 +71,12 @@ class AudiService:
         data = data if data else ExtendedDict()
         return DestinationDataResponse(data)
 
-    async def async_get_locations(self) -> DestinationDataResponse:
+    async def async_get_locations(self) -> LocationDataResponse:
         """Get destination data."""
         headers = await self.auth.async_get_headers(token_type="here")
-        data = await self.auth.get(
-            "https://csm.cc.api.here.com/api/v1/location", headers=headers
-        )
+        data = await self.auth.get(f"{self.uris['here_url']}/location", headers=headers)
         data = data if data else ExtendedDict()
-        return data
+        return LocationDataResponse(data)
 
     async def async_get_history(self) -> HistoryDataResponse:
         """Get history data."""
@@ -182,17 +171,6 @@ class AudiService:
         data = data if data else ExtendedDict()
         return ClimaterTimerDataResponse(data)
 
-    async def async_get_capabilities(self) -> VehicleDataResponse:
-        """Get capabilities."""
-        headers = await self.auth.async_get_headers(token_type="idk")
-        region = "emea" if self.country.upper() != "US" else "na"
-        data = await self.auth.get(
-            f"https://{region}.bff.cariad.digital/vehicle/v1/vehicles/{self.vin}/capabilities",
-            headers=headers,
-        )
-        data = data if data else ExtendedDict()
-        return VehicleDataResponse(data, self.spin is not None)
-
     async def async_get_honkflash(self) -> Any:
         """Get Honk & Flash status."""
         data = await self.auth.get(
@@ -203,42 +181,47 @@ class AudiService:
 
     async def async_get_personal_data(self) -> Any:
         """Get Honk & Flash status."""
-        url = f"{self.auth.profil_url}/customers/{self.auth.user_id}"
         headers = await self.auth.async_get_headers(token_type="idk")
-        data = await self.auth.get(f"{url}/personalData", headers=headers)
+        data = await self.auth.get(
+            f"{self.uris['profil_url']}/customers/{self.auth.user_id}/personalData",
+            headers=headers,
+        )
         data = data if data else ExtendedDict()
         return data
 
     async def async_get_real_car_data(self) -> Any:
         """Get Honk & Flash status."""
-        url = f"{self.auth.profil_url}/customers/{self.auth.user_id}"
         headers = await self.auth.async_get_headers(token_type="idk")
-        data = await self.auth.get(f"{url}/realCarData", headers=headers)
+        data = await self.auth.get(
+            f"{self.uris['profil_url']}/customers/{self.auth.user_id}/realCarData",
+            headers=headers,
+        )
         data = data if data else ExtendedDict()
         return data
 
     async def async_get_mbb_status(self) -> Any:
         """Get Honk & Flash status."""
-        url = f"{self.auth.profil_url}/customers/{self.auth.user_id}"
         headers = await self.auth.async_get_headers(token_type="idk")
-        data = await self.auth.get(f"{url}/mbbStatusData", headers=headers)
+        data = await self.auth.get(
+            f"{self.uris['user_url']}/iaa/mbbStatusData", headers=headers
+        )
         data = data if data else ExtendedDict()
         return data
 
     async def async_get_identity_data(self) -> Any:
         """Get Honk & Flash status."""
-        url = f"{self.auth.profil_url}/customers/{self.auth.user_id}"
         headers = await self.auth.async_get_headers(token_type="idk")
-        data = await self.auth.get(f"{url}/identityData", headers=headers)
+        data = await self.auth.get(
+            f"{self.uris['user_url']}/iaa/identityData", headers=headers
+        )
         data = data if data else ExtendedDict()
         return data
 
     async def async_get_users(self) -> Any:
         """Get users."""
-        url = "https://userinformationservice.apps.emea.vwapps.io/iaa"
         headers = await self.auth.async_get_headers(token_type="idk")
         data = await self.auth.get(
-            f"{url}/uic/v1/vin/{self.vin}/users", headers=headers
+            f"{self.uris['user_url']}/iaa/uic/v1/vin/{self.vin}/users", headers=headers
         )
         data = data if data else ExtendedDict()
         return data
@@ -275,39 +258,38 @@ class AudiService:
         data = data if data else ExtendedDict()
         return data
 
+    async def async_get_stored_position(self) -> PositionDataResponse:
+        """Get position data."""
+        headers = await self.auth.async_get_headers(token_type="idk")
+        data = await self.auth.get(
+            f"{self.uris['cv_url']}/vehicles/{self.vin}/parkingposition",
+            headers=headers,
+        )
+        data = data if data else ExtendedDict()
+        return PositionDataResponse(data)
+
+    async def async_get_capabilities(self) -> VehicleDataResponse:
+        """Get capabilities."""
+        headers = await self.auth.async_get_headers(token_type="idk")
+        data = await self.auth.get(
+            f"{self.uris['cv_url']}/vehicles/{self.vin}/capabilities",
+            headers=headers,
+        )
+        data = data if data else ExtendedDict()
+        return VehicleDataResponse(data, self.spin is not None)
+
     async def async_get_selectivestatus(self) -> VehicleDataResponse:
         """Get capabilities."""
-        JOBS2QUERY = {
-            "access",
-            "activeVentilation",
-            "auxiliaryHeating",
-            "batteryChargingCare",
-            "batterySupport",
-            "charging",
-            "chargingProfiles",
-            "chargingTimers",
-            "climatisation",
-            "climatisationTimers",
-            "departureProfiles",
-            "departureTimers",
-            "emergencyCalling",
-            "fuelStatus",
-            "honkAndFlash",
-            "hybridCarAuxiliaryHeating",
-            "lvBattery",
-            "measurements",
-            "oilLevel",
-            "readiness",
-            "userCapabilities",
-            "vehicleHealthInspection",
-            "vehicleHealthWarnings",
-            "vehicleLights",
-        }
-        jobs = ",".join(JOBS2QUERY)
         headers = await self.auth.async_get_headers(token_type="idk")
-        region = "emea" if self.country.upper() != "US" else "na"
+        capabilities = await self.auth.get(
+            f"{self.uris['cv_url']}/vehicles/{self.vin}/capabilities",
+            headers=headers,
+        )
+        keys = capabilities.get("capabilities", {}).keys()
+        jobs = ",".join(keys)
+
         data = await self.auth.get(
-            f"https://{region}.bff.cariad.digital/vehicle/v1/vehicles/{self.vin}/selectivestatus?jobs={jobs}",
+            f"{self.uris['cv_url']}/vehicles/{self.vin}/selectivestatus?jobs={jobs}",
             headers=headers,
         )
         data = data if data else ExtendedDict()

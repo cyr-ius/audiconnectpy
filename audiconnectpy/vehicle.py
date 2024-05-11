@@ -23,6 +23,7 @@ class Vehicle(AudiService, AudiActions):
         data: ExtendedDict,
         url: str,
         url_setter: str,
+        uris: dict[str, str],
         country: str = "DE",
         spin: str | None = None,
     ) -> None:
@@ -46,6 +47,7 @@ class Vehicle(AudiService, AudiActions):
         self.support_charger: bool | None = None
         self.support_climater: bool | None = None
         self.support_position: bool | None = None
+        self.support_location: bool | None = None
         self.support_preheater: bool | None = None
         self.support_trip_cyclic: bool | None = None
         self.support_trip_long: bool | None = None
@@ -54,7 +56,9 @@ class Vehicle(AudiService, AudiActions):
         self.support_climater_timer: bool | None = None
         self.support_vehicle: bool | None = None
 
-        super().__init__(auth, self.vin, url, url_setter, country, self.api_level, spin)
+        super().__init__(
+            auth, self.vin, url, url_setter, uris, country, self.api_level, spin
+        )
 
     async def async_fetch_data(self) -> bool:
         """Update."""
@@ -118,9 +122,15 @@ class Vehicle(AudiService, AudiActions):
         if self.support_position is not False:
             try:
                 result = await self.async_get_stored_position()
-                if result.is_supported:
+                if result:
                     self.support_position = result.is_supported
-                    self.states.update(result.attributes)
+                    self.position = result
+
+                result = await self.async_get_locations()
+                if result:
+                    self.support_location = result.is_supported
+                    self.location = result
+
             except ServiceNotFoundError as error:
                 if error.args[0] in (401, 403, 502):
                     self.support_position = False

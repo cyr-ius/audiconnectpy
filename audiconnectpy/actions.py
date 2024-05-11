@@ -15,6 +15,7 @@ from .const import (
     REQUEST_STATUS_SLEEP,
     REQUEST_SUCCESSFUL,
     SUCCEEDED,
+    SUCCESSFUL,
 )
 from .exceptions import HttpRequestError, TimeoutExceededError
 from .helpers import ExtendedDict, spin_hash
@@ -28,6 +29,7 @@ class AudiActions:
     vin: str
     url: str
     url_setter: str
+    uris: dict[str, str]
     country: str
     api_level: dict[str, int]
     spin: str | None
@@ -442,18 +444,17 @@ class AudiActions:
     async def async_refresh_vehicle_data(self) -> None:
         """Refresh vehicle data."""
         headers = await self.auth.async_get_headers(token_type="idk")
-        region = "emea" if self.country.upper() != "US" else "na"
         data = await self.auth.post(
-            f"https://{region}.bff.cariad.digital/vehicle/v1/vehicles/{self.vin}/vehiclewakeup",
+            f"{self.uris['cv_url']}/vehicles/{self.vin}/vehiclewakeup",
             headers=headers,
         )
         data = data if data else ExtendedDict()
         request_id: str = data.getr("data.requestID")
         await self._async_pending_request(
-            f"https://{region}.bff.cariad.digital/vehicle/v1/vehicles/{self.vin}/pendingrequests",
+            f"{self.uris['cv_url']}/vehicles/{self.vin}/pendingrequests",
             "refresh vehicle data",
-            "successful",
-            "failed",
+            SUCCESSFUL,
+            FAILED,
             request_id,
         )
 
@@ -484,11 +485,12 @@ class AudiActions:
     ) -> None:
         """Check request succeeded."""
         stauts_good = False
-        headers = await self.auth.async_get_headers(token_type="idk")
-
         for _ in range(MAX_RESPONSE_ATTEMPTS):
             await asyncio.sleep(REQUEST_STATUS_SLEEP)
+
+            headers = await self.auth.async_get_headers(token_type="idk")
             rsp = await self.auth.get(url, headers=headers)
+
             status = None
             if rsp and (data := rsp.get("data")):
                 for item in data:

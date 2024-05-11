@@ -50,23 +50,15 @@ class Auth:
         self.__proxy: dict[str, str] | None = (
             {"http": proxy, "https": proxy} if proxy else None
         )
-        self._audi_baseurl = ""
-        self._mbb_baseurl = MBB_URL
-        self._token_endpoint_url = ""
-        self._authorization_endpoint_url = ""
-        self._revocation_endpoint_url = ""
-        self.profil_url = ""
 
-        self._client_id = CLIENT_ID
-        self._x_client_id = ""
+        self._x_client_id: str | None = None
         self.user_id = ""
-        self.language = ""
-        self._country = ""
         self._mbb_token: dict[str, Any] = {}
         self._here_token: dict[str, Any] = {}
         self._mbb_token_expired: datetime | None = None
         self._idk_token: dict[str, str] = {}
         self._audi_token: dict[str, str] = {}
+        self.uris: dict[str, str] = {}
 
     async def request(
         self,
@@ -157,11 +149,11 @@ class Auth:
         return response
 
     async def async_connect(
-        self, username: str, password: str, country: str, tries: int = 3
+        self, username: str, password: str, uris: dict[str, str], tries: int = 3
     ) -> bool:
         """Connect to API."""
         try:
-            self._country = country
+            self.uris = uris
             await self._async_login(username, password)
         except HttpRequestError as error:  # pylint: disable=broad-except
             if tries > 1:
@@ -171,7 +163,7 @@ class Auth:
                     str(error),
                 )
                 await asyncio.sleep(DELAY)
-                return await self.async_connect(username, password, country, tries - 1)
+                return await self.async_connect(username, password, uris, tries - 1)
             _LOGGER.error("Login to Audi service failed: %s ", str(error))
             return False
         else:
@@ -179,7 +171,6 @@ class Auth:
 
     async def _async_login(self, user: str, password: str) -> None:
         """Request login."""
-        await self._async_retrieve_url_service()
 
         # Generate code_challenge
         code_verifier = str(base64.urlsafe_b64encode(os.urandom(32)), "utf-8").strip(
@@ -197,7 +188,7 @@ class Auth:
         headers = await self.async_get_headers()
         idk_data = {
             "response_type": "code",
-            "client_id": self._client_id,
+            "client_id": self.uris["client_id"],
             "redirect_uri": "myaudi:///",
             "scope": "address badge birthdate birthplace email gallery mbb name nationalIdentifier nationality nickname phone picture profession profile vin openid",
             "state": str(uuid.uuid4()),
@@ -205,11 +196,11 @@ class Auth:
             "prompt": "login",
             "code_challenge": code_challenge,
             "code_challenge_method": code_challenge_method,
-            "ui_locales": f"{self.language}-{self.language} {self.language}",
+            "ui_locales": f"{self.uris['language']}-{self.uris['language']} {self.uris['language']}",
         }
         idk_rsp, idk_rsptxt = await self.request(
             "GET",
-            self._authorization_endpoint_url,
+            self.uris["authorization_endpoint"],
             None,
             headers=headers,
             params=idk_data,
@@ -219,7 +210,7 @@ class Auth:
 
         # form_data with email
         submit_data = self._get_hidden_html_input_form_data(idk_rsptxt, {"email": user})
-        submit_url = self._get_post_url(idk_rsptxt, self._authorization_endpoint_url)
+        submit_url = self._get_post_url(idk_rsptxt, self.uris["authorization_endpoint"])
         # send email
         email_rsptxt = await self.request(
             "POST",
@@ -370,50 +361,6 @@ class Auth:
             except AudiException as error:  # pylint: disable=broad-except
                 _LOGGER.error("Refresh token failed: %s", str(error))
 
-    async def _async_retrieve_url_service(self) -> None:
-        """Get urls for request."""
-        # Get markets to get language
-        markets_json = await self.request("GET", f"{MARKET_URL}/markets", None)
-
-        country_spec = markets_json.getr("countries.countrySpecifications")
-        if self._country.upper() not in country_spec:
-            raise AudiException("Country not found")
-
-        self.language = country_spec.get(self._country.upper(), {}).get(
-            "defaultLanguage"
-        )
-
-        # Get market config to get client_id , Authorization base url and mbbOAuth base url
-        market_json = await self.request(
-            "GET", f"{MARKET_URL}/market/{self._country.upper()}/{self.language}", None
-        )
-
-        self._client_id = market_json.get("idkClientIDAndroidLive", CLIENT_ID)
-        self._audi_baseurl = market_json.get(
-            "myAudiAuthorizationServerProxyServiceURLProduction", ""
-        )
-        self.profil_url = (
-            market_json.get("idkCustomerProfileMicroserviceBaseURLLive", "") + "/v3"
-        )
-        openid_url = market_json.get("idkLoginServiceConfigurationURLProduction", "")
-        self._mbb_baseurl = market_json.get("mbbOAuthBaseURLLive", MBB_URL)
-
-        _LOGGER.debug("Client id: %s", self._client_id)
-        _LOGGER.debug("Audi Base Url: %s", self._audi_baseurl)
-        _LOGGER.debug("MBB Base Url: %s", self._mbb_baseurl)
-        _LOGGER.debug("IDK Base Url: %s", openid_url)
-
-        # Get openId config to get authorizationEndpoint, tokenEndpoint, RevocationEndpoint
-        openid_json = await self.request("GET", openid_url, None)
-
-        self._authorization_endpoint_url = openid_json.get("authorization_endpoint", "")
-        self._token_endpoint_url = openid_json.get("token_endpoint", "")
-        self._revocation_endpoint_url = openid_json.get("revocation_endpoint", "")
-
-        _LOGGER.debug("AuthEndpoint: %s", self._authorization_endpoint_url)
-        _LOGGER.debug("TokenEndpoint: %s", self._token_endpoint_url)
-        _LOGGER.debug("RevocationEndpoint: %s", self._revocation_endpoint_url)
-
     async def async_get_action_headers(
         self, content_type: str, security_token: str | None, x_security: bool = False
     ) -> dict[str, str]:
@@ -435,7 +382,7 @@ class Auth:
 
     async def async_get_headers(
         self,
-        token_type: Literal["idk", "mbb", "audi"] | None = None,
+        token_type: Literal["idk", "mbb", "audi", "here"] | None = None,
         headers: dict[str, Any] | None = None,
         okhttp: bool = False,
         security_token: str | None = None,
@@ -532,7 +479,7 @@ class Auth:
         }
         azs_token_json = await self.request(
             "POST",
-            self._audi_baseurl + "/token",
+            self.uris["audi_url"] + "/token",
             json.dumps(asz_req_data),
             headers=headers,
             allow_redirects=False,
@@ -542,9 +489,6 @@ class Auth:
 
     async def _async_get_idk_token(self, **kwargs: Any) -> Any:
         """Get IDK Token."""
-        refresh_token = kwargs.get("refresh_token")
-        code = kwargs.get("code")
-        code_verifier = kwargs.get("code_verifier")
         headers = {
             "Accept": "application/json",
             "Accept-Charset": "utf-8",
@@ -552,28 +496,28 @@ class Auth:
             "Content-Type": "application/x-www-form-urlencoded",
         }
         # IDK token request data
-        if refresh_token:
+        if "refresh_token" in kwargs:
             idk_data = {
-                "client_id": self._client_id,
+                "client_id": self.uris["client_id"],
                 "grant_type": "refresh_token",
-                "refresh_token": refresh_token,
+                "refresh_token": kwargs.get("refresh_token"),
                 "response_type": "token id_token",
             }
         else:
             idk_data = {
-                "client_id": self._client_id,
+                "client_id": self.uris["client_id"],
                 "grant_type": "authorization_code",
-                "code": code,
+                "code": kwargs.get("code"),
                 "redirect_uri": "myaudi:///",
                 "response_type": "token id_token",
-                "code_verifier": code_verifier,
+                "code_verifier": kwargs.get("code_verifier"),
             }
 
         # IDK token request
         encoded_idk_data = urlencode(idk_data, encoding="utf-8").replace("+", "%20")
 
         idk_token_json = await self.post(
-            self._token_endpoint_url,
+            self.uris["token_endpoint"],
             encoded_idk_data,
             headers=headers,
             allow_redirects=False,
@@ -583,8 +527,11 @@ class Auth:
 
         return idk_token_json
 
-    async def _async_register_idk(self) -> Any:
-        """Register IDK."""
+    async def _async_register_idk(self) -> str:
+        """Register IDK.
+
+        Return X-Client-ID
+        """
         # mbboauth client register
         headers = {
             "Accept": "application/json",
@@ -601,12 +548,12 @@ class Auth:
             "appId": "de.myaudi.mobile.assistant",
         }
         mbboauth_client_reg_json = await self.post(
-            self._mbb_baseurl + "/mobile/register/v1",
+            self.uris["mbb_url"] + "/mobile/register/v1",
             mbboauth_reg_data,
             headers=headers,
             allow_redirects=False,
         )
-        return mbboauth_client_reg_json.get("client_id")
+        return str(mbboauth_client_reg_json.get("client_id", ""))
 
     async def _async_get_mbb_token(self, **kwargs: Any) -> Any:
         """Authentication to mbboauth-1d.prd.ece.vwg-connect.com."""
@@ -636,7 +583,7 @@ class Auth:
             "+", "%20"
         )
         mbboauth_json = await self.post(
-            self._mbb_baseurl + "/mobile/oauth2/v1/token",
+            self.uris["mbb_url"] + "/mobile/oauth2/v1/token",
             encoded_mbboauth_data,
             headers=headers,
             allow_redirects=False,
@@ -671,7 +618,7 @@ class Auth:
             "+", "%20"
         )
         hereoauth_json = await self.post(
-            self._mbb_baseurl + "/mobile/oauth2/v1/token",
+            self.uris["mbb_url"] + "/mobile/oauth2/v1/token",
             encoded_hereoauth_data,
             headers=headers,
             allow_redirects=False,
