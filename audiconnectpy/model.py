@@ -32,9 +32,7 @@ class OnOff(SerializationStrategy):
 class Base(DataClassDictMixin):
     @classmethod
     def __pre_deserialize__(cls, d: dict[Any, Any]) -> dict[Any, Any]:
-        if isinstance(d, dict):
-            return {camel2snake(k): v for k, v in d.items()}
-        return d
+        return {camel2snake(k): v for k, v in d.items()}
 
 
 # SECTION
@@ -90,16 +88,14 @@ class Charging(Base):
 
 @dataclass
 class BatteryStatus(Base):
-    current_soc_pct: int | None = field(
-        metadata=field_options(alias="currentSOC_pct"), default=None
-    )
+    current_soc_pct: int | None = None
     cruising_range_electric_km: int | None = None
 
 
 @dataclass
 class ChargingStatus(Base):
     remaining: int | None = field(
-        metadata=field_options(alias="remainingChargingTimeToComplete_min"),
+        metadata=field_options(alias="remaining_charging_time_to_complete_min"),
         default=None,
     )
     charging_state: bool | None = field(
@@ -109,21 +105,19 @@ class ChargingStatus(Base):
     charge_power_kw: float | None = None
     charge_rate_kmph: int | None = None
     charge_type: str | None = None
-    charge_settings: str | None = None
+    charging_settings: str | None = None
 
 
 @dataclass
 class ChargingSettings(Base):
     max_charge_current_ac: str | None = None
-    aut_unlock_plug_when_charged: bool | None = field(
+    auto_unlock_plug_when_charged: bool | None = field(
         metadata=field_options(serialization_strategy=OnOff()), default=None
     )
     auto_unlock_plug_when_charged_ac: bool | None = field(
         metadata=field_options(serialization_strategy=OnOff()), default=None
     )
-    target_soc_pct: int | None = field(
-        metadata=field_options(alias="targetSOC_pct"), default=None
-    )
+    target_soc_pct: int | None = None
 
 
 @dataclass
@@ -167,8 +161,8 @@ class ClimatisationStatus(Base):
 
 @dataclass
 class ClimatisationSettings(Base):
-    target_temperature_C: int | None = None
-    target_temperature_F: int | None = None
+    target_temperature_c: int | None = None
+    target_temperature_f: int | None = None
     unit_in_car: str | None = None
     climatization_at_unlock: bool | None = None
     window_heating_enabled: bool | None = None
@@ -204,8 +198,8 @@ class Timer(Base):
 
 @dataclass
 class SingleTimer(Base):
-    start: datetime = field(metadata=field_options(alias="startDateTime"))
-    target: datetime = field(metadata=field_options(alias="targetDateTime"))
+    start: datetime = field(metadata=field_options(alias="start_date_time"))
+    target: datetime = field(metadata=field_options(alias="target_date_time"))
 
 
 # SECTION
