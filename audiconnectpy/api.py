@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections import namedtuple
 import logging
 from typing import Any, Tuple
 
@@ -19,7 +20,7 @@ from .const import (
     URL_INFO_VEHICLE,
     URL_INFO_VEHICLE_US,
 )
-from .exceptions import AudiException
+from .exceptions import AudiException, AuthorizationError
 from .helpers import ExtendedDict
 from .vehicle import Globals, Vehicle, Vehicles
 
@@ -40,90 +41,59 @@ class AudiConnect:
     ) -> None:
         """Initialize."""
         Globals(unit_system)
-        self._audi_vehicles: list[Vehicle] = []
         self.auth = Auth(session)
         self.country = country.upper()
         self._password = password
         self._username = username
         self._spin = spin
         self.is_connected: bool = False
-        self.vehicles: dict[str, Vehicle] = {}
+        self.vehicles: list[Vehicle] = None
         self.uris: dict[str, str] = {}
 
-    async def async_login(self) -> bool:
+    async def async_login(self, vinlist: list[str] | None = None) -> None:
         """Login and retrieve tokens."""
-        if not self.is_connected:
-            self.is_connected = await self.auth.async_connect(
-                self._username, self._password, self.uris
-            )
-        return self.is_connected
 
-    async def async_connect(self, vinlist: list[str] | None = None) -> bool:
-        """Update data."""
         # Retrieve urls
-        await self._async_retrieve_url_service()
+        try:
+            await self._async_retrieve_url_service()
+        except AudiException as error:
+            raise AudiException("Error fetch home region urls (%s)", error)
 
-        # Login
-        if not await self.async_login():
-            return False
+        if not self.is_connected:
+            try:
+                await self.auth.async_connect(self._username, self._password, self.uris)
+            except AudiException as error:
+                raise AuthorizationError(error) from error
+            else:
+                self.is_connected = True
 
         # Update the state of all vehicles.
-        try:
-            if len(self._audi_vehicles) == 0:
+        if self.is_connected:
+            try:
                 vehicles_response = await self.async_get_information_vehicles()
+            except AudiException as error:
+                raise ("Error to get information vehicles (%s)", error) from error
+            else:
                 obj_vehicles = Vehicles.from_dict(vehicles_response.get("data", []))
-                self._audi_vehicles = obj_vehicles.user_vehicles
-                for vehicle in self._audi_vehicles:
-                    (url, url_setter) = await self._async_fill_url(vehicle.vin)
-                    self.uris.update({"url": url, "url_setter": url_setter})
+                self.vehicles = obj_vehicles.user_vehicles
+                for vehicle in self.vehicles:
+                    fill_region = await self._async_fill_url(vehicle.vin)
+                    self.uris.update(fill_region._asdict())
+                    # Add attributes to vehicle
                     vehicle.uris = self.uris
                     vehicle.auth = self.auth
                     vehicle.spin = self._spin
-                    await self._async_add_or_update_vehicle(vehicle, vinlist)
-            return True
-        except OSError as exception:
-            # Force a re-login in case of failure/exception
-            self.is_connected = False
-            _LOGGER.exception(exception)
-            return False
 
-    async def _async_add_or_update_vehicle(
-        self, vehicle: Vehicle, vinlist: list[str] | None
-    ) -> None:
-        """Add or Update vehicle."""
-        if vehicle.vin is not None:
-            if vinlist is None or vehicle.vin.upper() in vinlist:
-                vupd = [
-                    x for vin, x in self.vehicles.items() if vin == vehicle.vin.upper()
-                ]
-                if len(vupd) > 0:
-                    if await vupd[0].async_update() is False:
-                        self.is_connected = False
-                else:
-                    try:
-                        if await vehicle.async_update() is False:
-                            self.is_connected = False
-                        self.vehicles.update({vehicle.vin: vehicle})
-                    except AudiException:  # pylint: disable=broad-except
-                        pass
-
-    async def _async_fill_url(self, vin: str) -> Tuple[str, str]:
-        """Fill region."""
-        url = URL_HOME_REGION
-        url_setter = URL_HOME_REGION_SETTER
-        try:
-            rsp = await self.auth.get(
-                f"{url_setter}/cs/vds/v1/vehicles/{vin}/homeRegion"
-            )
-            rsp = rsp if rsp else ExtendedDict()
-            uri = rsp.getr("homeRegion.baseUri.content")
-            if uri and uri != url_setter:
-                url = uri.replace("mal-", "fal-").replace("/api", "/fs-car")
-                url_setter = uri
-        except Exception:  # pylint: disable=broad-except
-            pass
-
-        return url, url_setter
+                    if vinlist is None or vehicle.vin.upper() in vinlist:
+                        try:
+                            # Fetch data for a vehicle
+                            await vehicle.async_update()
+                        except AudiException as error:
+                            _LOGGER.error(
+                                "Error while updating - %s - (%s)", vehicle.vin, error
+                            )
+        else:
+            raise AuthorizationError("API not connected")
 
     async def async_get_information_vehicles(self) -> Any:
         """Get information vehicles."""
@@ -135,16 +105,18 @@ class AudiConnect:
                 "X-User-Country": self.country,
             },
         )
-        data = {
+        query = {
             "query": "query vehicleList {\n userVehicles {\n vin\n mappingVin\n vehicle { core { modelYear\n }\n media { shortName\n longName }\n }\n csid\n commissionNumber\n type\n devicePlatform\n mbbConnect\n userRole {\n role\n }\n vehicle {\n classification {\n driveTrain\n }\n }\n nickname\n }\n}"
         }
         url = URL_INFO_VEHICLE if self.country != "US" else URL_INFO_VEHICLE_US
-        resp = await self.auth.post(
-            url, data=data, headers=headers, allow_redirects=False
+
+        response = await self.auth.post(
+            url, data=query, headers=headers, allow_redirects=False
         )
-        if "data" not in resp:
+        if "data" not in response:
             raise AudiException("Invalid json in vehicle information")
-        return resp
+
+        return response
 
     async def _async_retrieve_url_service(self) -> None:
         """Get urls for request."""
@@ -206,3 +178,19 @@ class AudiConnect:
             "language": language,
             "country": country,
         }
+
+    async def _async_fill_url(self, vin: str) -> Tuple[str, str]:
+        """Fill region."""
+        url = URL_HOME_REGION
+        url_setter = URL_HOME_REGION_SETTER
+
+        rsp = await self.auth.get(f"{url_setter}/cs/vds/v1/vehicles/{vin}/homeRegion")
+        rsp = rsp if rsp else ExtendedDict()
+        uri = rsp.getr("homeRegion.baseUri.content")
+        if uri and uri != url_setter:
+            url = uri.replace("mal-", "fal-").replace("/api", "/fs-car")
+            url_setter = uri
+
+        FillRegion = namedtuple("FillRegion", ("url", "url_setter"))
+
+        return FillRegion(url, url_setter)
