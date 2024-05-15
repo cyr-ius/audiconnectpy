@@ -49,19 +49,19 @@ class Vehicles(DataClassDictMixin):
 class Vehicle(DataClassDictMixin):
     """Vehicle class."""
 
-    vin: str | None = None
-    spin: int | None = None
-    csid: str | None = None
+    vin: str
+    csid: str
     nickname: str | None = None
-    information: dict[str, Any] | None = field(
+    last_access: datetime | None = None
+    uris: dict[str, str] = field(init=False)
+    spin: str = field(init=False)
+    auth: str = field(init=False)
+    infos: dict[str, Any] | None = field(
         metadata=field_options(alias="vehicle"), default=None
     )
-    uris: dict[str, str] | None = None
-    spin: str | None = None
-    capabilities: dict[str, Any] = field(init=False)
+    capabilities: dict[str, Any] | None = field(init=False, default=None)
     position: Position | None = field(init=False, default=None)
     location: Location | None = field(init=False, default=None)
-    last_access: datetime = field(init=False)
 
     @property
     def api_level(self) -> dict[str, int]:
