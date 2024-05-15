@@ -125,24 +125,21 @@ def spin_hash(spin: str, challenge: str) -> str:
     return sha512(b_pin).hexdigest().upper()
 
 
-def windows_status(attrs: ExtendedDict) -> ExtendedDict:
+def windows_status(attrs: ExtendedDict) -> dict[str, bool]:
     """Windows open status."""
     attrs = map_name_status(attrs)
-    metadatas = ExtendedDict({})
     left_open = "closed" not in attrs.get("frontLeft", [])
     left_rear_open = "closed" not in attrs.get("rearLeft", [])
     right_open = "closed" not in attrs.get("frontRight", [])
     right_rear_open = "closed" not in attrs.get("rearRight", [])
     windows_open = [left_open, left_rear_open, right_rear_open, right_rear_open]
-    metadatas.update(
-        {
-            "open_left_front_window": left_open,
-            "open_left_rear_window": left_rear_open,
-            "open_right_front_window": right_open,
-            "open_right_rear_window": right_rear_open,
-            "open_any_window": any(windows_open),
-        }
-    )
+    metadatas = {
+        "open_left_front_window": left_open,
+        "open_left_rear_window": left_rear_open,
+        "open_right_front_window": right_open,
+        "open_right_rear_window": right_rear_open,
+        "open_any_window": any(windows_open),
+    }
 
     if "unsupported" not in attrs.get("roofCover", {}):
         open_roof_cover = "closed" not in attrs.get("roofCover", [])
@@ -159,27 +156,24 @@ def windows_status(attrs: ExtendedDict) -> ExtendedDict:
     return metadatas
 
 
-def doors_status(attrs: ExtendedDict) -> ExtendedDict:
+def doors_status(attrs: ExtendedDict) -> dict[str, bool]:
     """Doors lock status."""
     attrs = map_name_status(attrs)
-    metadatas = ExtendedDict({})
     left_unlock = "locked" not in attrs.get("frontLeft", [])
     left_rear_unlock = "locked" not in attrs.get("rearLeft", [])
     right_unlock = "locked" not in attrs.get("frontRight", [])
     right_rear_unlock = "locked" not in attrs.get("rearRight", [])
     trunk_unlock = "locked" not in attrs.get("trunk", [])
     doors_unlock = [left_unlock, left_rear_unlock, right_unlock, right_rear_unlock]
-    metadatas.update(
-        {
-            "lock_left_front_door": left_unlock,
-            "lock_left_rear_door": left_rear_unlock,
-            "lock_right_front_door": right_unlock,
-            "lock_right_rear_door": right_rear_unlock,
-            "lock_trunk": trunk_unlock,
-            "lock_any_door": any(doors_unlock),
-            "lock_doors_trunk": any(doors_unlock) and trunk_unlock,
-        }
-    )
+    metadatas = {
+        "lock_left_front_door": left_unlock,
+        "lock_left_rear_door": left_rear_unlock,
+        "lock_right_front_door": right_unlock,
+        "lock_right_rear_door": right_rear_unlock,
+        "lock_trunk": trunk_unlock,
+        "lock_any_door": any(doors_unlock),
+        "lock_doors_trunk": any(doors_unlock) and trunk_unlock,
+    }
 
     # Doors open status
     left_open = "closed" not in attrs.get("frontLeft", [])
@@ -212,24 +206,22 @@ def doors_status(attrs: ExtendedDict) -> ExtendedDict:
     return metadatas
 
 
-def lights_status(attrs: ExtendedDict) -> ExtendedDict:
+def lights_status(attrs: ExtendedDict) -> dict[str, bool]:
     attrs = map_name_status(attrs)
-    metadatas = ExtendedDict(
-        {
-            "left": attrs.get("left") != "off",
-            "right": attrs.get("right") != "off",
-        }
-    )
+    metadatas = {
+        "left": attrs.get("left") != "off",
+        "right": attrs.get("right") != "off",
+    }
 
     return metadatas
 
 
-def camel2snake(name):
+def camel2snake(name: str):
     """Camel case to Snake case."""
     return re.sub(r"(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", "_", name).lower()
 
 
-def remove_value(obj=dict[str, Any]) -> dict[str, Any]:
+def remove_value(obj: dict[str, Any]) -> dict[str, Any]:
     """Remove 'value' key in dictionary."""
     for k in obj.copy():
         if isinstance(obj[k], dict):
@@ -240,7 +232,6 @@ def remove_value(obj=dict[str, Any]) -> dict[str, Any]:
     return obj
 
 
-def map_name_status(array: list[dict[str, Any]]) -> ExtendedDict:
+def map_name_status(array: list[dict[str, Any]]) -> dict[str, Any]:
     """Convert name/status to dictionary."""
-
-    return ExtendedDict({item.get("name"): item.get("status") for item in array})
+    return {item.get("name"): item.get("status") for item in array}
