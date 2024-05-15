@@ -9,7 +9,6 @@ from aiohttp import ClientSession
 
 from .auth import Auth
 from .const import (
-    BRAND,
     CLIENT_ID,
     MARKET_URL,
     MBB_URL,
@@ -22,8 +21,7 @@ from .const import (
 )
 from .exceptions import AudiException
 from .helpers import ExtendedDict
-from .models import Globals
-from .vehicle import Vehicle
+from .vehicle import Globals, Vehicle, Vehicles
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -45,7 +43,6 @@ class AudiConnect:
         self._audi_vehicles: list[Vehicle] = []
         self.auth = Auth(session)
         self.country = country.upper()
-        self._excluded_refresh: set[str] = set()
         self._password = password
         self._username = username
         self._spin = spin
@@ -61,30 +58,28 @@ class AudiConnect:
             )
         return self.is_connected
 
-    async def async_update(self, vinlist: list[str] | None = None) -> bool:
+    async def async_connect(self, vinlist: list[str] | None = None) -> bool:
         """Update data."""
+        # Retrieve urls
         await self._async_retrieve_url_service()
+
+        # Login
         if not await self.async_login():
             return False
+
         # Update the state of all vehicles.
         try:
             if len(self._audi_vehicles) == 0:
                 vehicles_response = await self.async_get_information_vehicles()
-                for response in vehicles_response.getr("data.userVehicles", []):
-                    (url, url_setter) = await self._async_fill_url(response["vin"])
-                    self._audi_vehicles.append(
-                        Vehicle(
-                            auth=self.auth,
-                            data=ExtendedDict(response),
-                            url=url,
-                            url_setter=url_setter,
-                            uris=self.uris,
-                            country=self.country,
-                            spin=self._spin,
-                        )
-                    )
-            for vehicle in self._audi_vehicles:
-                await self._async_add_or_update_vehicle(vehicle, vinlist)
+                obj_vehicles = Vehicles.from_dict(vehicles_response.get("data", []))
+                self._audi_vehicles = obj_vehicles.user_vehicles
+                for vehicle in self._audi_vehicles:
+                    (url, url_setter) = await self._async_fill_url(vehicle.vin)
+                    self.uris.update({"url": url, "url_setter": url_setter})
+                    vehicle.uris = self.uris
+                    vehicle.auth = self.auth
+                    vehicle.spin = self._spin
+                    await self._async_add_or_update_vehicle(vehicle, vinlist)
             return True
         except OSError as exception:
             # Force a re-login in case of failure/exception
@@ -102,11 +97,11 @@ class AudiConnect:
                     x for vin, x in self.vehicles.items() if vin == vehicle.vin.upper()
                 ]
                 if len(vupd) > 0:
-                    if await vupd[0].async_fetch_data() is False:
+                    if await vupd[0].async_update() is False:
                         self.is_connected = False
                 else:
                     try:
-                        if await vehicle.async_fetch_data() is False:
+                        if await vehicle.async_update() is False:
                             self.is_connected = False
                         self.vehicles.update({vehicle.vin: vehicle})
                     except AudiException:  # pylint: disable=broad-except
@@ -147,19 +142,9 @@ class AudiConnect:
         resp = await self.auth.post(
             url, data=data, headers=headers, allow_redirects=False
         )
-        resp = resp if resp else ExtendedDict()
         if "data" not in resp:
             raise AudiException("Invalid json in vehicle information")
         return resp
-
-    async def async_get_vehicles(self) -> Any:
-        """Get all vehicles."""
-        url = URL_HOME_REGION
-        data = await self.auth.get(
-            f"{url}/usermanagement/users/v1/{BRAND}/{self.country}/vehicles"
-        )
-        data = data if data else ExtendedDict()
-        return data
 
     async def _async_retrieve_url_service(self) -> None:
         """Get urls for request."""
