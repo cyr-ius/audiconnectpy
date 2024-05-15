@@ -22,6 +22,7 @@ from bs4 import BeautifulSoup
 
 from .exceptions import (
     AudiException,
+    AuthorizationError,
     HttpRequestError,
     ServiceNotFoundError,
     TimeoutExceededError,
@@ -150,12 +151,12 @@ class Auth:
 
     async def async_connect(
         self, username: str, password: str, uris: dict[str, str], tries: int = 3
-    ) -> bool:
+    ) -> None:
         """Connect to API."""
         try:
             self.uris = uris
             await self._async_login(username, password)
-        except HttpRequestError as error:  # pylint: disable=broad-except
+        except HttpRequestError as error:
             if tries > 1:
                 _LOGGER.warning(
                     "Login to Audi service failed, trying again in %s seconds [ERROR:%s]",
@@ -164,10 +165,8 @@ class Auth:
                 )
                 await asyncio.sleep(DELAY)
                 return await self.async_connect(username, password, uris, tries - 1)
-            _LOGGER.error("Login to Audi service failed: %s ", str(error))
-            return False
-        else:
-            return True
+
+            raise AuthorizationError("Login to Audi service failed: %s ", error)
 
     async def _async_login(self, user: str, password: str) -> None:
         """Request login."""
