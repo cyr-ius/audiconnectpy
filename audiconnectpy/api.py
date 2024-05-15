@@ -131,7 +131,7 @@ class AudiConnect:
 
         language = country_spec[country].get("defaultLanguage")
 
-        # Get market config to get client_id , Authorization base url and mbbOAuth base url
+        # Get market config
         services = await self.auth.request(
             "GET", f"{MARKET_URL}/market/{country}/{language}", None
         )
@@ -146,13 +146,7 @@ class AudiConnect:
         mbb_baseurl = services.get("mbbOAuthBaseURLLive", MBB_URL)
         cvvsb_base_url = services.get("connectedVehicleVehicleServiceBaseURLProduction")
 
-        _LOGGER.debug("Client id: %s", client_id)
-        _LOGGER.debug("Audi Base Url: %s", audi_baseurl)
-        _LOGGER.debug("Profil Base Url: %s", profil_url)
-        _LOGGER.debug("MBB Base Url: %s", mbb_baseurl)
-        _LOGGER.debug("ConnectedVehicle Base Url: %s", cvvsb_base_url)
-
-        # Get openId config to get authorizationEndpoint, tokenEndpoint, RevocationEndpoint
+        # Get openId config
         openid_url = services.get("idkLoginServiceConfigurationURLProduction")
         _LOGGER.debug("IDK Base Url: %s", openid_url)
         openid_json = await self.auth.request("GET", openid_url, None)
@@ -161,9 +155,7 @@ class AudiConnect:
         token_endpoint_url = openid_json.get("token_endpoint", "")
         revocation_endpoint_url = openid_json.get("revocation_endpoint", "")
 
-        _LOGGER.debug("AuthEndpoint: %s", authorization_endpoint_url)
-        _LOGGER.debug("TokenEndpoint: %s", token_endpoint_url)
-        _LOGGER.debug("RevocationEndpoint: %s", revocation_endpoint_url)
+        _LOGGER.debug("Urls of service: %s", self.uris)
 
         self.uris = {
             "client_id": client_id,
