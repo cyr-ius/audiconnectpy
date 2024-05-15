@@ -110,18 +110,16 @@ class Vehicle(DataClassDictMixin):
             {
                 "proprietaries": [
                     item
-                    for item in location.getr("data", [])
+                    for item in location.get("data", [])
                     if "proprietaryData" not in item
                 ],
                 "addresses": [
                     item
-                    for item in location.getr("data", [])
+                    for item in location.get("data", [])
                     if "proprietaryData" in item
                 ],
             }
         )
-
-        _LOGGER.debug("Update finished")
 
     async def async_get_location(self) -> ExtendedDict:
         """Get destination data."""
