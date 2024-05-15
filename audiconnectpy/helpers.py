@@ -216,7 +216,7 @@ def lights_status(attrs: ExtendedDict) -> dict[str, bool]:
     return metadatas
 
 
-def camel2snake(name: str):
+def camel2snake(name: str) -> str:
     """Camel case to Snake case."""
     return re.sub(r"(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", "_", name).lower()
 
