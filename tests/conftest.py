@@ -43,8 +43,8 @@ def vehicle_2() -> dict[str, Any]:
 def position():
     return {
         "data": {
-            "lon": -0.020479,
-            "lat": 47.928315,
+            "lon": -10.020479,
+            "lat": 87.928315,
             "carCapturedTimestamp": "2024-05-14T17:42:22Z",
         }
     }
