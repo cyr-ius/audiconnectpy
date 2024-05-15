@@ -29,6 +29,7 @@ requires-python = ">=3.10.0"
 dependencies    = [
     "aiohttp>=3.8.1",
     "bs4>=0.0.2",
+    "mashumaro>=3.13",
 ]
 
 [tool.setuptools_scm]
