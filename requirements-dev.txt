@@ -8,3 +8,4 @@ yamllint
 codespell
 python-typing-update
 types-beautifulsoup4
+types-PyYAML

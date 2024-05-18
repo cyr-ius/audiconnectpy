@@ -50,3 +50,7 @@ fixture-parentheses = false
 force-sort-within-sections = true
 combine-as-imports = true
 split-on-trailing-comma = false
+
+[[tool.mypy.overrides]]
+module = "yaml"
+ignore_missing_imports = true

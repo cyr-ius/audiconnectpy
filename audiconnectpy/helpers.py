@@ -7,7 +7,6 @@ from datetime import datetime
 import functools
 from functools import reduce
 from hashlib import sha512
-import json
 import logging
 import random
 import re
@@ -51,12 +50,6 @@ def obj_parser(obj: dict[str, Any]) -> dict[str, Any]:
         except (TypeError, ValueError):
             pass
     return obj
-
-
-def json_loads(jsload: str | bytes) -> ExtendedDict:
-    """Json load."""
-    data_dict = json.loads(jsload)
-    return ExtendedDict(data_dict)
 
 
 def retry(
@@ -125,13 +118,13 @@ def spin_hash(spin: str, challenge: str) -> str:
     return sha512(b_pin).hexdigest().upper()
 
 
-def windows_status(attrs: ExtendedDict) -> dict[str, bool]:
+def windows_status(attrs: list[dict[str, Any]]) -> dict[str, bool]:
     """Windows open status."""
-    attrs = map_name_status(attrs)
-    left_open = "closed" not in attrs.get("frontLeft", [])
-    left_rear_open = "closed" not in attrs.get("rearLeft", [])
-    right_open = "closed" not in attrs.get("frontRight", [])
-    right_rear_open = "closed" not in attrs.get("rearRight", [])
+    status = map_name_status(attrs)
+    left_open = "closed" not in status.get("frontLeft", [])
+    left_rear_open = "closed" not in status.get("rearLeft", [])
+    right_open = "closed" not in status.get("frontRight", [])
+    right_rear_open = "closed" not in status.get("rearRight", [])
     windows_open = [left_open, left_rear_open, right_rear_open, right_rear_open]
     metadatas = {
         "open_left_front_window": left_open,
@@ -141,13 +134,13 @@ def windows_status(attrs: ExtendedDict) -> dict[str, bool]:
         "open_any_window": any(windows_open),
     }
 
-    if "unsupported" not in attrs.get("roofCover", {}):
-        open_roof_cover = "closed" not in attrs.get("roofCover", [])
+    if "unsupported" not in status.get("roofCover", {}):
+        open_roof_cover = "closed" not in status.get("roofCover", [])
         metadatas.update({"open_roof_cover": open_roof_cover})
         windows_open.append(open_roof_cover)
 
-    if "unsupported" not in attrs.get("sunRoof", {}):
-        open_sun_roof = "closed" not in attrs.get("sunRoof", [])
+    if "unsupported" not in status.get("sunRoof", {}):
+        open_sun_roof = "closed" not in status.get("sunRoof", [])
         metadatas.update({"open_sun_roof": open_sun_roof})
         windows_open.append(open_sun_roof)
 
@@ -156,14 +149,14 @@ def windows_status(attrs: ExtendedDict) -> dict[str, bool]:
     return metadatas
 
 
-def doors_status(attrs: ExtendedDict) -> dict[str, bool]:
+def doors_status(attrs: list[dict[str, Any]]) -> dict[str, bool]:
     """Doors lock status."""
-    attrs = map_name_status(attrs)
-    left_unlock = "locked" not in attrs.get("frontLeft", [])
-    left_rear_unlock = "locked" not in attrs.get("rearLeft", [])
-    right_unlock = "locked" not in attrs.get("frontRight", [])
-    right_rear_unlock = "locked" not in attrs.get("rearRight", [])
-    trunk_unlock = "locked" not in attrs.get("trunk", [])
+    status = map_name_status(attrs)
+    left_unlock = "locked" not in status.get("frontLeft", [])
+    left_rear_unlock = "locked" not in status.get("rearLeft", [])
+    right_unlock = "locked" not in status.get("frontRight", [])
+    right_rear_unlock = "locked" not in status.get("rearRight", [])
+    trunk_unlock = "locked" not in status.get("trunk", [])
     doors_unlock = [left_unlock, left_rear_unlock, right_unlock, right_rear_unlock]
     metadatas = {
         "lock_left_front_door": left_unlock,
@@ -176,12 +169,12 @@ def doors_status(attrs: ExtendedDict) -> dict[str, bool]:
     }
 
     # Doors open status
-    left_open = "closed" not in attrs.get("frontLeft", [])
-    left_rear_open = "closed" not in attrs.get("rearLeft", [])
-    right_open = "closed" not in attrs.get("frontRight", [])
-    right_rear_open = "closed" not in attrs.get("rearRight", [])
-    trunk_open = "closed" not in attrs.get("trunk", [])
-    bonnet_open = "closed" not in attrs.get("bonnet", [])
+    left_open = "closed" not in status.get("frontLeft", [])
+    left_rear_open = "closed" not in status.get("rearLeft", [])
+    right_open = "closed" not in status.get("frontRight", [])
+    right_rear_open = "closed" not in status.get("rearRight", [])
+    trunk_open = "closed" not in status.get("trunk", [])
+    bonnet_open = "closed" not in status.get("bonnet", [])
     doors_open = [
         left_open,
         left_rear_open,
@@ -206,11 +199,11 @@ def doors_status(attrs: ExtendedDict) -> dict[str, bool]:
     return metadatas
 
 
-def lights_status(attrs: ExtendedDict) -> dict[str, bool]:
-    attrs = map_name_status(attrs)
+def lights_status(attrs: list[dict[str, Any]]) -> dict[str, bool]:
+    status = map_name_status(attrs)
     metadatas = {
-        "left": attrs.get("left") != "off",
-        "right": attrs.get("right") != "off",
+        "left": status.get("left") != "off",
+        "right": status.get("right") != "off",
     }
 
     return metadatas
@@ -234,4 +227,4 @@ def remove_value(obj: dict[str, Any]) -> dict[str, Any]:
 
 def map_name_status(array: list[dict[str, Any]]) -> dict[str, Any]:
     """Convert name/status to dictionary."""
-    return {item.get("name"): item.get("status") for item in array}
+    return {item["name"]: item.get("status") for item in array}

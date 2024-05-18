@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections import namedtuple
 import logging
-from typing import Any, Tuple
+from typing import Any, NamedTuple
 
 from aiohttp import ClientSession
 
@@ -47,7 +47,7 @@ class AudiConnect:
         self._username = username
         self._spin = spin
         self.is_connected: bool = False
-        self.vehicles: list[Vehicle] = None
+        self.vehicles: list[Vehicle] = []
         self.uris: dict[str, str] = {}
 
     async def async_login(self, vinlist: list[str] | None = None) -> None:
@@ -72,7 +72,9 @@ class AudiConnect:
             try:
                 vehicles_response = await self.async_get_information_vehicles()
             except AudiException as error:
-                raise ("Error to get information vehicles (%s)", error) from error
+                raise AudiException(
+                    "Error to get information vehicles ({error})"
+                ) from error
             else:
                 obj_vehicles = Vehicles.from_dict(vehicles_response.get("data", []))
                 self.vehicles = obj_vehicles.user_vehicles
@@ -82,7 +84,7 @@ class AudiConnect:
                     # Add attributes to vehicle
                     vehicle.uris = self.uris
                     vehicle.auth = self.auth
-                    vehicle.spin = self._spin
+                    vehicle.spin = str(self._spin)
 
                     if vinlist is None or vehicle.vin.upper() in vinlist:
                         try:
@@ -105,13 +107,13 @@ class AudiConnect:
                 "X-User-Country": self.country,
             },
         )
-        query = {
+        data = {
             "query": "query vehicleList {\n userVehicles {\n vin\n mappingVin\n vehicle { core { modelYear\n }\n media { shortName\n longName }\n }\n csid\n commissionNumber\n type\n devicePlatform\n mbbConnect\n userRole {\n role\n }\n vehicle {\n classification {\n driveTrain\n }\n }\n nickname\n }\n}"
         }
         url = URL_INFO_VEHICLE if self.country != "US" else URL_INFO_VEHICLE_US
 
-        response = await self.auth.post(
-            url, data=query, headers=headers, allow_redirects=False
+        response = await self.auth.request(
+            "POST", url, json=data, headers=headers, allow_redirects=False
         )
         if "data" not in response:
             raise AudiException("Invalid json in vehicle information")
@@ -123,9 +125,11 @@ class AudiConnect:
         # Get markets to get language
         global URL_SERVICES
         country = self.country.upper()
-        markets_json = await self.auth.request("GET", f"{MARKET_URL}/markets", None)
+        markets_json = await self.auth.request("GET", f"{MARKET_URL}/markets")
 
-        country_spec = markets_json.getr("countries.countrySpecifications")
+        country_spec = ExtendedDict(markets_json).getr(
+            "countries.countrySpecifications"
+        )
         if country not in country_spec:
             raise AudiException("Country not found")
 
@@ -133,7 +137,7 @@ class AudiConnect:
 
         # Get market config
         services = await self.auth.request(
-            "GET", f"{MARKET_URL}/market/{country}/{language}", None
+            "GET", f"{MARKET_URL}/market/{country}/{language}"
         )
 
         client_id = services.get("idkClientIDAndroidLive", CLIENT_ID)
@@ -149,13 +153,11 @@ class AudiConnect:
         # Get openId config
         openid_url = services.get("idkLoginServiceConfigurationURLProduction")
         _LOGGER.debug("IDK Base Url: %s", openid_url)
-        openid_json = await self.auth.request("GET", openid_url, None)
+        openid_json = await self.auth.request("GET", openid_url)
 
         authorization_endpoint_url = openid_json.get("authorization_endpoint", "")
         token_endpoint_url = openid_json.get("token_endpoint", "")
         revocation_endpoint_url = openid_json.get("revocation_endpoint", "")
-
-        _LOGGER.debug("Urls of service: %s", self.uris)
 
         self.uris = {
             "client_id": client_id,
@@ -167,18 +169,22 @@ class AudiConnect:
             "user_url": URL_INFO_USER,
             "authorization_endpoint": authorization_endpoint_url,
             "token_endpoint": token_endpoint_url,
+            "revocation_endpoint": revocation_endpoint_url,
             "language": language,
             "country": country,
         }
 
-    async def _async_fill_url(self, vin: str) -> Tuple[str, str]:
+        _LOGGER.debug("Urls of service: %s", self.uris)
+
+    async def _async_fill_url(self, vin: str) -> NamedTuple:
         """Fill region."""
         url = URL_HOME_REGION
         url_setter = URL_HOME_REGION_SETTER
-
-        rsp = await self.auth.get(f"{url_setter}/cs/vds/v1/vehicles/{vin}/homeRegion")
-        rsp = rsp if rsp else ExtendedDict()
-        uri = rsp.getr("homeRegion.baseUri.content")
+        headers = await self.auth.async_get_headers(token_type="mbb")
+        rsp = await self.auth.request(
+            "GET", f"{url_setter}/cs/vds/v1/vehicles/{vin}/homeRegion", headers=headers
+        )
+        uri = ExtendedDict(rsp).getr("homeRegion.baseUri.content")
         if uri and uri != url_setter:
             url = uri.replace("mal-", "fal-").replace("/api", "/fs-car")
             url_setter = uri
