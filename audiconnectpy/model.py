@@ -122,7 +122,7 @@ class ChargingSettings(Base):
 
 @dataclass
 class PlugStatus(Base):
-    plug_connection_state: int | None = field(
+    plug_connection_state: bool | None = field(
         metadata=field_options(deserialize=lambda x: x == "connected"), default=None
     )
     plug_lock_state: bool | None = field(
@@ -323,6 +323,24 @@ class WarningLights(Base):
 @dataclass
 class UserCapabilities(Base):
     capabilities_status: list[dict[str, Any]] | None = None
+
+
+# SECTION
+@dataclass
+class Information(Base):
+    core: Core
+    media: Media
+
+
+@dataclass
+class Core(Base):
+    model_year: int
+
+
+@dataclass
+class Media(Base):
+    short_name: str
+    long_name: str
 
 
 # SECTION
