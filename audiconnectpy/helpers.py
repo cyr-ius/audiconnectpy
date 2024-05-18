@@ -131,7 +131,7 @@ def windows_status(attrs: list[dict[str, Any]]) -> dict[str, bool]:
         "left_rear": left_rear_open,
         "right_front": right_open,
         "right_rear": right_rear_open,
-        "any_status": any(windows_open),
+        "any_windows_status": any(windows_open),
     }
 
     if "unsupported" not in status.get("roofCover", {}):
@@ -144,7 +144,7 @@ def windows_status(attrs: list[dict[str, Any]]) -> dict[str, bool]:
         metadatas.update({"sun_roof": open_sun_roof})
         windows_open.append(open_sun_roof)
 
-    metadatas.update({"any_status": any(windows_open)})
+    metadatas.update({"any_windows_status": any(windows_open)})
 
     return metadatas
 
@@ -165,7 +165,7 @@ def doors_status(attrs: list[dict[str, Any]]) -> dict[str, bool]:
             "right_front": right_unlock,
             "right_rear": right_rear_unlock,
             "trunk": trunk_unlock,
-            "any_doors": any(doors_unlock),
+            "any_doors_status": any(doors_unlock),
             "doors_trunk": any(doors_unlock) and trunk_unlock,
         }
     }
@@ -195,7 +195,7 @@ def doors_status(attrs: list[dict[str, Any]]) -> dict[str, bool]:
                 "right_rear": right_rear_open,
                 "trunk": trunk_open,
                 "bonnet": bonnet_open,
-                "any_doors": any(doors_open),
+                "any_doors_status": any(doors_open),
             }
         }
     )
