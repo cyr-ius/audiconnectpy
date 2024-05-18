@@ -23,7 +23,7 @@ from .const import (
 )
 from .exceptions import HttpRequestError, TimeoutExceededError
 from .helpers import ExtendedDict, remove_value, spin_hash
-from .model import Location, Model, Position
+from .model import Information, Location, Model, Position
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -57,7 +57,7 @@ class Vehicle(DataClassDictMixin):  # type: ignore
     uris: dict[str, str] = field(init=False)
     spin: str = field(init=False)
     auth: Any = field(init=False)
-    infos: dict[str, Any] | None = field(
+    infos: Information | None = field(
         metadata=field_options(alias="vehicle"), default=None
     )
     capabilities: list[str] | None = field(init=False, default=None)
