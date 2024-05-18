@@ -115,8 +115,8 @@ class DoorLocked(DataClassDictMixin):
     left_rear: bool | None = None
     right_rear: bool | None = None
     trunk: bool | None = None
-    any_doors: bool | None = None
     doors_trunk: bool | None = None
+    any_doors_status: bool | None = None
 
 
 @dataclass
@@ -129,7 +129,7 @@ class DoorOpened(DataClassDictMixin):
     right_rear: bool | None = None
     trunk: bool | None = None
     bonnet: bool | None = None
-    any_doors: bool | None = None
+    any_doors_status: bool | None = None
 
 
 @dataclass
@@ -142,7 +142,7 @@ class Window(DataClassDictMixin):
     right_rear: bool | None = None
     roof_cover: bool | None = None
     sun_roof: bool | None = None
-    any_status: bool | None = None
+    any_windows_status: bool | None = None
 
 
 # SECTION
