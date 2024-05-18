@@ -16,7 +16,6 @@ from urllib.parse import parse_qs, urlencode, urlparse
 import uuid
 
 import aiohttp
-from aiohttp.hdrs import METH_GET, METH_POST, METH_PUT
 import async_timeout
 from bs4 import BeautifulSoup
 
@@ -27,7 +26,6 @@ from .exceptions import (
     ServiceNotFoundError,
     TimeoutExceededError,
 )
-from .helpers import ExtendedDict, json_loads
 
 TIMEOUT = 120
 DELAY = 10
@@ -65,8 +63,6 @@ class Auth:
         self,
         method: str,
         url: str,
-        data: Any | None = None,
-        headers: dict[str, str] | None = None,
         raw_reply: bool = False,
         raw_rsp: bool = False,
         **kwargs: Any,
@@ -74,12 +70,10 @@ class Auth:
         """Request url with method."""
         try:
             async with async_timeout.timeout(TIMEOUT):
-                _LOGGER.debug("REQUEST HEADERS: %s", headers)
+                _LOGGER.debug("REQUEST HEADERS: %s", kwargs.get("headers"))
                 _LOGGER.debug("REQUEST: %s", url)
-                _LOGGER.debug("REQUEST DATA:%s", data)
-                response = await self._session.request(
-                    method, url, headers=headers, data=data, **kwargs
-                )
+                _LOGGER.debug("REQUEST DATA:%s", kwargs.get("data"))
+                response = await self._session.request(method, url, **kwargs)
         except (asyncio.CancelledError, asyncio.TimeoutError) as error:
             raise TimeoutExceededError(
                 "Timeout occurred while connecting to Audi Connect."
@@ -105,49 +99,20 @@ class Auth:
             return response
 
         if "application/json" in content_type:
-            rsp = await response.json(loads=json_loads)
+            rsp = await response.json()
         elif (
-            headers
+            (headers := kwargs.get("headers"))
             and "application/json" in headers.get("Accept", "")
             and contents == ""
         ):
             _LOGGER.debug("JSON FIX: Accept is JSON but Response is None")
-            rsp = ExtendedDict()
+            rsp = {}
         else:
             rsp = await response.text()
 
         if raw_reply and raw_rsp:
             return response, rsp
         return rsp
-
-    async def get(self, url: str, **kwargs: Any) -> Any:
-        """GET request."""
-        if (headers := kwargs.pop("headers", None)) is None:
-            headers = await self.async_get_headers(token_type="mbb")
-        response = await self.request(METH_GET, url, headers=headers, **kwargs)
-        return response
-
-    async def put(self, url: str, data: Any = None, **kwargs: Any) -> Any:
-        """PUT request."""
-        if (headers := kwargs.pop("headers", None)) is None:
-            headers = await self.async_get_headers(token_type="mbb")
-        response = await self.request(
-            METH_PUT, url, headers=headers, data=data, **kwargs
-        )
-        return response
-
-    async def post(
-        self, url: str, data: Any = None, use_json: bool = True, **kwargs: Any
-    ) -> Any:
-        """POST request."""
-        if (headers := kwargs.pop("headers", None)) is None:
-            headers = await self.async_get_headers(token_type="mbb")
-        if use_json and data:
-            data = json.dumps(data)
-        response = await self.request(
-            METH_POST, url, headers=headers, data=data, **kwargs
-        )
-        return response
 
     async def async_connect(
         self, username: str, password: str, uris: dict[str, str], tries: int = 3
@@ -200,7 +165,6 @@ class Auth:
         idk_rsp, idk_rsptxt = await self.request(
             "GET",
             self.uris["authorization_endpoint"],
-            None,
             headers=headers,
             params=idk_data,
             raw_reply=True,
@@ -214,7 +178,7 @@ class Auth:
         email_rsptxt = await self.request(
             "POST",
             submit_url,
-            submit_data,
+            data=submit_data,
             headers=headers,
             cookies=idk_rsp.cookies,
             allow_redirects=True,
@@ -239,7 +203,7 @@ class Auth:
         pw_rsp = await self.request(
             "POST",
             submit_url,
-            submit_data,
+            data=submit_data,
             headers=headers,
             cookies=idk_rsp.cookies,
             allow_redirects=False,
@@ -255,7 +219,6 @@ class Auth:
         fwd1_rsp = await self.request(
             "GET",
             pw_rsp.headers.get("Location", {}),
-            None,
             headers=headers,
             cookies=idk_rsp.cookies,
             allow_redirects=False,
@@ -266,7 +229,6 @@ class Auth:
         fwd2_rsp = await self.request(
             "GET",
             fwd1_rsp.headers.get("Location", {}),
-            None,
             headers=headers,
             cookies=idk_rsp.cookies,
             allow_redirects=False,
@@ -277,7 +239,6 @@ class Auth:
         codeauth_rsp = await self.request(
             "GET",
             fwd2_rsp.headers.get("Location", {}),
-            None,
             headers=headers,
             cookies=fwd2_rsp.cookies,
             allow_redirects=False,
@@ -479,7 +440,7 @@ class Auth:
         azs_token_json = await self.request(
             "POST",
             self.uris["audi_url"] + "/token",
-            json.dumps(asz_req_data),
+            json=asz_req_data,
             headers=headers,
             allow_redirects=False,
         )
@@ -515,12 +476,12 @@ class Auth:
         # IDK token request
         encoded_idk_data = urlencode(idk_data, encoding="utf-8").replace("+", "%20")
 
-        idk_token_json = await self.post(
+        idk_token_json = await self.request(
+            "POST",
             self.uris["token_endpoint"],
-            encoded_idk_data,
+            data=encoded_idk_data,
             headers=headers,
             allow_redirects=False,
-            use_json=False,
         )
         _LOGGER.debug("IDK Token: %s", idk_token_json)
 
@@ -546,9 +507,10 @@ class Auth:
             "appVersion": HDR_XAPP_VERSION,
             "appId": "de.myaudi.mobile.assistant",
         }
-        mbboauth_client_reg_json = await self.post(
+        mbboauth_client_reg_json = await self.request(
+            "POST",
             self.uris["mbb_url"] + "/mobile/register/v1",
-            mbboauth_reg_data,
+            json=mbboauth_reg_data,
             headers=headers,
             allow_redirects=False,
         )
@@ -581,12 +543,12 @@ class Auth:
         encoded_mbboauth_data = urlencode(mbboauth_data, encoding="utf-8").replace(
             "+", "%20"
         )
-        mbboauth_json = await self.post(
+        mbboauth_json = await self.request(
+            "POST",
             self.uris["mbb_url"] + "/mobile/oauth2/v1/token",
-            encoded_mbboauth_data,
+            data=encoded_mbboauth_data,
             headers=headers,
             allow_redirects=False,
-            use_json=False,
         )
         _LOGGER.debug("MBB Token: %s", mbboauth_json)
         return mbboauth_json
@@ -616,12 +578,12 @@ class Auth:
         encoded_hereoauth_data = urlencode(hereoauth_data, encoding="utf-8").replace(
             "+", "%20"
         )
-        hereoauth_json = await self.post(
+        hereoauth_json = await self.request(
+            "POST",
             self.uris["mbb_url"] + "/mobile/oauth2/v1/token",
-            encoded_hereoauth_data,
+            data=encoded_hereoauth_data,
             headers=headers,
             allow_redirects=False,
-            use_json=False,
         )
         _LOGGER.debug("Here Token: %s", hereoauth_json)
         return hereoauth_json

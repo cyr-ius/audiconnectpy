@@ -12,7 +12,7 @@ from mashumaro.types import SerializationStrategy
 from .helpers import camel2snake, doors_status, lights_status, windows_status
 
 
-class Locked(SerializationStrategy):
+class Locked(SerializationStrategy):  # type: ignore
     def serialize(self, value: str) -> str:
         return value
 
@@ -20,7 +20,7 @@ class Locked(SerializationStrategy):
         return value == "locked"
 
 
-class OnOff(SerializationStrategy):
+class OnOff(SerializationStrategy):  # type: ignore
     def serialize(self, value: str) -> str:
         return value
 
@@ -29,7 +29,7 @@ class OnOff(SerializationStrategy):
 
 
 @dataclass
-class Base(DataClassDictMixin):
+class Base(DataClassDictMixin):  # type: ignore
     @classmethod
     def __pre_deserialize__(cls, d: dict[Any, Any]) -> dict[Any, Any]:
         return {camel2snake(k): v for k, v in d.items()}
@@ -227,7 +227,7 @@ class PrimaryEngine(Base):
 @dataclass
 class SecondaryEngine(Base):
     type: str | None = None
-    current_soc_pct: str = None
+    current_soc_pct: int | None = None
     remaining_range_km: int | None = None
     current_fuel_level_pct: int | None = None
 

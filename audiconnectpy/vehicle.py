@@ -5,8 +5,9 @@ from __future__ import annotations
 import asyncio
 from dataclasses import dataclass, field
 from datetime import datetime
+import json
 import logging
-from typing import Any, Literal
+from typing import Any, Iterable, Literal, cast
 
 from mashumaro import DataClassDictMixin, field_options
 
@@ -32,21 +33,21 @@ class Globals:
 
     def __init__(self, unit: str) -> None:
         """Initilaze."""
-        global UNIT_SYSTEM  # pylint: disable=global-variable-undefined
+        global UNIT_SYSTEM
         UNIT_SYSTEM = f"{unit}"  # type: ignore
 
 
 @dataclass
-class Vehicles(DataClassDictMixin):
+class Vehicles(DataClassDictMixin):  # type: ignore
     """Vehicles."""
 
     user_vehicles: list[Vehicle] = field(
-        metadata=field_options(alias="userVehicles"), default=None
+        metadata=field_options(alias="userVehicles"), default_factory=list
     )
 
 
 @dataclass
-class Vehicle(DataClassDictMixin):
+class Vehicle(DataClassDictMixin):  # type: ignore
     """Vehicle class."""
 
     vin: str
@@ -55,11 +56,11 @@ class Vehicle(DataClassDictMixin):
     last_access: datetime | None = None
     uris: dict[str, str] = field(init=False)
     spin: str = field(init=False)
-    auth: str = field(init=False)
+    auth: Any = field(init=False)
     infos: dict[str, Any] | None = field(
         metadata=field_options(alias="vehicle"), default=None
     )
-    capabilities: dict[str, Any] | None = field(init=False, default=None)
+    capabilities: list[str] | None = field(init=False, default=None)
     position: Position | None = field(init=False, default=None)
     location: Location | None = field(init=False, default=None)
 
@@ -121,52 +122,54 @@ class Vehicle(DataClassDictMixin):
             }
         )
 
-    async def async_get_location(self) -> ExtendedDict:
+    async def async_get_location(self) -> Any:
         """Get destination data."""
         headers = await self.auth.async_get_headers(token_type="here")
-        data = await self.auth.get(f"{self.uris['here_url']}/location", headers=headers)
+        data = await self.auth.request(
+            "GET", f"{self.uris['here_url']}/location", headers=headers
+        )
         return data
 
-    async def async_get_position(self) -> ExtendedDict:
+    async def async_get_position(self) -> Any:
         """Get position data."""
         headers = await self.auth.async_get_headers(token_type="idk")
-        data = await self.auth.get(
+        data = await self.auth.request(
+            "GET",
             f"{self.uris['cv_url']}/vehicles/{self.vin}/parkingposition",
             headers=headers,
         )
         return data
 
-    async def async_get_capabilities(self) -> ExtendedDict:
+    async def async_get_capabilities(self) -> Any:
         """Get capabilities."""
         headers = await self.auth.async_get_headers(token_type="idk")
-        data = await self.auth.get(
+        data = await self.auth.request(
+            "GET",
             f"{self.uris['cv_url']}/vehicles/{self.vin}/capabilities",
             headers=headers,
         )
         return data
 
-    async def async_get_selectivestatus(
-        self, jobs: list[str] | None = None
-    ) -> ExtendedDict:
+    async def async_get_selectivestatus(self, jobs: Iterable[str] | None = None) -> Any:
         """Get capabilities."""
-        if not jobs:
+        if jobs is None:
             headers = await self.auth.async_get_headers(token_type="idk")
-            capabilities = await self.auth.get(
+            capabilities = await self.auth.request(
+                "GET",
                 f"{self.uris['cv_url']}/vehicles/{self.vin}/selectivestatus?jobs=userCapabilities",
                 headers=headers,
             )
-            dict_values = (
-                capabilities.get("userCapabilities", {})
-                .get("capabilitiesStatus", {})
-                .get("value", [])
+            values: list[dict[str, Any]] = ExtendedDict(capabilities).getr(
+                "userCapabilities.capabilitiesStatus.value", []
             )
-            self.capabilities = [
-                d for capability in dict_values if (d := capability.get("id"))
+            self.capabilities: list[str] = [
+                str(d) for capability in values if (d := capability.get("id"))
             ]
 
-        str_jobs = ",".join(self.capabilities)
+        str_jobs = ",".join(self.capabilities)  # type: ignore
         headers = await self.auth.async_get_headers(token_type="idk")
-        data = await self.auth.get(
+        data = await self.auth.request(
+            "GET",
             f"{self.uris['cv_url']}/vehicles/{self.vin}/selectivestatus?jobs={str_jobs},userCapabilities",
             headers=headers,
         )
@@ -186,14 +189,13 @@ class Vehicle(DataClassDictMixin):
             + f'<rluAction xmlns="http://audi.de/connect/rlu"><action>{"lock" if lock else "unlock"}</action></rluAction>'
         )
 
-        rsp = await self.auth.post(
+        rsp = await self.auth.request(
+            "POST",
             f"{self.uris['url']}/bs/rlu/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/actions",
             headers=headers,
             data=data,
-            use_json=False,
         )
-        rsp = rsp if rsp else ExtendedDict()
-        request_id = rsp.getr("rluActionResponse.requestId")
+        request_id = ExtendedDict(rsp).getr("rluActionResponse.requestId", "")
         await self._async_check_request(
             f"{self.uris['url']}/bs/rlu/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/requests/{request_id}/status",
             "lock vehicle" if lock else "unlock vehicle",
@@ -228,7 +230,6 @@ class Vehicle(DataClassDictMixin):
                 + heater_source
                 + "</heaterSource></settings></action>"
             )
-            use_json = False
         else:
             headers = await self.auth.async_get_action_headers(
                 "application/json",
@@ -253,16 +254,15 @@ class Vehicle(DataClassDictMixin):
                 if start
                 else {"action": {"type": "stopClimatisation"}}
             )
-            use_json = True
+            data = json.dumps(data)
 
-        rsp = await self.auth.post(
+        rsp = await self.auth.request(
+            "POST",
             f"{self.uris['url']}/bs/climatisation/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/climater/actions",
             headers=headers,
             data=data,
-            use_json=use_json,
         )
-        rsp = rsp if rsp else ExtendedDict()
-        actionid = rsp.getr("action.actionId")
+        actionid = ExtendedDict(rsp).getr("action.actionId", "")
         await self._async_check_request(
             f"{self.uris['url']}/bs/climatisation/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/climater/actions/{actionid}",
             "start climatisation" if start else "stop climatisation",
@@ -306,7 +306,6 @@ class Vehicle(DataClassDictMixin):
                 + f"<heaterSource>{heater_source}</heaterSource>"
                 + "</settings></action>"
             )
-            use_json = False
         else:
             headers = await self.auth.async_get_action_headers("application/json", None)
             data = {
@@ -324,15 +323,14 @@ class Vehicle(DataClassDictMixin):
                     },
                 }
             }
-            use_json = True
-        rsp = await self.auth.post(
+            data = json.dumps(data)
+        rsp = await self.auth.request(
+            "POST",
             f"{self.uris['url']}/bs/climatisation/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/climater/actions",
             headers=headers,
             data=data,
-            use_json=use_json,
         )
-        rsp = rsp if rsp else ExtendedDict()
-        actionid = rsp.getr("action.actionId")
+        actionid = ExtendedDict(rsp).getr("action.actionId", "")
         await self._async_check_request(
             f"{self.uris['url']}/bs/climatisation/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/climater/actions/{actionid}",
             "set target temperature",
@@ -354,7 +352,6 @@ class Vehicle(DataClassDictMixin):
                 '<?xml version="1.0" encoding= "UTF-8" ?><performAction xmlns="http://audi.de/connect/rs">'
                 + f'<quickstart><active>{"true" if start else "false"}</active></quickstart></performAction>'
             )
-            use_json = False
         else:
             headers = await self.auth.async_get_action_headers(
                 "application/json", security_token
@@ -372,13 +369,13 @@ class Vehicle(DataClassDictMixin):
                 if start
                 else {"performAction": {"quickstop": {"active": False}}}
             )
-            use_json = True
+            data = json.dumps(data)
 
-        await self.auth.post(
+        await self.auth.request(
+            "POST",
             f"{self.uris['url']}/bs/rs/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/action",
             headers=headers,
             data=data,
-            use_json=use_json,
         )
 
     async def async_set_ventilation(self, start: bool, duration: int = 60) -> None:
@@ -403,7 +400,6 @@ class Vehicle(DataClassDictMixin):
                 '<?xml version="1.0" encoding="UTF-8" ?><performAction xmlns="http://audi.de/connect/rs">'
                 f"<quickstart>{content}</quickstart></performAction>"
             )
-            use_json = False
         else:
             headers = await self.auth.async_get_action_headers(
                 "application/vnd.vwg.mbb.RemoteStandheizung_v2_0_2+json", security_token
@@ -421,13 +417,13 @@ class Vehicle(DataClassDictMixin):
                 if start
                 else {"performAction": {"quickstop": {"active": False}}}
             )
-            use_json = True
+            data = json.dumps(data)
 
-        await self.auth.post(
+        await self.auth.request(
+            "POST",
             f"{self.uris['url']}/bs/rs/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/action",
             headers=headers,
             data=data,
-            use_json=use_json,
         )
 
     async def async_set_battery_charger(self, start: bool, timer: bool = False) -> None:
@@ -447,7 +443,7 @@ class Vehicle(DataClassDictMixin):
                 data = {"action": {"type": "start"}}
             else:
                 data = {"action": {"type": "stop"}}
-            use_json = True
+            data = json.dumps(data)
         elif self.api_level["charger"] == 3:
             headers = await self.auth.async_get_action_headers("application/json", None)
             data = {
@@ -455,22 +451,20 @@ class Vehicle(DataClassDictMixin):
                     "type": "startBatteryCharging" if start else "stopBatteryCharging"
                 }
             }
-            use_json = True
+            data = json.dumps(data)
         else:
             headers = await self.auth.async_get_action_headers(
                 "application/vnd.vwg.mbb.ChargerAction_v1_0_0+xml", None
             )
             data = f'<?xml version="1.0" encoding="UTF-8" ?><action><type>{"start" if start else "stop"}</type></action>'
-            use_json = False
 
-        rsp = await self.auth.post(
+        rsp = await self.auth.request(
+            "POST",
             f"{self.uris['url']}/bs/batterycharge/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/charger/actions",
             headers=headers,
             data=data,
-            use_json=use_json,
         )
-        rsp = rsp if rsp else ExtendedDict()
-        actionid = rsp.getr("action.actionId")
+        actionid = ExtendedDict(rsp).getr("action.actionId", "")
         await self._async_check_request(
             f"{self.uris['url']}/bs/batterycharge/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/charger/actions/{actionid}",
             "start charger" if start else "stop charger",
@@ -489,7 +483,8 @@ class Vehicle(DataClassDictMixin):
                     "type": "setSettings",
                 }
             }
-            use_json = True
+            data = json.dumps(data)
+
         else:
             headers = await self.auth.async_get_action_headers(
                 "application/vnd.vwg.mbb.ChargerAction_v1_0_0+xml", None
@@ -498,16 +493,14 @@ class Vehicle(DataClassDictMixin):
                 '<?xml version="1.0" encoding="UTF-8" ?><action><type>setSettings</type>'
                 + f"<settings><maxChargeCurrent>{current}</maxChargeCurrent></settings></action>"
             )
-            use_json = False
 
-        rsp = await self.auth.post(
+        rsp = await self.auth.request(
+            "POST",
             f"{self.uris['url']}/bs/batterycharge/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/charger/actions",
             headers=headers,
             data=data,
-            use_json=use_json,
         )
-        rsp = rsp if rsp else ExtendedDict()
-        actionid = rsp.getr("action.actionId")
+        actionid = ExtendedDict(rsp).getr("action.actionId", "")
         await self._async_check_request(
             f"{self.uris['url']}/bs/batterycharge/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/charger/actions/{actionid}",
             "set charger max current",
@@ -525,7 +518,7 @@ class Vehicle(DataClassDictMixin):
                     "type": "startWindowHeating" if start else "stopWindowHeating"
                 }
             }
-            use_json = True
+            data = json.dumps(data)
         else:
             headers = await self.auth.async_get_action_headers(
                 "application/vnd.vwg.mbb.ClimaterAction_v1_0_0+xml", None
@@ -534,15 +527,13 @@ class Vehicle(DataClassDictMixin):
                 '<?xml version="1.0" encoding= "UTF-8" ?>'
                 + f"<action><type>{'startWindowHeating' if start else 'stopWindowHeating'}</type></action>"
             )
-            use_json = False
-        rsp = await self.auth.post(
+        rsp = await self.auth.request(
+            "POST",
             f"{self.uris['url']}/bs/climatisation/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/climater/actions",
             headers=headers,
             data=data,
-            use_json=use_json,
         )
-        rsp = rsp if rsp else ExtendedDict()
-        actionid = rsp.getr("action.actionId")
+        actionid = ExtendedDict(rsp).getr("action.actionId", "")
         await self._async_check_request(
             f"{self.uris['url']}/bs/climatisation/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/climater/actions/{actionid}",
             "start window heating" if start else "stop window heating",
@@ -555,39 +546,36 @@ class Vehicle(DataClassDictMixin):
         self, mode: Literal["honk", "flash"], duration: int = 15
     ) -> None:
         """Set honk and flash light."""
-        rsp_position = await self.auth.get(
-            f"{self.uris['url']}/bs/cf/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/position"
-        )
-        rsp_position = rsp_position if rsp_position else ExtendedDict()
-        position = rsp_position.getr("findCarResponse.Position.carCoordinate")
-        headers = await self.auth.async_get_action_headers("application/json", None)
-        data: str | dict[str, Any] = {
-            "honkAndFlashRequest": {
-                "serviceOperationCode": "HONK_AND_FLASH"
-                if mode == "honk"
-                else "FLASH_ONLY",
-                "serviceDuration": duration,
-                "userPosition": {
-                    "latitude": position["latitude"],
-                    "longitude": position["longitude"],
-                },
+        if self.position:
+            headers = await self.auth.async_get_action_headers("application/json", None)
+            data: dict[str, Any] = {
+                "honkAndFlashRequest": {
+                    "serviceOperationCode": "HONK_AND_FLASH"
+                    if mode == "honk"
+                    else "FLASH_ONLY",
+                    "serviceDuration": duration,
+                    "userPosition": {
+                        "latitude": self.position.latitude,
+                        "longitude": self.position.longitude,
+                    },
+                }
             }
-        }
-        await self.auth.post(
-            f"{self.uris['url']}/bs/rhf/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/honkAndFlash",
-            headers=headers,
-            data=data,
-        )
+            await self.auth.request(
+                "POST",
+                f"{self.uris['url']}/bs/rhf/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/honkAndFlash",
+                headers=headers,
+                json=data,
+            )
 
     async def async_refresh_vehicle_data(self) -> None:
         """Refresh vehicle data."""
         headers = await self.auth.async_get_headers(token_type="idk")
-        data = await self.auth.post(
+        rsp = await self.auth.request(
+            "POST",
             f"{self.uris['cv_url']}/vehicles/{self.vin}/vehiclewakeup",
             headers=headers,
         )
-        data = data if data else ExtendedDict()
-        request_id: str = data.getr("data.requestID")
+        request_id: str = ExtendedDict(rsp).getr("data.requestID", "")
         await self._async_pending_request(
             f"{self.uris['cv_url']}/vehicles/{self.vin}/pendingrequests",
             "refresh vehicle data",
@@ -605,7 +593,7 @@ class Vehicle(DataClassDictMixin):
             await asyncio.sleep(REQUEST_STATUS_SLEEP)
 
             headers = await self.auth.async_get_headers(token_type="idk")
-            rsp = await self.auth.get(url, headers=headers)
+            rsp = await self.auth.request("GET", url, headers=headers)
 
             status = None
             if rsp and (data := rsp.get("data")):
@@ -632,9 +620,10 @@ class Vehicle(DataClassDictMixin):
         for _ in range(MAX_RESPONSE_ATTEMPTS):
             await asyncio.sleep(REQUEST_STATUS_SLEEP)
 
-            rsp = await self.auth.get(url)
+            headers = await self.auth.async_get_headers(token_type="mbb")
+            rsp = await self.auth.request("GET", url, headers=headers)
 
-            status = rsp.getr(path)
+            status = ExtendedDict(rsp).getr(path)
 
             if status is None or (failed is not None and status == failed):
                 raise HttpRequestError(("Cannot %s, return code '%s'", action, status))
@@ -646,38 +635,38 @@ class Vehicle(DataClassDictMixin):
         if stauts_good is False:
             raise TimeoutExceededError(("Cannot %s, operation timed out", action))
 
-    async def _async_get_security_token(self, action: str) -> Any:
+    async def _async_get_security_token(self, action: str) -> str:
         """Get security token."""
         self.spin = "" if self.spin is None else self.spin
 
         # Challenge
         headers = await self.auth.async_get_headers(token_type="mbb", okhttp=True)
-        rsp = await self.auth.get(
+        rsp = await self.auth.request(
+            "GET",
             f"{self.uris['url_setter']}/rolesrights/authorization/v2/vehicles/{self.vin}/services/{action}/security-pin-auth-requested",
             headers=headers,
         )
-        rsp = rsp if rsp else ExtendedDict()
-        sec_token = rsp.getr("securityPinAuthInfo.securityToken")
+        rsp = ExtendedDict(rsp)
+        sec_token: str = rsp.getr("securityPinAuthInfo.securityToken")
         challenge: str = rsp.getr(
             "securityPinAuthInfo.securityPinTransmission.challenge"
         )
 
         # Response
-        security_pin_hash = spin_hash(self.spin, challenge)
+        headers["Content-Type"] = "application/json"
         data = {
             "securityPinAuthentication": {
                 "securityPin": {
                     "challenge": challenge,
-                    "securityPinHash": security_pin_hash,
+                    "securityPinHash": spin_hash(self.spin, challenge),
                 },
                 "securityToken": sec_token,
             }
         }
-
-        headers["Content-Type"] = "application/json"
-        body = await self.auth.post(
+        response = await self.auth.request(
+            "POST",
             f"{self.uris['url_setter']}/rolesrights/authorization/v2/security-pin-auth-completed",
             headers=headers,
-            data=data,
+            json=data,
         )
-        return body["securityToken"]
+        return cast(str, response.get("securityToken", ""))
