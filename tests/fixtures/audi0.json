@@ -1,0 +1,97 @@
+{
+  "access": {
+    "accessStatus": {
+      "value": {
+        "overallStatus": "unsafe",
+        "carCapturedTimestamp": "2024-05-11T16:41:40T+00",
+        "doors": [
+          { "name": "bonnet", "status": ["closed"] },
+          { "name": "frontLeft", "status": ["unlocked", "closed"] },
+          { "name": "frontRight", "status": ["unlocked", "closed"] },
+          { "name": "rearLeft", "status": ["unlocked", "closed"] },
+          { "name": "rearRight", "status": ["unlocked", "closed"] },
+          { "name": "trunk", "status": ["unlocked", "closed"] }
+        ],
+        "windows": [
+          { "name": "frontLeft", "status": ["closed"] },
+          { "name": "frontRight", "status": ["closed"] },
+          { "name": "rearLeft", "status": ["closed"] },
+          { "name": "rearRight", "status": ["closed"] },
+          { "name": "roofCover", "status": ["unsupported"] },
+          { "name": "sunRoof", "status": ["unsupported"] }
+        ],
+        "doorLockStatus": "unlocked"
+      }
+    }
+  },
+  "fuelStatus": {
+    "rangeStatus": {
+      "value": {
+        "carCapturedTimestamp": "2024-05-11T16:41:40T+00",
+        "carType": "gasoline",
+        "primaryEngine": {
+          "type": "gasoline",
+          "currentSOC_pct": 100,
+          "remainingRange_km": 860,
+          "currentFuelLevel_pct": 100
+        },
+        "totalRange_km": 860
+      }
+    }
+  },
+  "measurements": {
+    "rangeStatus": {
+      "value": {
+        "carCapturedTimestamp": "2024-05-11T16:41:40T+00",
+        "gasolineRange": 860,
+        "totalRange_km": 860
+      }
+    },
+    "odometerStatus": {
+      "value": {
+        "carCapturedTimestamp": "2024-05-11T16:41:40T+00",
+        "odometer": 21512
+      }
+    },
+    "fuelLevelStatus": {
+      "value": {
+        "carCapturedTimestamp": "2024-05-11T16:41:40T+00",
+        "currentFuelLevel_pct": 100,
+        "primaryEngineType": "gasoline",
+        "carType": "gasoline"
+      }
+    }
+  },
+  "oilLevel": {
+    "oilLevelStatus": {
+      "value": {
+        "carCapturedTimestamp": "2024-05-11T16:38:33",
+        "value": true
+      }
+    }
+  },
+  "vehicleLights": {
+    "lightsStatus": {
+      "value": {
+        "carCapturedTimestamp": "2024-05-11T16:41:40T+00",
+        "lights": [
+          { "name": "right", "status": "off" },
+          { "name": "left", "status": "off" }
+        ]
+      }
+    }
+  },
+  "vehicleHealthInspection": {
+    "maintenanceStatus": {
+      "value": {
+        "carCapturedTimestamp": "2024-05-11T16:41:45",
+        "inspectionDue_days": 131,
+        "inspectionDue_km": 8500,
+        "mileage_km": 21512,
+        "oilServiceDue_days": 131,
+        "oilServiceDue_km": 8500
+      }
+    }
+  },
+  "vehicleHealthWarnings": { "warningLights": { "value": {} } }
+}

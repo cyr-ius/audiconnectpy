@@ -1,0 +1,2230 @@
+{
+  "count": 41,
+  "data": [
+    {
+      "proprietaryData": {
+        "0": "Fast food",
+        "1": "20",
+        "2": "FRA",
+        "4": "31597",
+        "5": "250",
+        "6": "false",
+        "9": "false",
+        "10": "BURGER KING",
+        "11": "+33 2 45930042",
+        "13": "9201042941012",
+        "14": "Centre-Val de Loire",
+        "15": "CVL",
+        "20": "Chambray-lès-Tours",
+        "22": "{'nds':'9201042941012'}",
+        "23": "Rue de Joué 36 37170 Chambray-lès-Tours France",
+        "24": "poi:/8729657458?width=0&height=0&category_id=31597"
+      },
+      "id": "580bd057-7b18-47ae-a07a-78a18940ca8c",
+      "clientId": ["8acca6a3-7546-4884-a8f0-a00a78140039"],
+      "userData": {
+        "_METATOKEN_102": "20",
+        "_METATOKEN_99": "9201042941012",
+        "_ENTRY_TYPE_": "2"
+      },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1690740171864,
+        "updatedAt": 1690740171864
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1690740107511,
+          "syncableUpdatedTime": 1690740107511,
+          "valid": true,
+          "lastUsage": 1690740107510,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1690740171874,
+            "updatedAt": 1690740171874
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 47.33872395910168,
+        "longitude": 0.7050792827504446,
+        "altitude": 0.0
+      },
+      "address": {
+        "name": "BURGER KING",
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Centre-Val de Loire",
+        "stateCode": "CVL",
+        "city": "Chambray-lès-Tours",
+        "postalCode": "37170",
+        "street": "Rue de Joué",
+        "houseNumber": "36"
+      },
+      "placeDetails": {
+        "accessPoints": [
+          {
+            "coordinates": {
+              "latitude": 47.33872387528264,
+              "longitude": 0.7050697273802595
+            }
+          }
+        ],
+        "phone": "+33 2 45930042",
+        "categories": [
+          {
+            "name": "Fast food",
+            "iconUri": "poi:/8729657458?width=0&height=0&category_id=31597",
+            "type": "2"
+          },
+          { "id": "31597", "type": "1" }
+        ]
+      }
+    },
+    {
+      "id": "4eebdfb8-1ab6-48a5-8dec-1473c11a8b71",
+      "clientId": ["1a1b7806-62c4-4d97-b724-8ca14b8712c4"],
+      "userData": { "_METATOKEN_99": "9513372638070", "_ENTRY_TYPE_": "16" },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1678782756154,
+        "updatedAt": 1678782756154
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1678782694605,
+          "syncableUpdatedTime": 1678782694605,
+          "valid": true,
+          "lastUsage": 1678782694605,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1678782756168,
+            "updatedAt": 1678782756168
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 47.94484992369115,
+        "longitude": 0.2633498579770242,
+        "altitude": 0.0
+      },
+      "address": {
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Pays de la Loire",
+        "stateCode": "PDL",
+        "city": "Ruaudin",
+        "postalCode": "72230"
+      }
+    },
+    {
+      "id": "274eee64-a2e1-4e95-bdcf-7d11d450e54d",
+      "clientId": ["04cabea4-5b47-480e-a51f-c17c87fa6d04"],
+      "userData": { "_METATOKEN_99": "9513372637533", "_ENTRY_TYPE_": "16" },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1666962797023,
+        "updatedAt": 1708024119817
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1668708244904,
+          "syncableUpdatedTime": 1708024119839,
+          "valid": true,
+          "lastUsage": 1708024057955,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1668708244910,
+            "updatedAt": 1708024119842
+          }
+        },
+        {
+          "rank": 0,
+          "type": "Home places",
+          "syncableCreatedTime": 1666962796477,
+          "syncableUpdatedTime": 1708024119824,
+          "valid": true,
+          "lastUsage": 0,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1666962797034,
+            "updatedAt": 1708024119827
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 47.928549887078994,
+        "longitude": -0.01753997162222693,
+        "altitude": 0.0
+      },
+      "address": {
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Pays de la Loire",
+        "stateCode": "PDL",
+        "city": "Chemiré-le-Gaudin",
+        "postalCode": "72210"
+      }
+    },
+    {
+      "proprietaryData": {
+        "0": "Place de stationnement",
+        "1": "9",
+        "2": "FRA",
+        "4": "10237",
+        "5": "250",
+        "6": "false",
+        "9": "false",
+        "10": "Muses",
+        "13": "9513404532232",
+        "14": "Pays de la Loire",
+        "15": "PDL",
+        "20": "Saint-Herblain",
+        "22": "{'nds':'9513404532232'}",
+        "23": "Place des Muses 44800 Saint-Herblain France",
+        "24": "poi:/8735096938?width=0&height=0&category_id=56"
+      },
+      "id": "0d727b12-6977-48c7-a197-1887e07f1961",
+      "clientId": ["601fa17e-ac9e-4284-b3f7-74c8b443aeb0"],
+      "userData": {
+        "_METATOKEN_102": "9",
+        "_METATOKEN_99": "9513404532232",
+        "_ENTRY_TYPE_": "2"
+      },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1685087209675,
+        "updatedAt": 1685087209675
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1685087147193,
+          "syncableUpdatedTime": 1685087147193,
+          "valid": true,
+          "lastUsage": 1685087147192,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1685087209684,
+            "updatedAt": 1685087209684
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 47.229869936324356,
+        "longitude": -1.6151899875813716,
+        "altitude": 0.0
+      },
+      "address": {
+        "name": "Muses",
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Pays de la Loire",
+        "stateCode": "PDL",
+        "city": "Saint-Herblain",
+        "postalCode": "44800",
+        "street": "Place des Muses"
+      },
+      "placeDetails": {
+        "accessPoints": [
+          {
+            "coordinates": {
+              "latitude": 47.22967312922616,
+              "longitude": -1.6151926697905463
+            }
+          }
+        ],
+        "categories": [
+          {
+            "name": "Place de stationnement",
+            "iconUri": "poi:/8735096938?width=0&height=0&category_id=56",
+            "type": "2"
+          },
+          { "id": "10237", "type": "1" }
+        ]
+      }
+    },
+    {
+      "id": "a4e44f55-2e54-47aa-b154-51c50df0a1b0",
+      "userData": {
+        "_EXTERNAL_DATA": "{'1':'EXT','2':'Rue des Trois Chênes 17'}"
+      },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1713099493674,
+        "updatedAt": 1713099493674
+      },
+      "customTitle": "Rue des Trois Chênes 17",
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Received destination",
+          "syncableCreatedTime": 1713099493672,
+          "syncableUpdatedTime": 1713099493672,
+          "valid": true,
+          "lastUsage": 1713099490750,
+          "useFrequency": 0,
+          "userData": {},
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1713099493702,
+            "updatedAt": 1713099493702
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 47.926184172720546,
+        "longitude": -0.018892139196395874
+      },
+      "address": {
+        "name": "Rue des Trois Chênes 17",
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Pays de la Loire",
+        "city": "Chemiré-le-Gaudin",
+        "county": "Sarthe",
+        "postalCode": "72210",
+        "street": "Rue des Trois Chênes",
+        "houseNumber": "17",
+        "formattedText": "17 Rue des Trois Chênes, 72210 Chemiré-le-Gaudin, France"
+      }
+    },
+    {
+      "id": "4c0abfb5-5369-47bb-b78d-40c2b033785f",
+      "clientId": ["c7d4c038-cdcc-4970-9c72-3fbce4ba116a"],
+      "userData": { "_METATOKEN_99": "9135446122859", "_ENTRY_TYPE_": "4" },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1672294386413,
+        "updatedAt": 1672294386413
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1672294324846,
+          "syncableUpdatedTime": 1672294324846,
+          "valid": true,
+          "lastUsage": 1672294324845,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1672294386436,
+            "updatedAt": 1672294386436
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 48.8197552919987,
+        "longitude": 2.1152971921293253,
+        "altitude": 0.0
+      },
+      "address": {
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Île-de-France",
+        "stateCode": "IDF",
+        "city": "Versailles",
+        "postalCode": "78000",
+        "street": "Porte Saint-Antoine"
+      }
+    },
+    {
+      "id": "165c1bd3-da01-4b4b-b113-846d751d8158",
+      "clientId": ["e523d4c5-08a5-4029-9993-522f7d27528b"],
+      "userData": { "_METATOKEN_99": "9513410586439", "_ENTRY_TYPE_": "4" },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1671637755023,
+        "updatedAt": 1671637755023
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1671637692383,
+          "syncableUpdatedTime": 1671637692383,
+          "valid": true,
+          "lastUsage": 1671637692380,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1671637755034,
+            "updatedAt": 1671637755034
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 47.89343147089669,
+        "longitude": 0.04318055022839011,
+        "altitude": 0.0
+      },
+      "address": {
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Pays de la Loire",
+        "stateCode": "PDL",
+        "city": "La Suze-sur-Sarthe",
+        "postalCode": "72210",
+        "street": "Rue Camille Claudel",
+        "houseNumber": "7"
+      }
+    },
+    {
+      "proprietaryData": {
+        "0": "Place de stationnement",
+        "1": "9",
+        "2": "FRA",
+        "4": "10237",
+        "5": "250",
+        "6": "false",
+        "9": "false",
+        "10": "De l'Arc de Tromphe",
+        "13": "9229952024652",
+        "14": "Provence-Alpes-Côte d'Azur",
+        "15": "PAC",
+        "20": "Orange",
+        "22": "{'nds':'9229952024652'}",
+        "23": "Rond-Point de l'Arc de Triomphe 84100 Orange France",
+        "24": "poi:/8730771562?width=0&height=0&category_id=56"
+      },
+      "id": "3305fad1-8491-4e46-a4a5-c21d97a960d1",
+      "clientId": ["a275481c-f0aa-4bbc-b1f7-9db698717efa"],
+      "userData": {
+        "_METATOKEN_102": "9",
+        "_METATOKEN_99": "9229952024652",
+        "_ENTRY_TYPE_": "2"
+      },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1689355684816,
+        "updatedAt": 1689355684816
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1689355621753,
+          "syncableUpdatedTime": 1689355621753,
+          "valid": true,
+          "lastUsage": 1689355621752,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1689355684848,
+            "updatedAt": 1689355684848
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 44.14205993999898,
+        "longitude": 4.805419889788025,
+        "altitude": 0.0
+      },
+      "address": {
+        "name": "De l'Arc de Tromphe",
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Provence-Alpes-Côte d'Azur",
+        "stateCode": "PAC",
+        "city": "Orange",
+        "postalCode": "84100",
+        "street": "Rond-Point de l'Arc de Triomphe"
+      },
+      "placeDetails": {
+        "accessPoints": [
+          {
+            "coordinates": {
+              "latitude": 44.14221760360704,
+              "longitude": 4.805503038272443
+            }
+          }
+        ],
+        "categories": [
+          {
+            "name": "Place de stationnement",
+            "iconUri": "poi:/8730771562?width=0&height=0&category_id=56",
+            "type": "2"
+          },
+          { "id": "10237", "type": "1" }
+        ]
+      }
+    },
+    {
+      "proprietaryData": {
+        "0": "INTERMARCHÉ",
+        "1": "20",
+        "2": "FRA",
+        "4": "21899",
+        "5": "250",
+        "6": "false",
+        "9": "false",
+        "10": "INTERMARCHÉ",
+        "13": "9231104754389",
+        "14": "Provence-Alpes-Côte d'Azur",
+        "20": "Ollioules",
+        "22": "{'nds':'9231104754389'}",
+        "23": "1196 Route de la Gare, 83190 Ollioules, France",
+        "24": "poi:/8729657467?width=0&height=0&category_id=21899"
+      },
+      "id": "e1339531-95c0-4867-bd86-709a67cc4780",
+      "clientId": ["9b88b306-c4be-4e73-954c-2754d6e886e4"],
+      "userData": {
+        "_METATOKEN_102": "20",
+        "_METATOKEN_99": "9231104754389",
+        "_ENTRY_TYPE_": "2"
+      },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1690707492014,
+        "updatedAt": 1690707492014
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1690707489794,
+          "syncableUpdatedTime": 1690707489794,
+          "valid": true,
+          "lastUsage": 1690707489792,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1690707492029,
+            "updatedAt": 1690707492029
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 43.12313997175634,
+        "longitude": 5.823799895796173,
+        "altitude": 0.0
+      },
+      "address": {
+        "name": "INTERMARCHÉ",
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Provence-Alpes-Côte d'Azur",
+        "city": "Ollioules",
+        "postalCode": "83190",
+        "street": "Route de la Gare",
+        "houseNumber": "1196"
+      },
+      "placeDetails": {
+        "categories": [
+          {
+            "name": "INTERMARCHÉ",
+            "iconUri": "poi:/8729657467?width=0&height=0&category_id=21899",
+            "type": "2"
+          },
+          { "id": "21899", "type": "1" }
+        ]
+      }
+    },
+    {
+      "id": "7fa41c40-f8e6-47d6-b50c-a58dc133a8a7",
+      "clientId": ["54672a78-8259-42c2-aee1-677d2ca44735"],
+      "userData": { "_METATOKEN_99": "9174112357097", "_ENTRY_TYPE_": "4" },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1714244310483,
+        "updatedAt": 1714294841775
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1714244233296,
+          "syncableUpdatedTime": 1714294841783,
+          "valid": true,
+          "lastUsage": 1714294779135,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1714244310495,
+            "updatedAt": 1714294841786
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 48.57673641192832,
+        "longitude": -3.842414595107114,
+        "altitude": 0.0
+      },
+      "address": {
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Bretagne",
+        "stateCode": "BRE",
+        "city": "Saint-Martin-des-Champs",
+        "postalCode": "29600",
+        "street": "Rue Aristide Briand"
+      }
+    },
+    {
+      "proprietaryData": {
+        "0": "Place de stationnement",
+        "1": "9",
+        "2": "FRA",
+        "4": "10237",
+        "5": "250",
+        "6": "false",
+        "9": "false",
+        "10": "Avenue de Sceaux",
+        "11": "+33 1 39514726",
+        "13": "9135451743227",
+        "14": "Île-de-France",
+        "15": "IDF",
+        "20": "Versailles",
+        "22": "{'nds':'9135451743227'}",
+        "23": "Avenue de Sceaux 78000 Versailles France",
+        "24": "poi:/8729329770?width=0&height=0&category_id=10237"
+      },
+      "id": "cea40427-92ca-4144-9151-476c2aa436cf",
+      "clientId": ["7cba531e-da81-4f39-9e77-bf2d087e2783"],
+      "userData": {
+        "_METATOKEN_102": "9",
+        "_METATOKEN_99": "9135451743227",
+        "_ENTRY_TYPE_": "2"
+      },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1672313599737,
+        "updatedAt": 1672313599737
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1672313535634,
+          "syncableUpdatedTime": 1672313535634,
+          "valid": true,
+          "lastUsage": 1672313535633,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1672313599830,
+            "updatedAt": 1672313599830
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 48.798148923629455,
+        "longitude": 2.1301329101701327,
+        "altitude": 0.0
+      },
+      "address": {
+        "name": "Avenue de Sceaux",
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Île-de-France",
+        "stateCode": "IDF",
+        "city": "Versailles",
+        "postalCode": "78000",
+        "street": "Avenue de Sceaux"
+      },
+      "placeDetails": {
+        "accessPoints": [
+          {
+            "coordinates": {
+              "latitude": 48.79817851174942,
+              "longitude": 2.130168784717845
+            }
+          }
+        ],
+        "phone": "+33 1 39514726",
+        "categories": [
+          {
+            "name": "Place de stationnement",
+            "iconUri": "poi:/8729329770?width=0&height=0&category_id=10237",
+            "type": "2"
+          },
+          { "id": "10237", "type": "1" }
+        ]
+      }
+    },
+    {
+      "id": "b5eaf2d9-0bd9-48bd-a257-df8dd7536f98",
+      "clientId": ["3c532449-4646-4d93-91ea-37f5be23d78b"],
+      "userData": { "_ENTRY_TYPE_": "4" },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1689689779416,
+        "updatedAt": 1689689779416
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1689689716467,
+          "syncableUpdatedTime": 1689689716467,
+          "valid": true,
+          "lastUsage": 1689689716466,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1689689779428,
+            "updatedAt": 1689689779428
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 42.41005513280959,
+        "longitude": 8.649084226732507,
+        "altitude": 0.0
+      },
+      "address": {
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Corse",
+        "stateCode": "COR",
+        "city": "Galéria",
+        "postalCode": "20245",
+        "street": "Rue du Presbytère"
+      }
+    },
+    {
+      "id": "5f30a98d-abaf-4b53-b789-6f52fcdfd5e1",
+      "clientId": ["dc4bb63c-ae36-4c68-b1cf-f83987801610"],
+      "userData": { "_METATOKEN_99": "9156890331633", "_ENTRY_TYPE_": "16" },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1689542165969,
+        "updatedAt": 1690563356166
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1689542163487,
+          "syncableUpdatedTime": 1690563356176,
+          "valid": true,
+          "lastUsage": 1690563293233,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1689542165999,
+            "updatedAt": 1690563356182
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 42.50826992143809,
+        "longitude": 8.854989881365888,
+        "altitude": 0.0
+      },
+      "address": {
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Corse",
+        "stateCode": "COR",
+        "city": "Calenzana",
+        "postalCode": "20214"
+      }
+    },
+    {
+      "proprietaryData": {
+        "0": "Restaurant français",
+        "1": "13",
+        "2": "FRA",
+        "4": "20084",
+        "5": "250",
+        "6": "false",
+        "9": "false",
+        "10": "le moulin des Quatre Saisons",
+        "11": "+33 2 43451212",
+        "13": "9513426163552",
+        "14": "Pays de la Loire",
+        "15": "PDL",
+        "20": "La Flèche",
+        "22": "{'nds':'9513426163552'}",
+        "23": "Rue du Général Gallieni 14 72200 La Flèche France",
+        "24": "poi:/8735096946?width=0&height=0&category_id=64"
+      },
+      "id": "43278451-8515-449a-adad-46dba54c5f81",
+      "clientId": ["8f6358ef-d772-4679-93a4-0291e84ab73f"],
+      "userData": {
+        "_METATOKEN_102": "13",
+        "_METATOKEN_99": "9513426163552",
+        "_ENTRY_TYPE_": "2"
+      },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1703413218721,
+        "updatedAt": 1703413218721
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1703413156052,
+          "syncableUpdatedTime": 1703413156052,
+          "valid": true,
+          "lastUsage": 1703413156052,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1703413218742,
+            "updatedAt": 1703413218742
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 47.69689996969104,
+        "longitude": -0.07511996180534135,
+        "altitude": 0.0
+      },
+      "address": {
+        "name": "le moulin des Quatre Saisons",
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Pays de la Loire",
+        "stateCode": "PDL",
+        "city": "La Flèche",
+        "postalCode": "72200",
+        "street": "Rue du Général Gallieni",
+        "houseNumber": "14"
+      },
+      "placeDetails": {
+        "accessPoints": [
+          {
+            "coordinates": {
+              "latitude": 47.69693316202957,
+              "longitude": -0.0750497214525772
+            }
+          }
+        ],
+        "phone": "+33 2 43451212",
+        "categories": [
+          {
+            "name": "Restaurant français",
+            "iconUri": "poi:/8735096946?width=0&height=0&category_id=64",
+            "type": "2"
+          },
+          { "id": "20084", "type": "1" }
+        ]
+      }
+    },
+    {
+      "id": "4fda48e5-13b2-42c6-b178-b5720f904b89",
+      "clientId": ["8f539b80-8d1a-4c72-8a88-a631eb2c3545"],
+      "userData": { "_METATOKEN_99": "9513372637461", "_ENTRY_TYPE_": "16" },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1699090025523,
+        "updatedAt": 1699090025523
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1699089962556,
+          "syncableUpdatedTime": 1699089962556,
+          "valid": true,
+          "lastUsage": 1699089962554,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1699090025567,
+            "updatedAt": 1699090025567
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 47.96758986071288,
+        "longitude": -0.23228995955228565,
+        "altitude": 0.0
+      },
+      "address": {
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Pays de la Loire",
+        "stateCode": "PDL",
+        "city": "Brûlon",
+        "postalCode": "72350"
+      }
+    },
+    {
+      "proprietaryData": {
+        "0": "Parking couvert",
+        "1": "9",
+        "2": "FRA",
+        "4": "10236",
+        "5": "250",
+        "6": "false",
+        "9": "false",
+        "10": "Jacobins",
+        "11": "+33 2 43233943",
+        "13": "9514484427655",
+        "14": "Pays de la Loire",
+        "15": "PDL",
+        "20": "Le Mans",
+        "22": "{'nds':'9514484427655'}",
+        "23": "Place Quinconces des Jacobins 72000 Le Mans France",
+        "24": "poi:/8735096936?width=0&height=0&category_id=10236"
+      },
+      "id": "cba245a4-bb05-429b-ba14-418ed350f089",
+      "clientId": ["1dca804f-f4d8-46fc-95ef-7ade595ebd0e"],
+      "userData": {
+        "_METATOKEN_102": "9",
+        "_METATOKEN_99": "9514484427655",
+        "_ENTRY_TYPE_": "2"
+      },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1708628398253,
+        "updatedAt": 1708628398253
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1708628333078,
+          "syncableUpdatedTime": 1708628333078,
+          "valid": true,
+          "lastUsage": 1708628333077,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1708628398265,
+            "updatedAt": 1708628398265
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 48.00739987983703,
+        "longitude": 0.19898991355239828,
+        "altitude": 0.0
+      },
+      "address": {
+        "name": "Jacobins",
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Pays de la Loire",
+        "stateCode": "PDL",
+        "city": "Le Mans",
+        "postalCode": "72000",
+        "street": "Place Quinconces des Jacobins"
+      },
+      "placeDetails": {
+        "accessPoints": [
+          {
+            "coordinates": {
+              "latitude": 48.00747129365631,
+              "longitude": 0.2001562554482374
+            }
+          }
+        ],
+        "phone": "+33 2 43233943",
+        "categories": [
+          {
+            "name": "Parking couvert",
+            "iconUri": "poi:/8735096936?width=0&height=0&category_id=10236",
+            "type": "2"
+          },
+          { "id": "10236", "type": "1" }
+        ]
+      }
+    },
+    {
+      "id": "f8a61493-5346-49ad-be5c-b19bee848b1c",
+      "clientId": ["9dbc36de-3b12-422b-b394-c75b748725cc"],
+      "userData": { "_ENTRY_TYPE_": "40" },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1689486960117,
+        "updatedAt": 1689486960117
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1689486898345,
+          "syncableUpdatedTime": 1689486898345,
+          "valid": true,
+          "lastUsage": 1689486898345,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1689486960126,
+            "updatedAt": 1689486960126
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 42.67647804812956,
+        "longitude": 9.444497632279852,
+        "altitude": 0.0
+      },
+      "address": {
+        "name": "Esso",
+        "countryCode": "FR",
+        "state": "Corse",
+        "city": "Bastia",
+        "postalCode": "20200",
+        "street": "Avenue Sampiero Corso - N193"
+      },
+      "placeDetails": {
+        "externalIDs": { "NavX": "13007878938707884579" },
+        "phone": "+33495302490",
+        "categories": [{ "name": "Station-service", "type": "2" }]
+      }
+    },
+    {
+      "id": "6039dbed-5800-49d2-b8a8-9b1cab3613d9",
+      "clientId": ["2b561ed5-44d9-4e95-b53a-c3506f76161e"],
+      "userData": { "_METATOKEN_99": "9513372630118", "_ENTRY_TYPE_": "16" },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1672078531423,
+        "updatedAt": 1685037710152
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1672078469839,
+          "syncableUpdatedTime": 1685037710161,
+          "valid": true,
+          "lastUsage": 1685037647623,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1672078531435,
+            "updatedAt": 1685037710165
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 47.211759911433454,
+        "longitude": -1.6540699506741732,
+        "altitude": 0.0
+      },
+      "address": {
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Pays de la Loire",
+        "stateCode": "PDL",
+        "city": "Saint-Herblain",
+        "postalCode": "44800"
+      }
+    },
+    {
+      "proprietaryData": {
+        "0": "Pizza",
+        "1": "20",
+        "2": "FRA",
+        "4": "16440",
+        "5": "250",
+        "6": "false",
+        "9": "false",
+        "10": "Del Arte",
+        "11": "+33 2 43859575",
+        "13": "9514501300669",
+        "14": "Pays de la Loire",
+        "15": "PDL",
+        "20": "Le Mans",
+        "22": "{{'nds':'9514501300669'}",
+        "23": "Route de Tours 72100 Le Mans France",
+        "24": "poi:/8735096946?width=0&height=0&category_id=16440"
+      },
+      "id": "a87f0123-92e9-4106-85bd-599031c22dab",
+      "clientId": ["07f2befc-8cb8-416e-a718-1c0b02bf02e8"],
+      "userData": {
+        "_METATOKEN_102": "20",
+        "_METATOKEN_99": "9514501300669",
+        "_ENTRY_TYPE_": "2"
+      },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1678792369058,
+        "updatedAt": 1678792369058
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1678792346461,
+          "syncableUpdatedTime": 1678792346461,
+          "valid": true,
+          "lastUsage": 1678792346440,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1678792369069,
+            "updatedAt": 1678792369069
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 47.954011009127555,
+        "longitude": 0.22797126750476762,
+        "altitude": 0.0
+      },
+      "address": {
+        "name": "Del Arte",
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Pays de la Loire",
+        "stateCode": "PDL",
+        "city": "Le Mans",
+        "postalCode": "72100",
+        "street": "Route de Tours"
+      },
+      "placeDetails": {
+        "accessPoints": [
+          {
+            "coordinates": {
+              "latitude": 47.95367170966695,
+              "longitude": 0.2266840585579907
+            }
+          }
+        ],
+        "phone": "+33 2 43859575",
+        "categories": [
+          {
+            "name": "Pizza",
+            "iconUri": "poi:/8735096946?width=0&height=0&category_id=16440",
+            "type": "2"
+          },
+          { "id": "16440", "type": "1" }
+        ]
+      }
+    },
+    {
+      "id": "5aeea0ed-a494-4c81-8973-dc94fe6f60bd",
+      "clientId": ["6fc9645b-b8fe-48c6-b66e-cea9f3295d65"],
+      "userData": { "_METATOKEN_99": "9174070209358", "_ENTRY_TYPE_": "16" },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1685351570877,
+        "updatedAt": 1685351570877
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1685351569534,
+          "syncableUpdatedTime": 1685351569534,
+          "valid": true,
+          "lastUsage": 1685351569533,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1685351570887,
+            "updatedAt": 1685351570887
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 48.54047990086555,
+        "longitude": -4.6578599960571525,
+        "altitude": 0.0
+      },
+      "address": {
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Bretagne",
+        "stateCode": "BRE",
+        "city": "Ploudalmézeau",
+        "postalCode": "29830"
+      }
+    },
+    {
+      "id": "aba8a77b-116e-4c14-aed5-d3737d4689b5",
+      "clientId": ["3810358e-1257-4f12-84b5-d19fa99912f2"],
+      "userData": { "_ENTRY_TYPE_": "4" },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1714241210631,
+        "updatedAt": 1714241210631
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1714241143360,
+          "syncableUpdatedTime": 1714241143360,
+          "valid": true,
+          "lastUsage": 1714241143358,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1714241210643,
+            "updatedAt": 1714241210643
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 48.5760824558039,
+        "longitude": -3.8257168371657633,
+        "altitude": 0.0
+      },
+      "address": {
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Bretagne",
+        "stateCode": "BRE",
+        "city": "Morlaix",
+        "postalCode": "29600",
+        "street": "Venelle au Beurre",
+        "houseNumber": "4"
+      }
+    },
+    {
+      "proprietaryData": {
+        "0": "Super U",
+        "1": "20",
+        "2": "FRA",
+        "4": "31940",
+        "5": "250",
+        "6": "false",
+        "9": "false",
+        "10": "Super U",
+        "11": "+33 2 43212223",
+        "13": "9514515699581",
+        "14": "Pays de la Loire",
+        "15": "PDL",
+        "20": "Arnage",
+        "22": "{'nds':'9514515699581'}",
+        "23": "72230 Arnage France",
+        "24": "poi:/8735096955?width=0&height=0&category_id=31940"
+      },
+      "id": "8c93a172-aac6-4815-974a-e91c049211fe",
+      "clientId": ["a4ab2d8a-5fd8-4ed6-bd8f-cf830dedd43d"],
+      "userData": {
+        "_METATOKEN_102": "20",
+        "_METATOKEN_99": "9514515699581",
+        "_ENTRY_TYPE_": "2"
+      },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1709246813256,
+        "updatedAt": 1709246813256
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1709110375408,
+          "syncableUpdatedTime": 1709110375408,
+          "valid": true,
+          "lastUsage": 1709110375407,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1709246813266,
+            "updatedAt": 1709246813266
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 47.94028991663694,
+        "longitude": 0.18301987248777582,
+        "altitude": 0.0
+      },
+      "address": {
+        "name": "Super U",
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Pays de la Loire",
+        "stateCode": "PDL",
+        "city": "Arnage",
+        "postalCode": "72230"
+      },
+      "placeDetails": {
+        "accessPoints": [
+          {
+            "coordinates": {
+              "latitude": 47.94016251170114,
+              "longitude": 0.1833513767779694
+            }
+          }
+        ],
+        "phone": "+33 2 43212223",
+        "categories": [
+          {
+            "name": "Super U",
+            "iconUri": "poi:/8735096955?width=0&height=0&category_id=31940",
+            "type": "2"
+          },
+          { "id": "31940", "type": "1" }
+        ]
+      }
+    },
+    {
+      "id": "e65fffa1-addd-4294-aed8-f4c7c6de6221",
+      "clientId": ["7b924ed8-f3d3-4c9f-a716-5a261119b12c"],
+      "userData": { "_METATOKEN_99": "9174093661144", "_ENTRY_TYPE_": "4" },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1685348699410,
+        "updatedAt": 1685362456716
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1685348635616,
+          "syncableUpdatedTime": 1685362456731,
+          "valid": true,
+          "lastUsage": 1685362393891,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1685348699422,
+            "updatedAt": 1685362456734
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 48.496479349001014,
+        "longitude": -3.9442741707279785,
+        "altitude": 0.0
+      },
+      "address": {
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Bretagne",
+        "stateCode": "BRE",
+        "city": "Saint-Thégonnec Loc-Eguiner",
+        "postalCode": "29410",
+        "street": "Lieu-dit Marquès"
+      }
+    },
+    {
+      "id": "81718edd-ddfa-4286-b139-60854a25d77f",
+      "clientId": ["8106e7d3-f132-4ac3-8cd3-130c6206e72d"],
+      "userData": { "_ENTRY_TYPE_": "40" },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1690302597917,
+        "updatedAt": 1690302597917
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1690302597410,
+          "syncableUpdatedTime": 1690302597410,
+          "valid": true,
+          "lastUsage": 1690302597409,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1690302597953,
+            "updatedAt": 1690302597953
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 42.55860769539223,
+        "longitude": 8.785198714819474,
+        "altitude": 0.0
+      },
+      "address": {
+        "name": "Olivier Maree",
+        "country": "France",
+        "countryCode": "FR",
+        "state": "2B",
+        "city": "Calvi",
+        "postalCode": "20260",
+        "street": "Immeuble Colomba"
+      },
+      "placeDetails": {
+        "externalIDs": { "Yelp": "3097740087037924325" },
+        "phone": "+33495461026",
+        "categories": [{ "name": "Poissonneries", "type": "2" }]
+      }
+    },
+    {
+      "id": "79db6200-85e6-482d-828c-cf40865c0f8e",
+      "clientId": ["5f98060b-66ad-46a3-9c46-08c24360364d"],
+      "userData": { "_METATOKEN_99": "9513416179965", "_ENTRY_TYPE_": "4" },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1703412994588,
+        "updatedAt": 1703412994588
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1703412932009,
+          "syncableUpdatedTime": 1703412932009,
+          "valid": true,
+          "lastUsage": 1703412932008,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1703412994619,
+            "updatedAt": 1703412994619
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 47.697899930799004,
+        "longitude": -0.07496229819728721,
+        "altitude": 0.0
+      },
+      "address": {
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Pays de la Loire",
+        "stateCode": "PDL",
+        "city": "La Flèche",
+        "postalCode": "72200",
+        "street": "Rue du Général Gallieni"
+      }
+    },
+    {
+      "id": "6f4275ad-1da0-47de-8404-eda502282378",
+      "clientId": ["cf65ca5b-b1ea-4b7f-b0c6-6ec7a8c13703"],
+      "userData": { "_METATOKEN_99": "9208473402347", "_ENTRY_TYPE_": "40" },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1689334431625,
+        "updatedAt": 1689334431625
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1689334368586,
+          "syncableUpdatedTime": 1689334368586,
+          "valid": true,
+          "lastUsage": 1689334368585,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1689334431639,
+            "updatedAt": 1689334431639
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 45.77995189457845,
+        "longitude": 3.1335331970324036,
+        "altitude": 0.0
+      },
+      "address": {
+        "name": "Leclerc",
+        "countryCode": "FR",
+        "state": "Auvergne-Rhône-Alpes",
+        "city": "Clermont-Ferrand",
+        "postalCode": "63000",
+        "street": "Avenue du Brézet",
+        "houseNumber": "31"
+      },
+      "placeDetails": {
+        "externalIDs": { "NavX": "6553272352675123239" },
+        "phone": "+33473980420",
+        "categories": [{ "name": "Station-service", "type": "2" }]
+      }
+    },
+    {
+      "proprietaryData": {
+        "0": "Parking couvert",
+        "1": "9",
+        "2": "FRA",
+        "4": "10236",
+        "5": "250",
+        "6": "false",
+        "9": "false",
+        "10": "République",
+        "11": "+33 2 43234225",
+        "13": "9513403820644",
+        "14": "Pays de la Loire",
+        "15": "PDL",
+        "20": "Le Mans",
+        "22": "{'nds':'9513403820644'}",
+        "23": "Avenue du Général de Gaulle 72000 Le Mans France",
+        "24": "poi:/8735096936?width=0&height=0&category_id=10236"
+      },
+      "id": "c823ef65-9573-4fae-bc6b-f79b786068c4",
+      "clientId": ["4f86d31b-9ad5-482a-9b71-574280172b4f"],
+      "userData": {
+        "_METATOKEN_102": "9",
+        "_EXTERNAL_DATA": "{'14':'Parking couvert','2':'République','4':'+33 2 43234225'}",
+        "_METATOKEN_99": "9513403820644",
+        "_ENTRY_TYPE_": "2"
+      },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1702565441702,
+        "updatedAt": 1702892692665
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1702565376411,
+          "syncableUpdatedTime": 1702892692675,
+          "valid": true,
+          "lastUsage": 1702892628988,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1702565441713,
+            "updatedAt": 1702892692682
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 48.00464717885239,
+        "longitude": 0.19732660858789733,
+        "altitude": 0.0
+      },
+      "address": {
+        "name": "République",
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Pays de la Loire",
+        "stateCode": "PDL",
+        "city": "Le Mans",
+        "postalCode": "72000",
+        "street": "Avenue du Général de Gaulle"
+      },
+      "placeDetails": {
+        "accessPoints": [
+          {
+            "coordinates": {
+              "latitude": 48.004039155560086,
+              "longitude": 0.19813454028275848
+            }
+          }
+        ],
+        "phone": "+33 2 43234225",
+        "categories": [{ "id": "10236", "type": "1" }]
+      }
+    },
+    {
+      "id": "e7271cf7-bc58-4b79-87be-2bfa3cd69f58",
+      "clientId": ["518ffcc1-3bb7-4232-886e-44ce13082e15"],
+      "userData": { "_METATOKEN_99": "9513405253600", "_ENTRY_TYPE_": "4" },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1688795644594,
+        "updatedAt": 1688823902033
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1688795583171,
+          "syncableUpdatedTime": 1688823902066,
+          "valid": true,
+          "lastUsage": 1688823840344,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1688795644623,
+            "updatedAt": 1688823902087
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 48.018885183342405,
+        "longitude": 0.31379693195503544,
+        "altitude": 0.0
+      },
+      "address": {
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Pays de la Loire",
+        "stateCode": "PDL",
+        "city": "Champagné",
+        "postalCode": "72470",
+        "street": "Chemin des Grands Hêtres"
+      }
+    },
+    {
+      "id": "70c1c754-13ac-4b02-bfbc-0471348e37ab",
+      "clientId": ["77180a4c-c7d5-42fd-b0b2-8876116b2d9c"],
+      "userData": { "_ENTRY_TYPE_": "4" },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1697193989580,
+        "updatedAt": 1697193989580
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1697193925834,
+          "syncableUpdatedTime": 1697193925834,
+          "valid": true,
+          "lastUsage": 1697193925833,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1697193989591,
+            "updatedAt": 1697193989591
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 47.94235136202582,
+        "longitude": 0.23287560316178818,
+        "altitude": 0.0
+      },
+      "address": {
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Pays de la Loire",
+        "stateCode": "PDL",
+        "city": "Mulsanne",
+        "postalCode": "72230",
+        "street": "Rue Wilbur Wright",
+        "houseNumber": "2"
+      }
+    },
+    {
+      "id": "186a9466-cdde-4bd7-a807-861009757255",
+      "clientId": ["33ebbf9a-1f43-493b-ad57-f44b60f106d0"],
+      "userData": { "_METATOKEN_99": "9174070209544", "_ENTRY_TYPE_": "16" },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1685351820616,
+        "updatedAt": 1685351820616
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1685351755919,
+          "syncableUpdatedTime": 1685351755919,
+          "valid": true,
+          "lastUsage": 1685351755919,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1685351820626,
+            "updatedAt": 1685351820626
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 48.54758993447363,
+        "longitude": -4.181879933588501,
+        "altitude": 0.0
+      },
+      "address": {
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Bretagne",
+        "stateCode": "BRE",
+        "city": "Saint-Derrien",
+        "postalCode": "29440"
+      }
+    },
+    {
+      "id": "40208eee-14e6-4ac8-b956-a1e142bd81c2",
+      "clientId": ["e21c81f4-ce22-4915-b541-e5f4bad82b27"],
+      "userData": { "_METATOKEN_99": "9174070209607", "_ENTRY_TYPE_": "64" },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1685268161731,
+        "updatedAt": 1685298489652
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1685268094743,
+          "syncableUpdatedTime": 1685298489660,
+          "valid": true,
+          "lastUsage": 1685298427935,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1685268161740,
+            "updatedAt": 1685298489662
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 48.52139992208183,
+        "longitude": -3.9418100586867366,
+        "altitude": 0.0
+      },
+      "address": {
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Bretagne",
+        "stateCode": "BRE",
+        "city": "Saint-Thégonnec Loc-Eguiner",
+        "district": "Saint-Thégonnec",
+        "postalCode": "29410"
+      }
+    },
+    {
+      "id": "7c73d5a2-a7fc-4a86-a230-8092a4cbcedc",
+      "clientId": ["e7ed7c75-8273-401d-ae85-7c680d1e75cf"],
+      "userData": { "_ENTRY_TYPE_": "4" },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1685356653293,
+        "updatedAt": 1685356653293
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1685356585745,
+          "syncableUpdatedTime": 1685356585745,
+          "valid": true,
+          "lastUsage": 1685356585743,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1685356653304,
+            "updatedAt": 1685356653304
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 48.44914581696068,
+        "longitude": -4.248962236506476,
+        "altitude": 0.0
+      },
+      "address": {
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Bretagne",
+        "stateCode": "BRE",
+        "city": "Landerneau",
+        "postalCode": "29800",
+        "street": "Place Saint-Thomas",
+        "houseNumber": "7"
+      }
+    },
+    {
+      "proprietaryData": {
+        "0": "Musée",
+        "2": "FRA",
+        "4": "10047",
+        "5": "250",
+        "6": "false",
+        "9": "false",
+        "10": "Musée Naval",
+        "11": "+33 4 22420201",
+        "13": "9229936109066",
+        "14": "Provence-Alpes-Côte d'Azur",
+        "15": "PAC",
+        "20": "Toulon",
+        "22": "{{'nds':'9229936109066'}",
+        "23": "Avenue Général Magnan 83000 Toulon France",
+        "24": "poi:/8729722980?width=0&height=0&category_id=10047"
+      },
+      "id": "51c388c1-4b54-4b12-b98c-38547fb8e366",
+      "clientId": ["558f48d1-fbd8-49f3-8930-1c116d24a720"],
+      "userData": {
+        "_METATOKEN_102": "-1",
+        "_METATOKEN_99": "9229936109066",
+        "_ENTRY_TYPE_": "2"
+      },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1689412287289,
+        "updatedAt": 1689412287289
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1689412286800,
+          "syncableUpdatedTime": 1689412286800,
+          "valid": true,
+          "lastUsage": 1689412286799,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1689412287301,
+            "updatedAt": 1689412287301
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 43.12192258406714,
+        "longitude": 5.928969652814844,
+        "altitude": 0.0
+      },
+      "address": {
+        "name": "Musée Naval",
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Provence-Alpes-Côte d'Azur",
+        "stateCode": "PAC",
+        "city": "Toulon",
+        "postalCode": "83000",
+        "street": "Avenue Général Magnan"
+      },
+      "placeDetails": {
+        "accessPoints": [
+          {
+            "coordinates": {
+              "latitude": 43.12186567094121,
+              "longitude": 5.929079036657753
+            }
+          }
+        ],
+        "phone": "+33 4 22420201",
+        "categories": [
+          {
+            "name": "Musée",
+            "iconUri": "poi:/8729722980?width=0&height=0&category_id=10047",
+            "type": "2"
+          },
+          { "id": "10047", "type": "1" }
+        ]
+      }
+    },
+    {
+      "id": "4a546365-2c03-4737-8ac2-13fd21b8680f",
+      "clientId": ["51c27b9a-4ca7-4e9f-9342-3a8808032096"],
+      "userData": { "_METATOKEN_99": "9156890331636", "_ENTRY_TYPE_": "16" },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1689487423505,
+        "updatedAt": 1689531667914
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1689487360298,
+          "syncableUpdatedTime": 1689531667968,
+          "valid": true,
+          "lastUsage": 1689531606096,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1689487423517,
+            "updatedAt": 1689531667977
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 42.5632799361366,
+        "longitude": 8.754769889922136,
+        "altitude": 0.0
+      },
+      "address": {
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Corse",
+        "stateCode": "COR",
+        "city": "Calvi",
+        "postalCode": "20260"
+      }
+    },
+    {
+      "id": "f0ad5035-4ad9-49db-a208-ea34645722e1",
+      "clientId": ["d056686d-9f6b-4328-966f-cd715532940b"],
+      "userData": { "_METATOKEN_99": "9513394183209", "_ENTRY_TYPE_": "4" },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1666962850907,
+        "updatedAt": 1699516119324
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Work places",
+          "syncableCreatedTime": 1666962850371,
+          "syncableUpdatedTime": 1699516119365,
+          "valid": true,
+          "lastUsage": 0,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1666962850919,
+            "updatedAt": 1699516119372
+          }
+        },
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1676033173516,
+          "syncableUpdatedTime": 1699516119334,
+          "valid": true,
+          "lastUsage": 1699516116711,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1676033173518,
+            "updatedAt": 1699516119352
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 47.98450227920725,
+        "longitude": 0.24149764837310603,
+        "altitude": 0.0
+      },
+      "address": {
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Pays de la Loire",
+        "stateCode": "PDL",
+        "city": "Le Mans",
+        "postalCode": "72100",
+        "street": "Rue Henri Champion",
+        "houseNumber": "160"
+      }
+    },
+    {
+      "proprietaryData": {
+        "0": "Gare",
+        "1": "3",
+        "2": "FRA",
+        "4": "10057",
+        "5": "250",
+        "6": "false",
+        "9": "false",
+        "10": "Gare de Laval",
+        "11": "+33 8 92353535",
+        "13": "9513423798318",
+        "14": "Pays de la Loire",
+        "15": "PDL",
+        "20": "Laval",
+        "22": "{'nds':'9513423798318'}",
+        "23": "Place de la Gare 53000 Laval France",
+        "24": "poi:/8735096901?width=0&height=0&category_id=10057"
+      },
+      "id": "5f0f61e6-119a-4d13-9a7c-03416b622e14",
+      "clientId": ["92b00ee8-c42f-4c09-916b-7e7744758aa2"],
+      "userData": {
+        "_METATOKEN_102": "3",
+        "_METATOKEN_99": "9513423798318",
+        "_ENTRY_TYPE_": "2"
+      },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1699084041703,
+        "updatedAt": 1699084041703
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1699083978187,
+          "syncableUpdatedTime": 1699083978187,
+          "valid": true,
+          "lastUsage": 1699083978166,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1699084041716,
+            "updatedAt": 1699084041716
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 48.075949854087824,
+        "longitude": -0.7608799624222494,
+        "altitude": 0.0
+      },
+      "address": {
+        "name": "Gare de Laval",
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Pays de la Loire",
+        "stateCode": "PDL",
+        "city": "Laval",
+        "postalCode": "53000",
+        "street": "Place de la Gare"
+      },
+      "placeDetails": {
+        "accessPoints": [
+          {
+            "coordinates": {
+              "latitude": 48.07593082716649,
+              "longitude": -0.7608808844316532
+            }
+          }
+        ],
+        "phone": "+33 8 92353535",
+        "categories": [
+          {
+            "name": "Gare",
+            "iconUri": "poi:/8735096901?width=0&height=0&category_id=10057",
+            "type": "2"
+          },
+          { "id": "10057", "type": "1" }
+        ]
+      }
+    },
+    {
+      "id": "2c9d76ea-da82-41c8-ae65-723be606f638",
+      "clientId": ["a75334e2-31b0-402d-9b25-8d97134ca787"],
+      "userData": { "_METATOKEN_99": "9174115273629", "_ENTRY_TYPE_": "4" },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1685203021017,
+        "updatedAt": 1685307311435
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1685202958946,
+          "syncableUpdatedTime": 1685307311451,
+          "valid": true,
+          "lastUsage": 1685307247201,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1685203021027,
+            "updatedAt": 1685307311459
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 48.519278126986514,
+        "longitude": -3.8387131464459388,
+        "altitude": 0.0
+      },
+      "address": {
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Bretagne",
+        "stateCode": "BRE",
+        "city": "Pleyber-Christ",
+        "postalCode": "29410",
+        "street": "Lieu-dit La Lande"
+      }
+    },
+    {
+      "id": "5a4401a0-5245-4da2-8dad-79e7dca781c4",
+      "clientId": ["d8c29681-1ba9-4fe7-8a79-aa9d060cc7a8"],
+      "userData": { "_ENTRY_TYPE_": "4" },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1685298405357,
+        "updatedAt": 1685362299905
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1685299944772,
+          "syncableUpdatedTime": 1685362299942,
+          "valid": true,
+          "lastUsage": 1685299943409,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1685299944774,
+            "updatedAt": 1685362299976
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 48.68222275344865,
+        "longitude": -3.9864149458059637,
+        "altitude": 0.0
+      },
+      "address": {
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Bretagne",
+        "stateCode": "BRE",
+        "city": "Saint-Pol-de-Léon",
+        "postalCode": "29250",
+        "street": "Place Michel Colomb",
+        "houseNumber": "7"
+      }
+    },
+    {
+      "id": "76072276-fc09-4bea-a92c-950cd1ae4871",
+      "clientId": ["428acfa6-a47f-4aa2-9ec0-0d23c61ac2a6"],
+      "userData": { "_METATOKEN_99": "9513372638380", "_ENTRY_TYPE_": "16" },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1700155307219,
+        "updatedAt": 1701715481210
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1700155243466,
+          "syncableUpdatedTime": 1701715481217,
+          "valid": true,
+          "lastUsage": 1701715417416,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1700155307237,
+            "updatedAt": 1701715481219
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 47.96259986200034,
+        "longitude": -0.06865994482695728,
+        "altitude": 0.0
+      },
+      "address": {
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Pays de la Loire",
+        "stateCode": "PDL",
+        "city": "Vallon-sur-Gée",
+        "postalCode": "72540"
+      }
+    },
+    {
+      "proprietaryData": {
+        "0": "Station-service",
+        "1": "20",
+        "2": "FRA",
+        "4": "10191",
+        "5": "250",
+        "6": "false",
+        "7": "true",
+        "9": "false",
+        "10": "VITO",
+        "11": "+33 4 95372552",
+        "13": "9158009903284",
+        "14": "Corse",
+        "15": "COR",
+        "20": "Bastia",
+        "22": "{'nds':'9158009903284'}",
+        "23": "Quai du Fango 20200 Bastia France",
+        "24": "poi:/8729657467?width=0&height=0&category_id=10191"
+      },
+      "id": "fd7fd2b5-7a58-492b-a5b1-c7ced6c09f94",
+      "clientId": ["d45e4957-c0d6-45bd-a490-5c30f386648f"],
+      "userData": {
+        "_METATOKEN_102": "20",
+        "_METATOKEN_99": "9158009903284",
+        "_ENTRY_TYPE_": "2"
+      },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1689486866926,
+        "updatedAt": 1689486866926
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1689486857655,
+          "syncableUpdatedTime": 1689486857655,
+          "valid": true,
+          "lastUsage": 1689486857655,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1689486866937,
+            "updatedAt": 1689486866937
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 42.70183984461962,
+        "longitude": 9.453054047185423,
+        "altitude": 0.0
+      },
+      "address": {
+        "name": "VITO",
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Corse",
+        "stateCode": "COR",
+        "city": "Bastia",
+        "postalCode": "20200",
+        "street": "Quai du Fango"
+      },
+      "placeDetails": {
+        "accessPoints": [
+          {
+            "coordinates": {
+              "latitude": 42.70184135336228,
+              "longitude": 9.45305413100446
+            }
+          }
+        ],
+        "phone": "+33 4 95372552",
+        "categories": [
+          {
+            "name": "Station-service",
+            "iconUri": "poi:/8729657467?width=0&height=0&category_id=10191",
+            "type": "2"
+          },
+          { "id": "10191", "type": "1" }
+        ]
+      }
+    },
+    {
+      "id": "422ca266-ba1d-4665-bc02-4b17c89613a5",
+      "clientId": ["2221bc1b-cac5-401c-a619-1ccce3d2e21f"],
+      "userData": { "_METATOKEN_99": "9513408047547", "_ENTRY_TYPE_": "4" },
+      "metadata": {
+        "deleted": false,
+        "createdAt": 1676026793470,
+        "updatedAt": 1688459706573
+      },
+      "tags": [
+        {
+          "rank": 0,
+          "type": "Favorite places",
+          "syncableCreatedTime": 1676027025354,
+          "syncableUpdatedTime": 1688459706586,
+          "valid": true,
+          "lastUsage": 0,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1676027025355,
+            "updatedAt": 1688459706589
+          }
+        },
+        {
+          "rank": 0,
+          "type": "Last destination",
+          "syncableCreatedTime": 1676026792565,
+          "syncableUpdatedTime": 1688459706600,
+          "valid": true,
+          "lastUsage": 1688459645418,
+          "useFrequency": 0,
+          "metadata": {
+            "deleted": false,
+            "createdAt": 1676026793482,
+            "updatedAt": 1688459706620
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 47.89494926601346,
+        "longitude": 0.1932298693495911,
+        "altitude": 0.0
+      },
+      "address": {
+        "country": "France",
+        "countryCode": "FR",
+        "state": "Pays de la Loire",
+        "stateCode": "PDL",
+        "city": "Moncé-en-Belin",
+        "postalCode": "72230",
+        "street": "Impasse de Bois Raymond",
+        "houseNumber": "4"
+      }
+    }
+  ]
+}

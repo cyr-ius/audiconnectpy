@@ -1,0 +1,25 @@
+{
+  "data": {
+    "userVehicles": [
+      {
+        "vin": "WAUZZZF00NA012345",
+        "mappingVin": "WAUZZZF00NA012345",
+        "vehicle": {
+          "core": { "modelYear": 2022 },
+          "media": {
+            "shortName": "Audi A4 Berline",
+            "longName": "Audi A4 Berline S line S Edition 35 TFSI 110(150) kW(ch) S tronic"
+          },
+          "classification": { "driveTrain": "MHEV" }
+        },
+        "csid": "000c00a00b00d00e0000000",
+        "commissionNumber": null,
+        "type": "EXISTING",
+        "devicePlatform": "MBB_ODP",
+        "mbbConnect": true,
+        "userRole": { "role": "PRIMARY_USER" },
+        "nickname": null
+      }
+    ]
+  }
+}
