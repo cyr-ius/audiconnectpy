@@ -2,7 +2,6 @@
 __pycache__/
 *.py[cod]
 *$py.class
-example_home.py
 
 # C extensions
 *.so
@@ -129,5 +128,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-#perso
-test_home.py
+# Secret files
+secrets.yaml
