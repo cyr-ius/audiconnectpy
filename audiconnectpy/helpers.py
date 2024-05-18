@@ -127,24 +127,24 @@ def windows_status(attrs: list[dict[str, Any]]) -> dict[str, bool]:
     right_rear_open = "closed" not in status.get("rearRight", [])
     windows_open = [left_open, left_rear_open, right_rear_open, right_rear_open]
     metadatas = {
-        "open_left_front_window": left_open,
-        "open_left_rear_window": left_rear_open,
-        "open_right_front_window": right_open,
-        "open_right_rear_window": right_rear_open,
-        "open_any_window": any(windows_open),
+        "left_front": left_open,
+        "left_rear": left_rear_open,
+        "right_front": right_open,
+        "right_rear": right_rear_open,
+        "any_status": any(windows_open),
     }
 
     if "unsupported" not in status.get("roofCover", {}):
         open_roof_cover = "closed" not in status.get("roofCover", [])
-        metadatas.update({"open_roof_cover": open_roof_cover})
+        metadatas.update({"roof_cover": open_roof_cover})
         windows_open.append(open_roof_cover)
 
     if "unsupported" not in status.get("sunRoof", {}):
         open_sun_roof = "closed" not in status.get("sunRoof", [])
-        metadatas.update({"open_sun_roof": open_sun_roof})
+        metadatas.update({"sun_roof": open_sun_roof})
         windows_open.append(open_sun_roof)
 
-    metadatas.update({"open_any_window": any(windows_open)})
+    metadatas.update({"any_status": any(windows_open)})
 
     return metadatas
 
@@ -159,13 +159,15 @@ def doors_status(attrs: list[dict[str, Any]]) -> dict[str, bool]:
     trunk_unlock = "locked" not in status.get("trunk", [])
     doors_unlock = [left_unlock, left_rear_unlock, right_unlock, right_rear_unlock]
     metadatas = {
-        "lock_left_front_door": left_unlock,
-        "lock_left_rear_door": left_rear_unlock,
-        "lock_right_front_door": right_unlock,
-        "lock_right_rear_door": right_rear_unlock,
-        "lock_trunk": trunk_unlock,
-        "lock_any_door": any(doors_unlock),
-        "lock_doors_trunk": any(doors_unlock) and trunk_unlock,
+        "locked": {
+            "left_front": left_unlock,
+            "left_rear": left_rear_unlock,
+            "right_front": right_unlock,
+            "right_rear": right_rear_unlock,
+            "trunk": trunk_unlock,
+            "any_doors": any(doors_unlock),
+            "doors_trunk": any(doors_unlock) and trunk_unlock,
+        }
     }
 
     # Doors open status
@@ -186,13 +188,15 @@ def doors_status(attrs: list[dict[str, Any]]) -> dict[str, bool]:
 
     metadatas.update(
         {
-            "open_left_front_door": left_open,
-            "open_left_rear_door": left_rear_open,
-            "open_right_front_door": right_open,
-            "open_right_rear_door": right_rear_open,
-            "open_trunk": trunk_open,
-            "open_bonnet": bonnet_open,
-            "open_any_door": any(doors_open),
+            "opened": {
+                "left_front": left_open,
+                "left_rear": left_rear_open,
+                "right_front": right_open,
+                "right_rear": right_rear_open,
+                "trunk": trunk_open,
+                "bonnet": bonnet_open,
+                "any_doors": any(doors_open),
+            }
         }
     )
 

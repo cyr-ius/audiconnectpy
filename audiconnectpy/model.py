@@ -28,6 +28,30 @@ class OnOff(SerializationStrategy):  # type: ignore
         return value != "off"
 
 
+class WindowsStrategy(SerializationStrategy):  # type: ignore
+    def serialize(self, value: str) -> str:
+        return value
+
+    def deserialize(self, value: str) -> bool:
+        return Window.from_dict(windows_status(value))
+
+
+class DoorsStrategy(SerializationStrategy):  # type: ignore
+    def serialize(self, value: str) -> str:
+        return value
+
+    def deserialize(self, value: str) -> bool:
+        return Doors.from_dict(doors_status(value))
+
+
+class LightsStrategy(SerializationStrategy):  # type: ignore
+    def serialize(self, value: str) -> str:
+        return value
+
+    def deserialize(self, value: str) -> bool:
+        return Lights.from_dict(lights_status(value))
+
+
 @dataclass
 class Base(DataClassDictMixin):  # type: ignore
     @classmethod
@@ -68,12 +92,57 @@ class AccessStatus(Base):
         metadata=field_options(serialization_strategy=Locked()),
         default=None,
     )
-    doors: dict[str, Any] | None = field(
-        metadata=field_options(deserialize=doors_status), default=None
+    doors: Doors | None = field(
+        metadata=field_options(serialization_strategy=DoorsStrategy()), default=None
     )
-    windows: dict[str, Any] | None = field(
-        metadata=field_options(deserialize=windows_status), default=None
+    windows: Window | None = field(
+        metadata=field_options(serialization_strategy=WindowsStrategy()), default=None
     )
+
+
+@dataclass
+class Doors(DataClassDictMixin):
+    locked: DoorLocked | None = None
+    opened: DoorOpened | None = None
+
+
+@dataclass
+class DoorLocked(DataClassDictMixin):
+    """Windows status."""
+
+    left_front: bool | None = None
+    right_front: bool | None = None
+    left_rear: bool | None = None
+    right_rear: bool | None = None
+    trunk: bool | None = None
+    any_doors: bool | None = None
+    doors_trunk: bool | None = None
+
+
+@dataclass
+class DoorOpened(DataClassDictMixin):
+    """Windows status."""
+
+    left_front: bool | None = None
+    right_front: bool | None = None
+    left_rear: bool | None = None
+    right_rear: bool | None = None
+    trunk: bool | None = None
+    bonnet: bool | None = None
+    any_doors: bool | None = None
+
+
+@dataclass
+class Window(DataClassDictMixin):
+    """Windows status."""
+
+    left_front: bool | None = None
+    right_front: bool | None = None
+    left_rear: bool | None = None
+    right_rear: bool | None = None
+    roof_cover: bool | None = None
+    sun_roof: bool | None = None
+    any_status: bool | None = None
 
 
 # SECTION
@@ -251,9 +320,15 @@ class VehicleLights(Base):
 
 @dataclass
 class LightsStatus(Base):
-    lights: dict[str, Any] | None = field(
-        metadata=field_options(deserialize=lights_status), default=None
+    lights: Lights | None = field(
+        metadata=field_options(serialization_strategy=LightsStrategy()), default=None
     )
+
+
+@dataclass
+class Lights(Base):
+    left: bool | None = None
+    right: bool | None = None
 
 
 # SECTION
@@ -315,8 +390,8 @@ class VehicleHealthWarnings(Base):
 
 @dataclass
 class WarningLights(Base):
-    lights: dict[str, Any] | None = field(
-        metadata=field_options(deserialize=lights_status), default=None
+    lights: Lights | None = field(
+        metadata=field_options(serialization_strategy=LightsStrategy()), default=None
     )
 
 
