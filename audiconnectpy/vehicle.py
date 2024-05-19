@@ -25,7 +25,7 @@ from .exceptions import HttpRequestError, TimeoutExceededError
 from .helpers import ExtendedDict, remove_value, spin_hash
 from .model import Information, Location, Model, Position
 
-_LOGGER = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class Globals:
@@ -638,7 +638,7 @@ class Vehicle(DataClassDictMixin):  # type: ignore
     async def _async_get_security_token(self, action: str) -> str:
         """Get security token."""
         if self.spin is None:
-            logging.error("Security PIN not found")
+            logger.error("Security PIN not found")
             return ""
 
         # Challenge
