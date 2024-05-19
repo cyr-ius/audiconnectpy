@@ -84,7 +84,7 @@ class AudiConnect:
                     # Add attributes to vehicle
                     vehicle.uris = self.uris
                     vehicle.auth = self.auth
-                    vehicle.spin = str(self._spin)
+                    vehicle.spin = self._spin
 
                     if vinlist is None or vehicle.vin.upper() in vinlist:
                         try:
