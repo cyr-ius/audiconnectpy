@@ -55,8 +55,8 @@ class Vehicle(DataClassDictMixin):  # type: ignore
     nickname: str | None = None
     last_access: datetime | None = None
     uris: dict[str, str] = field(init=False)
-    spin: str = field(init=False)
     auth: Any = field(init=False)
+    spin: str | None = field(init=False, default=None)
     infos: Information | None = field(
         metadata=field_options(alias="vehicle"), default=None
     )
@@ -637,7 +637,9 @@ class Vehicle(DataClassDictMixin):  # type: ignore
 
     async def _async_get_security_token(self, action: str) -> str:
         """Get security token."""
-        self.spin = "" if self.spin is None else self.spin
+        if self.spin is None:
+            logging.error("Security PIN not found")
+            return ""
 
         # Challenge
         headers = await self.auth.async_get_headers(token_type="mbb", okhttp=True)
