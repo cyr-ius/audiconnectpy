@@ -154,6 +154,31 @@ async def test_vehicle_2(
         ),
     ):
         await api.async_login()
+        my_vehicle = api.vehicles[0]
 
         assert api.vehicles is not None
-        assert api.vehicles[0].infos is not None
+        assert my_vehicle.infos is not None
+        assert my_vehicle.climatisation.window_heating_status.state.front is False
+        assert my_vehicle.vehicle_lights.lights_status.lights.status is False
+        assert my_vehicle.measurements.range_status.electric_range == 212
+        assert my_vehicle.measurements.odometer_status.odometer == 10329
+        assert (
+            my_vehicle.vehicle_health_inspection.maintenance_status.mileage_km == 10329
+        )
+        assert my_vehicle.fuel_status.range_status.total_range_km == 212
+        assert my_vehicle.climatisation.window_heating_status.state.front is False
+        assert (
+            my_vehicle.climatisation.climatisation_status.climatisation_state is False
+        )
+        assert (
+            my_vehicle.climatisation.climatisation_status.climatisation_state is False
+        )
+        assert (
+            my_vehicle.climatisation.climatisation_settings.climatization_at_unlock
+            is True
+        )
+        assert my_vehicle.charging.battery_status.cruising_range_electric_km == 212
+        assert my_vehicle.charging.charge_mode.preferred_charge_mode == "manual"
+        assert my_vehicle.charging.charging_settings.max_charge_current_ac == "maximum"
+        assert my_vehicle.charging.charging_status.remaining == 400
+        assert my_vehicle.charging.plug_status.led_color == "green"
