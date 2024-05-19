@@ -52,6 +52,18 @@ class LightsStrategy(SerializationStrategy):  # type: ignore
         return Lights.from_dict(lights_status(value))
 
 
+class WindowHeatingStrategy(SerializationStrategy):  # type: ignore
+    def serialize(self, value: str) -> str:
+        return value
+
+    def deserialize(self, values: str) -> bool:
+        status = {
+            value.get("windowLocation"): (value.get("windowHeatingState") != "off")
+            for value in values
+        }
+        return WindowHeating.from_dict(status)
+
+
 @dataclass
 class Base(DataClassDictMixin):  # type: ignore
     @classmethod
@@ -197,7 +209,9 @@ class PlugStatus(Base):
     plug_lock_state: bool | None = field(
         metadata=field_options(serialization_strategy=Locked()), default=None
     )
-    external_power: str | None = None
+    external_power: bool | None = field(
+        metadata=field_options(deserialize=lambda x: x == "active"), default=None
+    )
     led_color: str | None = None
 
 
@@ -217,7 +231,19 @@ class Climatisation(Base):
 
 @dataclass
 class WindowHeatingStatus(Base):
-    window_heating_status: list[dict[str, str]] | None = None
+    state: WindowHeating | None = field(
+        metadata=field_options(
+            alias="window_heating_status",
+            serialization_strategy=WindowHeatingStrategy(),
+        ),
+        default=None,
+    )
+
+
+@dataclass
+class WindowHeating(Base):
+    front: bool | None = None
+    rear: bool | None = None
 
 
 @dataclass
@@ -329,6 +355,7 @@ class LightsStatus(Base):
 class Lights(Base):
     left: bool | None = None
     right: bool | None = None
+    status: bool | None = None
 
 
 # SECTION
