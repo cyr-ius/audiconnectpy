@@ -68,7 +68,7 @@ class AudiConnect:
                 self.is_connected = True
 
         # Update the state of all vehicles.
-        if self.is_connected:
+        if self.is_connected and len(self.vehicles) == 0:
             try:
                 vehicles_response = await self.async_get_information_vehicles()
             except AudiException as error:
@@ -94,8 +94,6 @@ class AudiConnect:
                             _LOGGER.error(
                                 "Error while updating - %s - (%s)", vehicle.vin, error
                             )
-        else:
-            raise AuthorizationError("API not connected")
 
     async def async_get_information_vehicles(self) -> Any:
         """Get information vehicles."""
