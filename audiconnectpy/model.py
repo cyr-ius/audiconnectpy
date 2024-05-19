@@ -32,7 +32,7 @@ class WindowsStrategy(SerializationStrategy):  # type: ignore
     def serialize(self, value: str) -> str:
         return value
 
-    def deserialize(self, value: str) -> bool:
+    def deserialize(self, value: list[dict[str, Any]]) -> Any:
         return Window.from_dict(windows_status(value))
 
 
@@ -40,7 +40,7 @@ class DoorsStrategy(SerializationStrategy):  # type: ignore
     def serialize(self, value: str) -> str:
         return value
 
-    def deserialize(self, value: str) -> bool:
+    def deserialize(self, value: list[dict[str, Any]]) -> Any:
         return Doors.from_dict(doors_status(value))
 
 
@@ -48,7 +48,7 @@ class LightsStrategy(SerializationStrategy):  # type: ignore
     def serialize(self, value: str) -> str:
         return value
 
-    def deserialize(self, value: str) -> bool:
+    def deserialize(self, value: list[dict[str, Any]]) -> Any:
         return Lights.from_dict(lights_status(value))
 
 
@@ -56,11 +56,13 @@ class WindowHeatingStrategy(SerializationStrategy):  # type: ignore
     def serialize(self, value: str) -> str:
         return value
 
-    def deserialize(self, values: str) -> bool:
+    def deserialize(self, values: list[dict[str, Any]]) -> Any:
         status = {
-            value.get("windowLocation"): (value.get("windowHeatingState") != "off")
+            value["windowLocation"]: (value["windowHeatingState"] != "off")
             for value in values
+            if "windowLocation" in value.keys() and "windowHeatingState" in value.keys()
         }
+
         return WindowHeating.from_dict(status)
 
 
@@ -113,13 +115,13 @@ class AccessStatus(Base):
 
 
 @dataclass
-class Doors(DataClassDictMixin):
+class Doors(Base):
     locked: DoorLocked | None = None
     opened: DoorOpened | None = None
 
 
 @dataclass
-class DoorLocked(DataClassDictMixin):
+class DoorLocked(Base):
     """Windows status."""
 
     left_front: bool | None = None
@@ -132,7 +134,7 @@ class DoorLocked(DataClassDictMixin):
 
 
 @dataclass
-class DoorOpened(DataClassDictMixin):
+class DoorOpened(Base):
     """Windows status."""
 
     left_front: bool | None = None
@@ -145,7 +147,7 @@ class DoorOpened(DataClassDictMixin):
 
 
 @dataclass
-class Window(DataClassDictMixin):
+class Window(Base):
     """Windows status."""
 
     left_front: bool | None = None
