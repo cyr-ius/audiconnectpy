@@ -204,11 +204,11 @@ def doors_status(attrs: list[dict[str, Any]]) -> dict[str, bool]:
 
 
 def lights_status(attrs: list[dict[str, Any]]) -> dict[str, bool]:
+    """Light status."""
     status = map_name_status(attrs)
-    metadatas = {
-        "left": status.get("left") != "off",
-        "right": status.get("right") != "off",
-    }
+    left = status.get("left") != "off"
+    right = status.get("right") != "off"
+    metadatas = {"left": left, "right": right, "status": any([left, right])}
 
     return metadatas
 
