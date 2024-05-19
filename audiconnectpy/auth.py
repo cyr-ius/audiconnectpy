@@ -257,7 +257,7 @@ class Auth:
 
         # Audi token
         self._audi_token = await self._async_get_azs_token(
-            id_token=self._idk_token["id_token"]
+            id_token=self._idk_token["access_token"]
         )
 
         # mbboauth client register
@@ -310,7 +310,7 @@ class Auth:
 
                 # Audi token
                 self._audi_token = await self._async_get_azs_token(
-                    id_token=self._idk_token["id_token"]
+                    id_token=self._idk_token["access_token"]
                 )
 
                 # Here token
