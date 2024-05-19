@@ -149,7 +149,7 @@ def windows_status(attrs: list[dict[str, Any]]) -> dict[str, bool]:
     return metadatas
 
 
-def doors_status(attrs: list[dict[str, Any]]) -> dict[str, bool]:
+def doors_status(attrs: list[dict[str, Any]]) -> dict[str, dict[str, bool]]:
     """Doors lock status."""
     status = map_name_status(attrs)
     left_unlock = "locked" not in status.get("frontLeft", [])
