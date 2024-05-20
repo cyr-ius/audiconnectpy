@@ -8,10 +8,9 @@ import yaml
 
 from audiconnectpy import AudiConnect, AudiException
 
-logger = logging.getLogger(__name__)
-logger.setLevel("DEBUG")
-# logger.setLevel("INFO")
 # create console handler and set level to debug
+logger = logging.getLogger()
+logger.setLevel("DEBUG")
 ch = logging.StreamHandler()
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 ch.setFormatter(formatter)
@@ -20,7 +19,6 @@ logger.addHandler(ch)
 
 # Fill out the secrets in secrets.yaml, you can find an example
 # _secrets.yaml file, which has to be renamed after filling out the secrets.
-
 with open("./secrets.yaml", encoding="UTF-8") as file:
     secrets = yaml.safe_load(file)
 
@@ -34,10 +32,12 @@ async def main() -> None:
     """Run Main method."""
     async with ClientSession() as session:
         api = AudiConnect(session, USERNAME, PASSWORD, COUNTRY, SPIN)
-
         try:
             await api.async_login()
-            if api.is_connected:
+        except AudiException as error:
+            logger.error(error)
+        while api.is_connected:
+            try:
                 for vehicle in api.vehicles:
                     logger.info(vehicle.vin)
                     logger.info(vehicle.infos)
@@ -57,10 +57,13 @@ async def main() -> None:
                     logger.info(vehicle.infos)
                     # await vehicle.async_set_lock(True)
                     # await vehicle.async_refresh_vehicle_data()
-                    # await vehicle.async_update()
-                    logger.info(vehicle.last_access)
-        except AudiException as error:
-            logger.error(error)
+                    await vehicle.async_update()
+            except AudiException as error:
+                logger.error(error)
+            finally:
+                await asyncio.sleep(600)
+
+            await api.async_close()
 
 
 if __name__ == "__main__":
