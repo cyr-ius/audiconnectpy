@@ -270,7 +270,7 @@ class Auth:
 
         # Audi token
         self._audi_token = await self._async_get_azs_token(
-            id_token=self._idk_token["access_token"]
+            id_token=self._idk_token["id_token"]
         )
 
         # mbboauth client register
@@ -296,10 +296,12 @@ class Auth:
         self._here_token = await self._async_get_here_token(
             id_token=self._idk_token["id_token"]
         )
+        if "refresh_token" in self._here_token:
+            self._mbb_token["refresh_token"] = self._here_token["refresh_token"]
 
     async def async_refresh_tokens(self) -> None:
         """Refresh token if."""
-        if self._mbb_token_expired and datetime.now() > self._mbb_token_expired:
+        if self._mbb_token_expired and datetime.now() < self._mbb_token_expired:
             try:
                 _LOGGER.debug("Refresh MBB token")
                 refresh_token = self._mbb_token["refresh_token"]
@@ -322,13 +324,15 @@ class Auth:
 
                 _LOGGER.debug("Refresh Audi token")
                 self._audi_token = await self._async_get_azs_token(
-                    id_token=self._idk_token["access_token"]
+                    id_token=self._idk_token["id_token"]
                 )
 
                 _LOGGER.debug("Refresh Here token")
                 self._here_token = await self._async_get_here_token(
                     id_token=self._idk_token["id_token"]
                 )
+                if "refresh_token" in self._here_token:
+                    self._mbb_token["refresh_token"] = self._here_token["refresh_token"]
 
             except AudiException as error:
                 _LOGGER.error("Refresh token failed: %s", error)
