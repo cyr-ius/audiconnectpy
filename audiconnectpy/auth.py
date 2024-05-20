@@ -301,7 +301,7 @@ class Auth:
 
     async def async_refresh_tokens(self) -> None:
         """Refresh token if."""
-        if self._mbb_token_expired and datetime.now() < self._mbb_token_expired:
+        if self._mbb_token_expired and datetime.now() > self._mbb_token_expired:
             try:
                 _LOGGER.debug("Refresh MBB token")
                 refresh_token = self._mbb_token["refresh_token"]
