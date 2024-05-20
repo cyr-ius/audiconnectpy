@@ -19,6 +19,17 @@ import aiohttp
 import async_timeout
 from bs4 import BeautifulSoup
 
+from .const import (
+    CLIENT_ID,
+    DELAY,
+    HDR_USER_AGENT,
+    HDR_XAPP_VERSION,
+    MARKET_URL,
+    MBB_URL,
+    TIMEOUT,
+    URL_HERE_COM,
+    URL_INFO_USER,
+)
 from .exceptions import (
     AudiException,
     AuthorizationError,
@@ -26,14 +37,7 @@ from .exceptions import (
     ServiceNotFoundError,
     TimeoutExceededError,
 )
-
-TIMEOUT = 120
-DELAY = 10
-HDR_XAPP_VERSION = "4.24.2"
-HDR_USER_AGENT = "Android/4.24.2 (Build 800240338.root project 'onetouch-android'.ext.buildTime) Android/11"
-MARKET_URL = "https://content.app.my.audi.com/service/mobileapp/configurations"
-CLIENT_ID = "09b6cbec-cd19-4589-82fd-363dfa8c24da@apps_vw-dilab_com"
-MBB_URL = "https://mbboauth-1d.prd.ece.vwg-connect.com/mbbcoauth"
+from .helpers import ExtendedDict
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -58,6 +62,8 @@ class Auth:
         self._idk_token: dict[str, str] = {}
         self._audi_token: dict[str, str] = {}
         self.uris: dict[str, str] = {}
+        self.binded: bool = False
+        self.country: str = ""
 
     async def request(
         self,
@@ -115,12 +121,19 @@ class Auth:
         return rsp
 
     async def async_connect(
-        self, username: str, password: str, uris: dict[str, str], tries: int = 3
+        self, username: str, password: str, country: str, tries: int = 3
     ) -> None:
         """Connect to API."""
+        self.country = country
         try:
-            self.uris = uris
+            await self._async_retrieve_url_service()
+        except HttpRequestError as error:
+            self.binded = False
+            raise AudiException("Failed retrieve urls service (%s)", error)
+
+        try:
             await self._async_login(username, password)
+            self.binded = True
         except HttpRequestError as error:
             if tries > 1:
                 _LOGGER.warning(
@@ -129,8 +142,8 @@ class Auth:
                     str(error),
                 )
                 await asyncio.sleep(DELAY)
-                return await self.async_connect(username, password, uris, tries - 1)
-
+                return await self.async_connect(username, password, country, tries - 1)
+            self.binded = False
             raise AuthorizationError("Login to Audi service failed: %s ", error)
 
     async def _async_login(self, user: str, password: str) -> None:
@@ -288,8 +301,7 @@ class Auth:
         """Refresh token if."""
         if self._mbb_token_expired and datetime.now() > self._mbb_token_expired:
             try:
-                _LOGGER.debug("Refresh token if necessary")
-                # MBB Token
+                _LOGGER.debug("Refresh MBB token")
                 refresh_token = self._mbb_token["refresh_token"]
                 self._mbb_token = await self._async_get_mbb_token(
                     refresh_token=refresh_token
@@ -303,23 +315,24 @@ class Auth:
                     seconds=self._mbb_token["expires_in"]
                 )
 
-                # IDK Token
+                _LOGGER.debug("Refresh IDK token")
                 self._idk_token = await self._async_get_idk_token(
                     refresh_token=self._idk_token["refresh_token"]
                 )
 
-                # Audi token
+                _LOGGER.debug("Refresh Audi token")
                 self._audi_token = await self._async_get_azs_token(
                     id_token=self._idk_token["access_token"]
                 )
 
-                # Here token
+                _LOGGER.debug("Refresh Here token")
                 self._here_token = await self._async_get_here_token(
                     id_token=self._idk_token["id_token"]
                 )
 
-            except AudiException as error:  # pylint: disable=broad-except
-                _LOGGER.error("Refresh token failed: %s", str(error))
+            except AudiException as error:
+                _LOGGER.error("Refresh token failed: %s", error)
+                self.binded = False
 
     async def async_get_action_headers(
         self, content_type: str, security_token: str | None, x_security: bool = False
@@ -587,3 +600,58 @@ class Auth:
         )
         _LOGGER.debug("Here Token: %s", hereoauth_json)
         return hereoauth_json
+
+    async def _async_retrieve_url_service(self) -> None:
+        """Get urls for request."""
+        # Get markets to get language
+        country = self.country.upper()
+        markets_json = await self.request("GET", f"{MARKET_URL}/markets")
+
+        country_spec = ExtendedDict(markets_json).getr(
+            "countries.countrySpecifications"
+        )
+        if country not in country_spec:
+            raise AudiException("Country not found")
+
+        language = country_spec[country].get("defaultLanguage")
+
+        # Get market config
+        services = await self.request(
+            "GET", f"{MARKET_URL}/market/{country}/{language}"
+        )
+
+        client_id = services.get("idkClientIDAndroidLive", CLIENT_ID)
+        audi_baseurl = services.get(
+            "myAudiAuthorizationServerProxyServiceURLProduction"
+        )
+        profil_url = (
+            services.get("idkCustomerProfileMicroserviceBaseURLLive", "") + "/v3"
+        )
+        mbb_baseurl = services.get("mbbOAuthBaseURLLive", MBB_URL)
+        cvvsb_base_url = services.get("connectedVehicleVehicleServiceBaseURLProduction")
+
+        # Get openId config
+        openid_url = services.get("idkLoginServiceConfigurationURLProduction")
+        _LOGGER.debug("IDK Base Url: %s", openid_url)
+        openid_json = await self.request("GET", openid_url)
+
+        authorization_endpoint_url = openid_json.get("authorization_endpoint", "")
+        token_endpoint_url = openid_json.get("token_endpoint", "")
+        revocation_endpoint_url = openid_json.get("revocation_endpoint", "")
+
+        self.uris = {
+            "client_id": client_id,
+            "audi_url": audi_baseurl,
+            "profil_url": profil_url,
+            "mbb_url": mbb_baseurl,
+            "here_url": URL_HERE_COM,
+            "cv_url": cvvsb_base_url,
+            "user_url": URL_INFO_USER,
+            "authorization_endpoint": authorization_endpoint_url,
+            "token_endpoint": token_endpoint_url,
+            "revocation_endpoint": revocation_endpoint_url,
+            "language": language,
+            "country": country,
+        }
+
+        _LOGGER.debug("Urls of service: %s", self.uris)

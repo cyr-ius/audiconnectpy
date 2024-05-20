@@ -4,19 +4,14 @@ from __future__ import annotations
 
 from collections import namedtuple
 import logging
-from typing import Any, NamedTuple
+from typing import Any, NamedTuple, Self
 
 from aiohttp import ClientSession
 
 from .auth import Auth
 from .const import (
-    CLIENT_ID,
-    MARKET_URL,
-    MBB_URL,
-    URL_HERE_COM,
     URL_HOME_REGION,
     URL_HOME_REGION_SETTER,
-    URL_INFO_USER,
     URL_INFO_VEHICLE,
     URL_INFO_VEHICLE_US,
 )
@@ -46,61 +41,68 @@ class AudiConnect:
         self._password = password
         self._username = username
         self._spin = spin
-        self.is_connected: bool = False
         self.vehicles: list[Vehicle] = []
-        self.uris: dict[str, str] = {}
+
+    @property
+    def is_connected(self) -> bool:
+        """Is connected."""
+        return self.auth.binded
+
+    @property
+    def uri_services(self) -> dict[str, str]:
+        return self.auth.uris
 
     async def async_login(self, vinlist: list[str] | None = None) -> None:
         """Login and retrieve tokens."""
+        if self.is_connected:
+            return
 
-        # Retrieve urls
+        # Connect API
         try:
-            await self._async_retrieve_url_service()
+            await self.auth.async_connect(self._username, self._password, self.country)
         except AudiException as error:
-            raise AudiException("Error fetch home region urls (%s)", error)
+            raise AuthorizationError(error) from error
 
-        if not self.is_connected:
+        if len(self.vehicles) == 0:
+            await self.async_fetch_data(vinlist=vinlist)
+
+    async def async_fetch_data(self, vinlist: list[str] | None = None) -> None:
+        """Update the state of all vehicles."""
+        try:
+            vehicles_response = await self.async_get_information_vehicles()
+        except AudiException as error:
+            raise AudiException(
+                "Error to get information vehicles ({error})"
+            ) from error
+
+        obj_vehicles = Vehicles.from_dict(vehicles_response.get("data", []))
+        self.vehicles = obj_vehicles.user_vehicles
+        for vehicle in self.vehicles:
+            # Add attributes to vehicle
+            vehicle.auth = self.auth
+            vehicle.spin = self._spin
+            vehicle.uris = self.uri_services
+
             try:
-                await self.auth.async_connect(self._username, self._password, self.uris)
+                vehicle.fill_region = await self._async_fill_url(vehicle.vin)
             except AudiException as error:
-                raise AuthorizationError(error) from error
-            else:
-                self.is_connected = True
+                raise AudiException("Error to fill urls ({error})") from error
 
-        # Update the state of all vehicles.
-        if self.is_connected and len(self.vehicles) == 0:
-            try:
-                vehicles_response = await self.async_get_information_vehicles()
-            except AudiException as error:
-                raise AudiException(
-                    "Error to get information vehicles ({error})"
-                ) from error
-            else:
-                obj_vehicles = Vehicles.from_dict(vehicles_response.get("data", []))
-                self.vehicles = obj_vehicles.user_vehicles
-                for vehicle in self.vehicles:
-                    fill_region = await self._async_fill_url(vehicle.vin)
-                    self.uris.update(fill_region._asdict())
-                    # Add attributes to vehicle
-                    vehicle.uris = self.uris
-                    vehicle.auth = self.auth
-                    vehicle.spin = self._spin
-
-                    if vinlist is None or vehicle.vin.upper() in vinlist:
-                        try:
-                            # Fetch data for a vehicle
-                            await vehicle.async_update()
-                        except AudiException as error:
-                            _LOGGER.error(
-                                "Error while updating - %s - (%s)", vehicle.vin, error
-                            )
+            if vinlist is None or vehicle.vin.upper() in vinlist:
+                # Fetch data for a vehicle
+                try:
+                    await vehicle.async_update()
+                except AudiException as error:
+                    _LOGGER.error(
+                        "Error while updating - %s - (%s)", vehicle.vin, error
+                    )
 
     async def async_get_information_vehicles(self) -> Any:
         """Get information vehicles."""
         headers = await self.auth.async_get_headers(
             token_type="audi",
             headers={
-                "Accept-Language": f"{self.uris['language']}-{self.country}",
+                "Accept-Language": f"{self.uri_services['language']}-{self.country}",
                 "Content-Type": "application/json",
                 "X-User-Country": self.country,
             },
@@ -118,62 +120,6 @@ class AudiConnect:
 
         return response
 
-    async def _async_retrieve_url_service(self) -> None:
-        """Get urls for request."""
-        # Get markets to get language
-        global URL_SERVICES
-        country = self.country.upper()
-        markets_json = await self.auth.request("GET", f"{MARKET_URL}/markets")
-
-        country_spec = ExtendedDict(markets_json).getr(
-            "countries.countrySpecifications"
-        )
-        if country not in country_spec:
-            raise AudiException("Country not found")
-
-        language = country_spec[country].get("defaultLanguage")
-
-        # Get market config
-        services = await self.auth.request(
-            "GET", f"{MARKET_URL}/market/{country}/{language}"
-        )
-
-        client_id = services.get("idkClientIDAndroidLive", CLIENT_ID)
-        audi_baseurl = services.get(
-            "myAudiAuthorizationServerProxyServiceURLProduction"
-        )
-        profil_url = (
-            services.get("idkCustomerProfileMicroserviceBaseURLLive", "") + "/v3"
-        )
-        mbb_baseurl = services.get("mbbOAuthBaseURLLive", MBB_URL)
-        cvvsb_base_url = services.get("connectedVehicleVehicleServiceBaseURLProduction")
-
-        # Get openId config
-        openid_url = services.get("idkLoginServiceConfigurationURLProduction")
-        _LOGGER.debug("IDK Base Url: %s", openid_url)
-        openid_json = await self.auth.request("GET", openid_url)
-
-        authorization_endpoint_url = openid_json.get("authorization_endpoint", "")
-        token_endpoint_url = openid_json.get("token_endpoint", "")
-        revocation_endpoint_url = openid_json.get("revocation_endpoint", "")
-
-        self.uris = {
-            "client_id": client_id,
-            "audi_url": audi_baseurl,
-            "profil_url": profil_url,
-            "mbb_url": mbb_baseurl,
-            "here_url": URL_HERE_COM,
-            "cv_url": cvvsb_base_url,
-            "user_url": URL_INFO_USER,
-            "authorization_endpoint": authorization_endpoint_url,
-            "token_endpoint": token_endpoint_url,
-            "revocation_endpoint": revocation_endpoint_url,
-            "language": language,
-            "country": country,
-        }
-
-        _LOGGER.debug("Urls of service: %s", self.uris)
-
     async def _async_fill_url(self, vin: str) -> NamedTuple:
         """Fill region."""
         url = URL_HOME_REGION
@@ -190,3 +136,16 @@ class AudiConnect:
         FillRegion = namedtuple("FillRegion", ("url", "url_setter"))
 
         return FillRegion(url, url_setter)
+
+    async def async_close(self) -> None:
+        """Close open client (WebSocket) session."""
+        if self.auth._session:
+            await self.auth._session.close()
+
+    async def __aenter__(self) -> Self:
+        """Async enter."""
+        return self
+
+    async def __aexit__(self, *_exc_info: object) -> None:
+        """Async exit."""
+        await self.async_close()
