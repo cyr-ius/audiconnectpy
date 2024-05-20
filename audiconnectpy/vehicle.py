@@ -54,7 +54,8 @@ class Vehicle(DataClassDictMixin):  # type: ignore
     csid: str
     nickname: str | None = None
     last_access: datetime | None = None
-    uris: dict[str, str] = field(init=False)
+    uris: dict[str, Any] = field(init=False)
+    fill_region: Any = field(init=False)
     auth: Any = field(init=False)
     spin: str | None = field(init=False, default=None)
     infos: Information | None = field(
@@ -63,6 +64,7 @@ class Vehicle(DataClassDictMixin):  # type: ignore
     capabilities: list[str] | None = field(init=False, default=None)
     position: Position | None = field(init=False, default=None)
     location: Location | None = field(init=False, default=None)
+    last_update: datetime | None = field(init=False, default=None)
 
     @property
     def api_level(self) -> dict[str, int]:
@@ -121,6 +123,7 @@ class Vehicle(DataClassDictMixin):  # type: ignore
                 ],
             }
         )
+        self.last_update = datetime.now()
 
     async def async_get_location(self) -> Any:
         """Get destination data."""
@@ -146,6 +149,16 @@ class Vehicle(DataClassDictMixin):  # type: ignore
         data = await self.auth.request(
             "GET",
             f"{self.uris['cv_url']}/vehicles/{self.vin}/capabilities",
+            headers=headers,
+        )
+        return data
+
+    async def async_get(self, path: str) -> Any:
+        """Get data."""
+        headers = await self.auth.async_get_headers(token_type="idk")
+        data = await self.auth.request(
+            "GET",
+            f"{self.uris['cv_url']}/vehicles/{self.vin}/{path}",
             headers=headers,
         )
         return data
@@ -191,13 +204,13 @@ class Vehicle(DataClassDictMixin):  # type: ignore
 
         rsp = await self.auth.request(
             "POST",
-            f"{self.uris['url']}/bs/rlu/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/actions",
+            f"{self.fill_region.url}/bs/rlu/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/actions",
             headers=headers,
             data=data,
         )
         request_id = ExtendedDict(rsp).getr("rluActionResponse.requestId", "")
         await self._async_check_request(
-            f"{self.uris['url']}/bs/rlu/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/requests/{request_id}/status",
+            f"{self.fill_region.url}/bs/rlu/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/requests/{request_id}/status",
             "lock vehicle" if lock else "unlock vehicle",
             REQUEST_SUCCESSFUL,
             REQUEST_FAILED,
@@ -258,13 +271,13 @@ class Vehicle(DataClassDictMixin):  # type: ignore
 
         rsp = await self.auth.request(
             "POST",
-            f"{self.uris['url']}/bs/climatisation/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/climater/actions",
+            f"{self.fill_region.url}/bs/climatisation/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/climater/actions",
             headers=headers,
             data=data,
         )
         actionid = ExtendedDict(rsp).getr("action.actionId", "")
         await self._async_check_request(
-            f"{self.uris['url']}/bs/climatisation/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/climater/actions/{actionid}",
+            f"{self.fill_region.url}/bs/climatisation/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/climater/actions/{actionid}",
             "start climatisation" if start else "stop climatisation",
             SUCCEEDED,
             FAILED,
@@ -326,13 +339,13 @@ class Vehicle(DataClassDictMixin):  # type: ignore
             data = json.dumps(data)
         rsp = await self.auth.request(
             "POST",
-            f"{self.uris['url']}/bs/climatisation/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/climater/actions",
+            f"{self.fill_region.url}/bs/climatisation/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/climater/actions",
             headers=headers,
             data=data,
         )
         actionid = ExtendedDict(rsp).getr("action.actionId", "")
         await self._async_check_request(
-            f"{self.uris['url']}/bs/climatisation/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/climater/actions/{actionid}",
+            f"{self.fill_region.url}/bs/climatisation/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/climater/actions/{actionid}",
             "set target temperature",
             SUCCEEDED,
             FAILED,
@@ -373,7 +386,7 @@ class Vehicle(DataClassDictMixin):  # type: ignore
 
         await self.auth.request(
             "POST",
-            f"{self.uris['url']}/bs/rs/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/action",
+            f"{self.fill_region.url}/bs/rs/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/action",
             headers=headers,
             data=data,
         )
@@ -421,7 +434,7 @@ class Vehicle(DataClassDictMixin):  # type: ignore
 
         await self.auth.request(
             "POST",
-            f"{self.uris['url']}/bs/rs/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/action",
+            f"{self.fill_region.url}/bs/rs/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/action",
             headers=headers,
             data=data,
         )
@@ -460,13 +473,13 @@ class Vehicle(DataClassDictMixin):  # type: ignore
 
         rsp = await self.auth.request(
             "POST",
-            f"{self.uris['url']}/bs/batterycharge/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/charger/actions",
+            f"{self.fill_region.url}/bs/batterycharge/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/charger/actions",
             headers=headers,
             data=data,
         )
         actionid = ExtendedDict(rsp).getr("action.actionId", "")
         await self._async_check_request(
-            f"{self.uris['url']}/bs/batterycharge/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/charger/actions/{actionid}",
+            f"{self.fill_region.url}/bs/batterycharge/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/charger/actions/{actionid}",
             "start charger" if start else "stop charger",
             SUCCEEDED,
             FAILED,
@@ -496,13 +509,13 @@ class Vehicle(DataClassDictMixin):  # type: ignore
 
         rsp = await self.auth.request(
             "POST",
-            f"{self.uris['url']}/bs/batterycharge/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/charger/actions",
+            f"{self.fill_region.url}/bs/batterycharge/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/charger/actions",
             headers=headers,
             data=data,
         )
         actionid = ExtendedDict(rsp).getr("action.actionId", "")
         await self._async_check_request(
-            f"{self.uris['url']}/bs/batterycharge/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/charger/actions/{actionid}",
+            f"{self.fill_region.url}/bs/batterycharge/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/charger/actions/{actionid}",
             "set charger max current",
             SUCCEEDED,
             FAILED,
@@ -529,13 +542,13 @@ class Vehicle(DataClassDictMixin):  # type: ignore
             )
         rsp = await self.auth.request(
             "POST",
-            f"{self.uris['url']}/bs/climatisation/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/climater/actions",
+            f"{self.fill_region.url}/bs/climatisation/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/climater/actions",
             headers=headers,
             data=data,
         )
         actionid = ExtendedDict(rsp).getr("action.actionId", "")
         await self._async_check_request(
-            f"{self.uris['url']}/bs/climatisation/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/climater/actions/{actionid}",
+            f"{self.fill_region.url}/bs/climatisation/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/climater/actions/{actionid}",
             "start window heating" if start else "stop window heating",
             SUCCEEDED,
             FAILED,
@@ -562,7 +575,7 @@ class Vehicle(DataClassDictMixin):  # type: ignore
             }
             await self.auth.request(
                 "POST",
-                f"{self.uris['url']}/bs/rhf/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/honkAndFlash",
+                f"{self.fill_region.url}/bs/rhf/v1/{BRAND}/{self.uris['country']}/vehicles/{self.vin}/honkAndFlash",
                 headers=headers,
                 json=data,
             )
@@ -645,7 +658,7 @@ class Vehicle(DataClassDictMixin):  # type: ignore
         headers = await self.auth.async_get_headers(token_type="mbb", okhttp=True)
         rsp = await self.auth.request(
             "GET",
-            f"{self.uris['url_setter']}/rolesrights/authorization/v2/vehicles/{self.vin}/services/{action}/security-pin-auth-requested",
+            f"{self.fill_region.url_setter}/rolesrights/authorization/v2/vehicles/{self.vin}/services/{action}/security-pin-auth-requested",
             headers=headers,
         )
         rsp = ExtendedDict(rsp)
@@ -667,7 +680,7 @@ class Vehicle(DataClassDictMixin):  # type: ignore
         }
         response = await self.auth.request(
             "POST",
-            f"{self.uris['url_setter']}/rolesrights/authorization/v2/security-pin-auth-completed",
+            f"{self.fill_region.url_setter}/rolesrights/authorization/v2/security-pin-auth-completed",
             headers=headers,
             json=data,
         )
