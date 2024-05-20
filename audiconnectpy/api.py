@@ -19,6 +19,8 @@ from .exceptions import AudiException
 from .helpers import ExtendedDict
 from .vehicle import Globals, Vehicle, Vehicles
 
+MODELS = Literal["standard", "e-tron"]
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -34,7 +36,7 @@ class AudiConnect:
         spin: str | None = None,
         *,
         unit_system: str = "metric",
-        model: Literal["standard", "e-tron"] = "standard",
+        model: MODELS = "standard",
     ) -> None:
         """Initialize."""
         Globals(unit_system)
