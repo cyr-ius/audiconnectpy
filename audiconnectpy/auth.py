@@ -15,12 +15,12 @@ from typing import Any, Literal
 from urllib.parse import parse_qs, urlencode, urlparse
 import uuid
 
-import aiohttp
+from aiohttp import ClientError, ClientSession
 import async_timeout
 from bs4 import BeautifulSoup
 
 from .const import (
-    CLIENT_ID,
+    CLIENT_IDS,
     DELAY,
     HDR_USER_AGENT,
     HDR_XAPP_VERSION,
@@ -46,10 +46,21 @@ class Auth:
     """Authentication."""
 
     def __init__(
-        self, session: aiohttp.ClientSession, proxy: str | None = None
+        self,
+        session: ClientSession,
+        username: str,
+        password: str,
+        country: str,
+        model: Literal["standard", "e-tron"],
+        *,
+        proxy: str | None = None,
     ) -> None:
         """Initialize."""
         self._session = session
+        self._username = username
+        self._password = password
+        self.country = country
+        self.model = model
         self.__proxy: dict[str, str] | None = (
             {"http": proxy, "https": proxy} if proxy else None
         )
@@ -63,7 +74,6 @@ class Auth:
         self._audi_token: dict[str, str] = {}
         self.uris: dict[str, str] = {}
         self.binded: bool = False
-        self.country: str = ""
 
     async def request(
         self,
@@ -84,7 +94,7 @@ class Auth:
             raise TimeoutExceededError(
                 "Timeout occurred while connecting to Audi Connect."
             ) from error
-        except (aiohttp.ClientError, socket.gaierror) as error:
+        except (ClientError, socket.gaierror) as error:
             raise HttpRequestError(
                 "Error occurred while communicating with Audi Connect."
             ) from error
@@ -120,11 +130,8 @@ class Auth:
             return response, rsp
         return rsp
 
-    async def async_connect(
-        self, username: str, password: str, country: str, tries: int = 3
-    ) -> None:
+    async def async_connect(self, tries: int = 3) -> None:
         """Connect to API."""
-        self.country = country
         try:
             await self._async_retrieve_url_service()
         except HttpRequestError as error:
@@ -132,7 +139,7 @@ class Auth:
             raise AudiException("Failed retrieve urls service (%s)", error)
 
         try:
-            await self._async_login(username, password)
+            await self._async_login(self._username, self._password)
             self.binded = True
         except HttpRequestError as error:
             if tries > 1:
@@ -142,7 +149,7 @@ class Auth:
                     str(error),
                 )
                 await asyncio.sleep(DELAY)
-                return await self.async_connect(username, password, country, tries - 1)
+                return await self.async_connect(tries - 1)
             self.binded = False
             raise AuthorizationError("Login to Audi service failed: %s ", error)
 
@@ -608,23 +615,22 @@ class Auth:
     async def _async_retrieve_url_service(self) -> None:
         """Get urls for request."""
         # Get markets to get language
-        country = self.country.upper()
         markets_json = await self.request("GET", f"{MARKET_URL}/markets")
 
         country_spec = ExtendedDict(markets_json).getr(
             "countries.countrySpecifications"
         )
-        if country not in country_spec:
+        if self.country not in country_spec:
             raise AudiException("Country not found")
 
-        language = country_spec[country].get("defaultLanguage")
+        language = country_spec[self.country].get("defaultLanguage")
 
         # Get market config
         services = await self.request(
-            "GET", f"{MARKET_URL}/market/{country}/{language}"
+            "GET", f"{MARKET_URL}/market/{self.country}/{language}"
         )
 
-        client_id = services.get("idkClientIDAndroidLive", CLIENT_ID)
+        client_id = services.get("idkClientIDAndroidLive", CLIENT_IDS[self.model])
         audi_baseurl = services.get(
             "myAudiAuthorizationServerProxyServiceURLProduction"
         )
@@ -655,7 +661,7 @@ class Auth:
             "token_endpoint": token_endpoint_url,
             "revocation_endpoint": revocation_endpoint_url,
             "language": language,
-            "country": country,
+            "country": self.country,
         }
 
         _LOGGER.debug("Urls of service: %s", self.uris)

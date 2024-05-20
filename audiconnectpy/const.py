@@ -1,7 +1,10 @@
 """Constants."""
 
 BRAND = "Audi"
-CLIENT_ID = "09b6cbec-cd19-4589-82fd-363dfa8c24da@apps_vw-dilab_com"
+CLIENT_IDS = {
+    "standard": "09b6cbec-cd19-4589-82fd-363dfa8c24da@apps_vw-dilab_com",
+    "e-tron": "f4d0934f-32bf-4ce4-b3c4-699a7049ad26@apps_vw-dilab_com",
+}
 DELAY = 10
 FAILED = "failed"
 HDR_USER_AGENT = "Android/4.24.2 (Build 800240338.root project 'onetouch-android'.ext.buildTime) Android/11"
