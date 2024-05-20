@@ -15,7 +15,7 @@ from .const import (
     URL_INFO_VEHICLE,
     URL_INFO_VEHICLE_US,
 )
-from .exceptions import AudiException, AuthorizationError
+from .exceptions import AudiException
 from .helpers import ExtendedDict
 from .vehicle import Globals, Vehicle, Vehicles
 
@@ -56,11 +56,7 @@ class AudiConnect:
         if self.is_connected:
             return
 
-        # Connect API
-        try:
-            await self.auth.async_connect()
-        except AudiException as error:
-            raise AuthorizationError(error) from error
+        await self.auth.async_connect()
 
         if len(self.vehicles) == 0:
             await self.async_fetch_data(vinlist=vinlist)
