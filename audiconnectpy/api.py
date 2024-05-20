@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections import namedtuple
 import logging
-from typing import Any, NamedTuple, Self
+from typing import Any, Literal, NamedTuple, Self
 
 from aiohttp import ClientSession
 
@@ -32,14 +32,13 @@ class AudiConnect:
         password: str,
         country: str = "DE",
         spin: str | None = None,
+        *,
         unit_system: str = "metric",
+        model: Literal["standard", "e-tron"] = "standard",
     ) -> None:
         """Initialize."""
         Globals(unit_system)
-        self.auth = Auth(session)
-        self.country = country.upper()
-        self._password = password
-        self._username = username
+        self.auth = Auth(session, username, password, country.upper(), model)
         self._spin = spin
         self.vehicles: list[Vehicle] = []
 
@@ -59,7 +58,7 @@ class AudiConnect:
 
         # Connect API
         try:
-            await self.auth.async_connect(self._username, self._password, self.country)
+            await self.auth.async_connect()
         except AudiException as error:
             raise AuthorizationError(error) from error
 
@@ -99,18 +98,20 @@ class AudiConnect:
 
     async def async_get_information_vehicles(self) -> Any:
         """Get information vehicles."""
+        language = self.uri_services["language"]
+        country = self.uri_services["country"]
+        url = URL_INFO_VEHICLE if country != "US" else URL_INFO_VEHICLE_US
         headers = await self.auth.async_get_headers(
             token_type="audi",
             headers={
-                "Accept-Language": f"{self.uri_services['language']}-{self.country}",
+                "Accept-Language": f"{language}-{country}",
                 "Content-Type": "application/json",
-                "X-User-Country": self.country,
+                "X-User-Country": country,
             },
         )
         data = {
             "query": "query vehicleList {\n userVehicles {\n vin\n mappingVin\n vehicle { core { modelYear\n }\n media { shortName\n longName }\n }\n csid\n commissionNumber\n type\n devicePlatform\n mbbConnect\n userRole {\n role\n }\n vehicle {\n classification {\n driveTrain\n }\n }\n nickname\n }\n}"
         }
-        url = URL_INFO_VEHICLE if self.country != "US" else URL_INFO_VEHICLE_US
 
         response = await self.auth.request(
             "POST", url, json=data, headers=headers, allow_redirects=False
