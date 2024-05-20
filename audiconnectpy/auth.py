@@ -37,7 +37,7 @@ from .exceptions import (
     ServiceNotFoundError,
     TimeoutExceededError,
 )
-from .helpers import ExtendedDict
+from .helpers import ExtendedDict, retry
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -104,6 +104,7 @@ class Auth:
 
         _LOGGER.debug("RESPONSE HEADERS: %s", response.headers)
         _LOGGER.debug("RESPONSE: %s ,return_code '%s'", contents, response.status)
+        _LOGGER.debug("---------------------------------------------------------")
 
         if response.status // 100 in [4, 5]:
             response.close()
@@ -136,24 +137,17 @@ class Auth:
             await self._async_retrieve_url_service()
         except HttpRequestError as error:
             self.binded = False
-            raise AudiException("Failed retrieve urls service (%s)", error)
+            raise AudiException("Failed retrieve urls service (%s)", error) from error
 
         try:
-            await self._async_login(self._username, self._password)
+            await self._async_login()
             self.binded = True
-        except HttpRequestError as error:
-            if tries > 1:
-                _LOGGER.warning(
-                    "Login to Audi service failed, trying again in %s seconds [ERROR:%s]",
-                    DELAY,
-                    str(error),
-                )
-                await asyncio.sleep(DELAY)
-                return await self.async_connect(tries - 1)
+        except AudiException as error:
             self.binded = False
-            raise AuthorizationError("Login to Audi service failed: %s ", error)
+            raise AuthorizationError("Login to Audi service failed") from error
 
-    async def _async_login(self, user: str, password: str) -> None:
+    @retry(exceptions=HttpRequestError, tries=3, delay=DELAY, logger=_LOGGER)
+    async def _async_login(self) -> None:
         """Request login."""
 
         # Generate code_challenge
@@ -192,7 +186,9 @@ class Auth:
         )
 
         # form_data with email
-        submit_data = self._get_hidden_html_input_form_data(idk_rsptxt, {"email": user})
+        submit_data = self._get_hidden_html_input_form_data(
+            idk_rsptxt, {"email": self._username}
+        )
         submit_url = self._get_post_url(idk_rsptxt, self.uris["authorization_endpoint"])
         # send email
         email_rsptxt = await self.request(
@@ -212,10 +208,10 @@ class Auth:
         if regex_res:
             submit_url = submit_url.replace("identifier", "authenticate")
             submit_data["hmac"] = regex_res[0].split(":")[1].strip('"')
-            submit_data["password"] = password
+            submit_data["password"] = self._password
         else:
             submit_data = self._get_hidden_html_input_form_data(
-                email_rsptxt, {"password": password}
+                email_rsptxt, {"password": self._password}
             )
             submit_url = self._get_post_url(email_rsptxt, submit_url)
 
