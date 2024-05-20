@@ -10,6 +10,7 @@ from aiohttp import ClientSession
 
 from .auth import Auth
 from .const import (
+    CLIENT_IDS,
     URL_HOME_REGION,
     URL_HOME_REGION_SETTER,
     URL_INFO_VEHICLE,
@@ -19,7 +20,7 @@ from .exceptions import AudiException
 from .helpers import ExtendedDict
 from .vehicle import Globals, Vehicle, Vehicles
 
-MODELS = Literal["standard", "e-tron"]
+MODELS = list(CLIENT_IDS)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -36,7 +37,7 @@ class AudiConnect:
         spin: str | None = None,
         *,
         unit_system: str = "metric",
-        model: MODELS = "standard",
+        model: Literal["standard", "e-tron"] = "standard",
     ) -> None:
         """Initialize."""
         Globals(unit_system)
