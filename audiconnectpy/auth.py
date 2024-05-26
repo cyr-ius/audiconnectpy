@@ -15,7 +15,7 @@ from typing import Any, Literal
 from urllib.parse import parse_qs, urlencode, urlparse
 import uuid
 
-from aiohttp import ClientError, ClientSession
+from aiohttp import ClientError, ClientResponseError, ClientSession
 import async_timeout
 from bs4 import BeautifulSoup
 
@@ -86,36 +86,34 @@ class Auth:
         """Request url with method."""
         try:
             async with async_timeout.timeout(TIMEOUT):
-                _LOGGER.debug("REQUEST HEADERS: %s", kwargs.get("headers"))
-                _LOGGER.debug("REQUEST: %s", url)
-                _LOGGER.debug("REQUEST DATA:%s", kwargs.get("data"))
+                _LOGGER.debug("Request - Header: %s", kwargs.get("headers"))
+                _LOGGER.debug("Request: %s (%s) - %s", url, method, kwargs.get("data"))
                 response = await self._session.request(method, url, **kwargs)
+                contents = (await response.read()).decode("utf8")
+                response.raise_for_status()
         except (asyncio.CancelledError, asyncio.TimeoutError) as error:
             raise TimeoutExceededError(
                 "Timeout occurred while connecting to Audi Connect."
             ) from error
+        except ClientResponseError as error:
+            if "application/json" in response.headers.get("Content-Type", ""):
+                raise ServiceNotFoundError(
+                    response.status, json.loads(contents)
+                ) from error
+            raise ServiceNotFoundError(response.status, contents) from error
         except (ClientError, socket.gaierror) as error:
             raise HttpRequestError(
                 "Error occurred while communicating with Audi Connect."
             ) from error
 
-        content_type = response.headers.get("Content-Type", "")
-        contents = (await response.read()).decode("utf8")
-
-        _LOGGER.debug("RESPONSE HEADERS: %s", response.headers)
-        _LOGGER.debug("RESPONSE: %s ,return_code '%s'", contents, response.status)
+        _LOGGER.debug("Response - Headers: %s", response.headers)
+        _LOGGER.debug("Response: %s (%s)", contents, response.status)
         _LOGGER.debug("---------------------------------------------------------")
-
-        if response.status // 100 in [4, 5]:
-            response.close()
-            if "application/json" in content_type:
-                raise ServiceNotFoundError(response.status, json.loads(contents))
-            raise ServiceNotFoundError(response.status, contents)
 
         if raw_reply and raw_rsp is False:
             return response
 
-        if "application/json" in content_type:
+        if "application/json" in response.headers.get("Content-Type", ""):
             rsp = await response.json()
         elif (
             (headers := kwargs.get("headers"))
