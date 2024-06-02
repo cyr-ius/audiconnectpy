@@ -115,6 +115,8 @@ class Auth:
 
         if "application/json" in response.headers.get("Content-Type", ""):
             rsp = await response.json()
+            if "error" in rsp:
+                raise AudiException("Failed to fetch %s (%s)", url, rsp["error"])
         elif (
             (headers := kwargs.get("headers"))
             and "application/json" in headers.get("Accept", "")
