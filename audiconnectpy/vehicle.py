@@ -61,7 +61,7 @@ class Vehicle(DataClassDictMixin):  # type: ignore
     infos: Information | None = field(
         metadata=field_options(alias="vehicle"), default=None
     )
-    capabilities: list[str] | None = field(init=False, default=None)
+    capabilities: list[str] = field(init=False, default_factory=list)
     position: Position | None = field(init=False, default=None)
     location: Location | None = field(init=False, default=None)
     last_update: datetime | None = field(init=False, default=None)
@@ -179,11 +179,14 @@ class Vehicle(DataClassDictMixin):  # type: ignore
                 str(d) for capability in values if (d := capability.get("id"))
             ]
 
-        str_jobs = ",".join(self.capabilities)  # type: ignore
+        caps = ",".join(self.capabilities)
+
+        str_jobs: str = f"{caps},userCapabilities" if caps != "" else caps
+
         headers = await self.auth.async_get_headers(token_type="idk")
         data = await self.auth.request(
             "GET",
-            f"{self.uris['cv_url']}/vehicles/{self.vin}/selectivestatus?jobs={str_jobs},userCapabilities",
+            f"{self.uris['cv_url']}/vehicles/{self.vin}/selectivestatus?jobs={str_jobs}",
             headers=headers,
         )
         return data
