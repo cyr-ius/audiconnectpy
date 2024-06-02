@@ -163,25 +163,25 @@ class Vehicle(DataClassDictMixin):  # type: ignore
         )
         return data
 
-    async def async_get_selectivestatus(self, jobs: Iterable[str] | None = None) -> Any:
+    async def async_get_selectivestatus(
+        self, capabilities: Iterable[str] | None = None
+    ) -> Any:
         """Get capabilities."""
-        if jobs is None:
+        if capabilities is None:
             headers = await self.auth.async_get_headers(token_type="idk")
-            capabilities = await self.auth.request(
+            response = await self.auth.request(
                 "GET",
                 f"{self.uris['cv_url']}/vehicles/{self.vin}/selectivestatus?jobs=userCapabilities",
                 headers=headers,
             )
-            values: list[dict[str, Any]] = ExtendedDict(capabilities).getr(
+            caps = ExtendedDict(response).getr(
                 "userCapabilities.capabilitiesStatus.value", []
             )
-            self.capabilities: list[str] = [
-                str(d) for capability in values if (d := capability.get("id"))
-            ]
+
+            self.capabilities = [str(d) for cap in caps if (d := cap.get("id"))]
 
         caps = ",".join(self.capabilities)
-
-        str_jobs: str = f"{caps},userCapabilities" if caps != "" else caps
+        str_jobs = f"{caps},userCapabilities" if caps != "" else caps
 
         headers = await self.auth.async_get_headers(token_type="idk")
         data = await self.auth.request(
