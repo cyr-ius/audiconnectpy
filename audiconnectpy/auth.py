@@ -131,7 +131,7 @@ class Auth:
         else:
             rsp = await response.text()
 
-        return response, rsp if raw_reply and raw_rsp else rsp
+        return (response, rsp) if raw_reply and raw_rsp else rsp
 
     async def async_connect(self, tries: int = 3) -> None:
         """Connect to API."""
