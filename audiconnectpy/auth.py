@@ -89,18 +89,24 @@ class Auth:
                 _LOGGER.debug("Request - Header: %s", kwargs.get("headers"))
                 _LOGGER.debug("Request: %s (%s) - %s", url, method, kwargs.get("data"))
                 response = await self._session.request(method, url, **kwargs)
-                contents = (await response.read()).decode("utf8")
+                contents = await response.read()
                 response.raise_for_status()
         except (asyncio.CancelledError, asyncio.TimeoutError) as error:
             raise TimeoutExceededError(
                 "Timeout occurred while connecting to Audi Connect."
             ) from error
         except ClientResponseError as error:
+            message = contents.decode("utf8")
             if "application/json" in response.headers.get("Content-Type", ""):
+                msg = json.loads(message)
+                if "error" in msg:
+                    msg = msg["error"].get("message")
                 raise ServiceNotFoundError(
-                    response.status, json.loads(contents)
+                    "Service not found: %s (%s)", msg, response.status
                 ) from error
-            raise ServiceNotFoundError(response.status, contents) from error
+            raise ServiceNotFoundError(
+                "Service not found: %s (%s)", msg, response.status
+            ) from error
         except (ClientError, socket.gaierror) as error:
             raise HttpRequestError(
                 "Error occurred while communicating with Audi Connect."
@@ -115,8 +121,6 @@ class Auth:
 
         if "application/json" in response.headers.get("Content-Type", ""):
             rsp = await response.json()
-            if "error" in rsp:
-                raise AudiException("Failed to fetch %s (%s)", url, rsp["error"])
         elif (
             (headers := kwargs.get("headers"))
             and "application/json" in headers.get("Accept", "")
@@ -127,9 +131,7 @@ class Auth:
         else:
             rsp = await response.text()
 
-        if raw_reply and raw_rsp:
-            return response, rsp
-        return rsp
+        return response, rsp if raw_reply and raw_rsp else rsp
 
     async def async_connect(self, tries: int = 3) -> None:
         """Connect to API."""
