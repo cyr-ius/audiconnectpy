@@ -295,8 +295,18 @@ class Timer(Base):
 
 @dataclass
 class SingleTimer(Base):
-    start: datetime = field(metadata=field_options(alias="start_date_time"))
-    target: datetime = field(metadata=field_options(alias="target_date_time"))
+    start: datetime | None = field(
+        metadata=field_options(alias="start_date_time"), default=None
+    )
+    target: datetime | None = field(
+        metadata=field_options(alias="target_date_time"), default=None
+    )
+    start_local: datetime | None = field(
+        metadata=field_options(alias="start_date_time_local"), default=None
+    )
+    target_local: datetime | None = field(
+        metadata=field_options(alias="target_date_time_local"), default=None
+    )
 
 
 # SECTION
