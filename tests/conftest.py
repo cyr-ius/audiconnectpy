@@ -40,6 +40,11 @@ def vehicle_2() -> dict[str, Any]:
 
 
 @pytest.fixture
+def vehicle_3() -> dict[str, Any]:
+    return json.loads(load_fixture("audi3.json"))
+
+
+@pytest.fixture
 def position():
     return {
         "data": {
