@@ -16,7 +16,6 @@ from urllib.parse import parse_qs, urlencode, urlparse
 import uuid
 
 from aiohttp import ClientError, ClientResponseError, ClientSession
-import async_timeout
 from bs4 import BeautifulSoup
 
 from .const import (
@@ -85,7 +84,7 @@ class Auth:
     ) -> Any:
         """Request url with method."""
         try:
-            async with async_timeout.timeout(TIMEOUT):
+            async with asyncio.timeout(TIMEOUT):
                 _LOGGER.debug("Request - Header: %s", kwargs.get("headers"))
                 _LOGGER.debug("Request: %s (%s) - %s", url, method, kwargs.get("data"))
                 response = await self._session.request(method, url, **kwargs)
