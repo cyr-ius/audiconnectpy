@@ -21,7 +21,7 @@ from .const import (
     SUCCEEDED,
     SUCCESSFUL,
 )
-from .exceptions import HttpRequestError, TimeoutExceededError
+from .exceptions import AudiException, HttpRequestError, TimeoutExceededError
 from .helpers import ExtendedDict, remove_value, spin_hash
 from .model import Information, Location, Model, Position
 
@@ -66,6 +66,10 @@ class Vehicle(DataClassDictMixin):  # type: ignore
     location: Location | None = field(init=False, default=None)
     last_update: datetime | None = field(init=False, default=None)
 
+    capabilities_supported: bool | None = field(init=False, default=None)
+    position_supported: bool | None = field(init=False, default=None)
+    locations_supported: bool | None = field(init=False, default=None)
+
     @property
     def api_level(self) -> dict[str, int]:
         """Return API Level."""
@@ -89,40 +93,60 @@ class Vehicle(DataClassDictMixin):  # type: ignore
         """Update data vehicle."""
 
         # Selective status
-        data = await self.async_get_selectivestatus()
-        data = remove_value(data)
-        vehicle_model = Model.from_dict(data)
+        try:
+            data = await self.async_get_selectivestatus()
+        except AudiException as error:
+            raise AudiException("Fetch data failed (%s)", error) from error
+        else:
+            data = remove_value(data)
+            vehicle_model = Model.from_dict(data)
 
-        for attr in vehicle_model.to_dict():
-            obj = getattr(vehicle_model, attr, None)
-            setattr(self, attr, obj)
+            for attr in vehicle_model.to_dict():
+                obj = getattr(vehicle_model, attr, None)
+                setattr(self, attr, obj)
 
-        self.last_access = vehicle_model.access.access_status.car_captured_timestamp
+            self.last_access = vehicle_model.access.access_status.car_captured_timestamp
 
         # Capabilities
-        capabilities = await self.async_get_capabilities()
-        self.capabilities = capabilities.get("capabilities")
+        try:
+            if self.capabilities_supported is not False:
+                capabilities = await self.async_get_capabilities()
+                self.capabilities = capabilities.get("capabilities")
+                self.capabilities_supported = self.capabilities is not None
+        except AudiException:
+            self.capabilities_supported = False
 
         # Position
-        position = await self.async_get_position()
-        self.position = Position.from_dict(position.get("data"))
+        try:
+            if self.position_supported is not False:
+                position = await self.async_get_position()
+                self.position = Position.from_dict(position.get("data"))
+                self.position_supported = self.position is not None
+        except AudiException:
+            self.position_supported = False
 
         # Locations (here.com)
-        location = await self.async_get_location()
-        self.location = Location.from_dict(
-            {
-                "proprietaries": [
-                    item
-                    for item in location.get("data", [])
-                    if "proprietaryData" not in item
-                ],
-                "addresses": [
-                    item
-                    for item in location.get("data", [])
-                    if "proprietaryData" in item
-                ],
-            }
-        )
+        try:
+            if self.locations_supported is not False:
+                location = await self.async_get_location()
+                self.location = Location.from_dict(
+                    {
+                        "proprietaries": [
+                            item
+                            for item in location.get("data", [])
+                            if "proprietaryData" not in item
+                        ],
+                        "addresses": [
+                            item
+                            for item in location.get("data", [])
+                            if "proprietaryData" in item
+                        ],
+                    }
+                )
+                self.locations_supported = self.location is not None
+        except AudiException:
+            self.locations_supported = False
+
         self.last_update = datetime.now()
 
     async def async_get_location(self) -> Any:
