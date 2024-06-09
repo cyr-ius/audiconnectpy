@@ -97,14 +97,14 @@ class Auth:
         except ClientResponseError as error:
             message = contents.decode("utf8")
             if "application/json" in response.headers.get("Content-Type", ""):
-                msg = json.loads(message)
-                if "error" in msg:
-                    msg = msg["error"].get("message")
                 raise ServiceNotFoundError(
-                    "Service not found: %s (%s)", msg, response.status
+                    "Service not found: %s -%s (%s)",
+                    url,
+                    json.loads(message),
+                    response.status,
                 ) from error
             raise ServiceNotFoundError(
-                "Service not found: %s (%s)", msg, response.status
+                "Service not found: %s -%s (%s)", url, message, response.status
             ) from error
         except (ClientError, socket.gaierror) as error:
             raise HttpRequestError(
