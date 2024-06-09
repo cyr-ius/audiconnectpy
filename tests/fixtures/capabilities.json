@@ -1,0 +1,499 @@
+{
+  "vin": "WAUZZZF00NA012345",
+  "capabilities": {
+    "fuelStatus": {
+      "id": "fuelStatus",
+      "expirationDate": "2025-09-17T00:00:00Z",
+      "userDisablingAllowed": false,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {
+        "getFuelStatus": { "id": "getFuelStatus", "scopes": ["fuelLevels"] }
+      },
+      "parameters": []
+    },
+    "functionOnDemand": {
+      "id": "functionOnDemand",
+      "expirationDate": "2121-09-17T00:00:00Z",
+      "userDisablingAllowed": true,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {},
+      "parameters": []
+    },
+    "dealerAppointment": {
+      "id": "dealerAppointment",
+      "expirationDate": "2032-09-17T00:00:00Z",
+      "userDisablingAllowed": true,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {
+        "getWarninglightsLast": {
+          "id": "getWarninglightsLast",
+          "scopes": ["warning_lights"]
+        },
+        "getMaintenanceStatus": {
+          "id": "getMaintenanceStatus",
+          "scopes": ["serviceInterval"]
+        },
+        "getPredictivemaintenanceDealerappointment": {
+          "id": "getPredictivemaintenanceDealerappointment",
+          "scopes": ["serviceInterval"]
+        }
+      },
+      "parameters": []
+    },
+    "hybridRadio": {
+      "id": "hybridRadio",
+      "userDisablingAllowed": false,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {},
+      "parameters": []
+    },
+    "mapUpdate": {
+      "id": "mapUpdate",
+      "expirationDate": "2025-09-17T00:00:00Z",
+      "userDisablingAllowed": true,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {},
+      "parameters": []
+    },
+    "onStreetParking": {
+      "id": "onStreetParking",
+      "expirationDate": "2025-09-17T00:00:00Z",
+      "userDisablingAllowed": true,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {},
+      "parameters": []
+    },
+    "parkingPosition": {
+      "id": "parkingPosition",
+      "expirationDate": "2025-09-17T00:00:00Z",
+      "userDisablingAllowed": true,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {
+        "getParkingposition": {
+          "id": "getParkingposition",
+          "scopes": ["parking_position"]
+        }
+      },
+      "parameters": []
+    },
+    "roadsideAssistant": {
+      "id": "roadsideAssistant",
+      "expirationDate": "2032-09-17T00:00:00Z",
+      "userDisablingAllowed": false,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {},
+      "parameters": []
+    },
+    "vehicleLights": {
+      "id": "vehicleLights",
+      "expirationDate": "2025-09-17T00:00:00Z",
+      "userDisablingAllowed": false,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {
+        "getLightsStatus": {
+          "id": "getLightsStatus",
+          "scopes": ["vehicleLights"]
+        }
+      },
+      "parameters": []
+    },
+    "access": {
+      "id": "access",
+      "expirationDate": "2025-09-17T00:00:00Z",
+      "userDisablingAllowed": true,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {
+        "postAccessLock": { "id": "postAccessLock", "scopes": ["lock_unlock"] },
+        "postAccessLockwithoutspin": {
+          "id": "postAccessLockwithoutspin",
+          "scopes": ["lock_unlock"]
+        },
+        "getAccessRequestsByID": {
+          "id": "getAccessRequestsByID",
+          "scopes": ["lock_unlock"]
+        },
+        "postAccessUnlock": {
+          "id": "postAccessUnlock",
+          "scopes": ["lock_unlock"]
+        },
+        "postAccessUnlockwithoutspin": {
+          "id": "postAccessUnlockwithoutspin",
+          "scopes": ["lock_unlock"]
+        }
+      },
+      "parameters": []
+    },
+    "poiSearch": {
+      "id": "poiSearch",
+      "expirationDate": "2025-09-17T00:00:00Z",
+      "userDisablingAllowed": true,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {},
+      "parameters": []
+    },
+    "predictiveRouting": {
+      "id": "predictiveRouting",
+      "expirationDate": "2025-09-17T00:00:00Z",
+      "userDisablingAllowed": true,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {},
+      "parameters": []
+    },
+    "vehicleHealthWakeUp": {
+      "id": "vehicleHealthWakeUp",
+      "expirationDate": "2025-09-17T00:00:00Z",
+      "userDisablingAllowed": false,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {
+        "getWarninglightsLast": {
+          "id": "getWarninglightsLast",
+          "scopes": ["warning_lights"]
+        }
+      },
+      "parameters": []
+    },
+    "destinationSync": {
+      "id": "destinationSync",
+      "expirationDate": "2025-09-17T00:00:00Z",
+      "userDisablingAllowed": true,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {},
+      "parameters": []
+    },
+    "state": {
+      "id": "state",
+      "expirationDate": "2025-09-17T00:00:00Z",
+      "userDisablingAllowed": true,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {
+        "getAccessStatus": {
+          "id": "getAccessStatus",
+          "scopes": ["doors_windows"]
+        }
+      },
+      "parameters": []
+    },
+    "transactionHistoryLockUnlock": {
+      "id": "transactionHistoryLockUnlock",
+      "expirationDate": "2025-09-17T00:00:00Z",
+      "userDisablingAllowed": false,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {
+        "getTransactionhistoryAccess": {
+          "id": "getTransactionhistoryAccess",
+          "scopes": ["messageCenter"]
+        }
+      },
+      "parameters": []
+    },
+    "vehicleWakeUpTrigger": {
+      "id": "vehicleWakeUpTrigger",
+      "expirationDate": "2025-09-17T00:00:00Z",
+      "userDisablingAllowed": false,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {
+        "postVehiclewakeupUpdate": {
+          "id": "postVehiclewakeupUpdate",
+          "scopes": []
+        }
+      },
+      "parameters": []
+    },
+    "wifiHotspot": {
+      "id": "wifiHotspot",
+      "userDisablingAllowed": true,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {},
+      "parameters": []
+    },
+    "googleEarth": {
+      "id": "googleEarth",
+      "expirationDate": "2025-09-17T00:00:00Z",
+      "userDisablingAllowed": false,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {},
+      "parameters": []
+    },
+    "vehicleHealthCampaigns": {
+      "id": "vehicleHealthCampaigns",
+      "expirationDate": "2032-09-17T00:00:00Z",
+      "userDisablingAllowed": false,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {},
+      "parameters": []
+    },
+    "amazonMusic": {
+      "id": "amazonMusic",
+      "expirationDate": "2025-09-17T00:00:00Z",
+      "userDisablingAllowed": true,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {},
+      "parameters": []
+    },
+    "cityModels": {
+      "id": "cityModels",
+      "expirationDate": "2025-09-17T00:00:00Z",
+      "userDisablingAllowed": true,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {},
+      "parameters": []
+    },
+    "dataPlan": {
+      "id": "dataPlan",
+      "expirationDate": "2121-09-17T00:00:00Z",
+      "userDisablingAllowed": false,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {},
+      "parameters": []
+    },
+    "gracenote": {
+      "id": "gracenote",
+      "expirationDate": "2121-09-17T00:00:00Z",
+      "userDisablingAllowed": false,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {},
+      "parameters": []
+    },
+    "onlineSpeech": {
+      "id": "onlineSpeech",
+      "expirationDate": "2025-09-17T00:00:00Z",
+      "userDisablingAllowed": true,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {},
+      "parameters": []
+    },
+    "vehicleHealthInspection": {
+      "id": "vehicleHealthInspection",
+      "expirationDate": "2025-09-17T00:00:00Z",
+      "userDisablingAllowed": false,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {
+        "getMaintenanceStatus": {
+          "id": "getMaintenanceStatus",
+          "scopes": ["serviceInterval"]
+        }
+      },
+      "parameters": []
+    },
+    "vehicleHealthWarnings": {
+      "id": "vehicleHealthWarnings",
+      "expirationDate": "2032-09-17T00:00:00Z",
+      "userDisablingAllowed": false,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {
+        "getWarninglightsLast": {
+          "id": "getWarninglightsLast",
+          "scopes": ["warning_lights"]
+        }
+      },
+      "parameters": []
+    },
+    "vehicleWakeUp": {
+      "id": "vehicleWakeUp",
+      "expirationDate": "2025-09-17T00:00:00Z",
+      "userDisablingAllowed": false,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {
+        "postVehiclewakeup": { "id": "postVehiclewakeup", "scopes": [] },
+        "getVehiclewakeupRequestsByID": {
+          "id": "getVehiclewakeupRequestsByID",
+          "scopes": []
+        }
+      },
+      "parameters": []
+    },
+    "webAppPoiSearch": {
+      "id": "webAppPoiSearch",
+      "expirationDate": "2025-09-17T00:00:00Z",
+      "userDisablingAllowed": true,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {},
+      "parameters": []
+    },
+    "webAppWeather": {
+      "id": "webAppWeather",
+      "expirationDate": "2025-09-17T00:00:00Z",
+      "userDisablingAllowed": true,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {},
+      "parameters": []
+    },
+    "emergencyCalling": {
+      "id": "emergencyCalling",
+      "expirationDate": "2032-09-17T00:00:00Z",
+      "userDisablingAllowed": false,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {},
+      "parameters": []
+    },
+    "localHazards": {
+      "id": "localHazards",
+      "expirationDate": "2025-09-17T00:00:00Z",
+      "userDisablingAllowed": true,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {},
+      "parameters": []
+    },
+    "mapUpdateSd": {
+      "id": "mapUpdateSd",
+      "userDisablingAllowed": false,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {},
+      "parameters": []
+    },
+    "measurements": {
+      "id": "measurements",
+      "expirationDate": "2025-09-17T00:00:00Z",
+      "userDisablingAllowed": false,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {
+        "getMeasurements": {
+          "id": "getMeasurements",
+          "scopes": ["range", "mileage"]
+        }
+      },
+      "parameters": []
+    },
+    "news": {
+      "id": "news",
+      "expirationDate": "2025-09-17T00:00:00Z",
+      "userDisablingAllowed": true,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {
+        "getNewsfeeds": { "id": "getNewsfeeds", "scopes": ["rssFeeds"] },
+        "postNewsfeeds": { "id": "postNewsfeeds", "scopes": ["rssFeeds"] },
+        "deleteNewsfeedsByID": {
+          "id": "deleteNewsfeedsByID",
+          "scopes": ["rssFeeds"]
+        }
+      },
+      "parameters": []
+    },
+    "onlineCarCare": {
+      "id": "onlineCarCare",
+      "expirationDate": "2032-09-17T00:00:00Z",
+      "userDisablingAllowed": true,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {},
+      "parameters": []
+    },
+    "onlineTrafficPlus": {
+      "id": "onlineTrafficPlus",
+      "expirationDate": "2025-09-17T00:00:00Z",
+      "userDisablingAllowed": true,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {},
+      "parameters": []
+    },
+    "webRadio": {
+      "id": "webRadio",
+      "expirationDate": "2121-09-17T00:00:00Z",
+      "userDisablingAllowed": true,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {},
+      "parameters": []
+    },
+    "oilLevelStatus": {
+      "id": "oilLevelStatus",
+      "expirationDate": "2025-09-17T00:00:00Z",
+      "userDisablingAllowed": false,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {
+        "getStates": {
+          "id": "getStates",
+          "scopes": ["parkingBrakeStatus", "ignitionStatus", "oilLevels"]
+        }
+      },
+      "parameters": []
+    },
+    "onlineTraffic": {
+      "id": "onlineTraffic",
+      "expirationDate": "2025-09-17T00:00:00Z",
+      "userDisablingAllowed": true,
+      "endpoint": "vs",
+      "isEnabled": true,
+      "status": [],
+      "operations": {},
+      "parameters": []
+    }
+  },
+  "parameters": {}
+}

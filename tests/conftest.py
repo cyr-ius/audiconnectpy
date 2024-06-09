@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from collections import namedtuple
-import json
 from typing import Any
 
 import pytest
@@ -11,37 +10,37 @@ from . import load_fixture
 
 @pytest.fixture
 def information_vehicles() -> dict[str, Any]:
-    return json.loads(load_fixture("info_vehicles.json"))
+    return load_fixture("info_vehicles.json")
 
 
 @pytest.fixture
 def location() -> dict[str, Any]:
-    return json.loads(load_fixture("location.json"))
+    return load_fixture("location.json")
 
 
 @pytest.fixture
 def capabilities() -> dict[str, Any]:
-    return {}
+    return load_fixture("capabilities.json")
 
 
 @pytest.fixture
 def vehicle_0() -> dict[str, Any]:
-    return json.loads(load_fixture("audi0.json"))
+    return load_fixture("audi0.json")
 
 
 @pytest.fixture
 def vehicle_1() -> dict[str, Any]:
-    return json.loads(load_fixture("audi1.json"))
+    return load_fixture("audi1.json")
 
 
 @pytest.fixture
 def vehicle_2() -> dict[str, Any]:
-    return json.loads(load_fixture("audi2.json"))
+    return load_fixture("audi2.json")
 
 
 @pytest.fixture
 def vehicle_3() -> dict[str, Any]:
-    return json.loads(load_fixture("audi3.json"))
+    return load_fixture("audi3.json")
 
 
 @pytest.fixture
