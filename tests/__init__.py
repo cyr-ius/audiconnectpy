@@ -1,4 +1,8 @@
-"""Tests for audiconnect."""
+"""Tests for audiconnect.
+
+Run tests with `pytest`
+and to update snapshots `pytest --snapshot-update`
+"""
 
 from collections.abc import Generator
 import json
