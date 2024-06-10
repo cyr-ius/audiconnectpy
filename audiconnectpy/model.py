@@ -17,7 +17,7 @@ class Locked(SerializationStrategy):  # type: ignore
         return value
 
     def deserialize(self, value: str) -> bool:
-        return value == "locked"
+        return value.lower() == "locked"
 
 
 class OnOff(SerializationStrategy):  # type: ignore
@@ -25,7 +25,7 @@ class OnOff(SerializationStrategy):  # type: ignore
         return value
 
     def deserialize(self, value: str) -> bool:
-        return value != "off"
+        return value.lower() != "off"
 
 
 class WindowsStrategy(SerializationStrategy):  # type: ignore
@@ -58,7 +58,7 @@ class WindowHeatingStrategy(SerializationStrategy):  # type: ignore
 
     def deserialize(self, values: list[dict[str, Any]]) -> Any:
         status = {
-            value["windowLocation"]: (value["windowHeatingState"] != "off")
+            value["windowLocation"]: (value["windowHeatingState"].lower() != "off")
             for value in values
             if "windowLocation" in value.keys() and "windowHeatingState" in value.keys()
         }
