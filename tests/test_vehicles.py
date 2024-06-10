@@ -19,7 +19,6 @@ SPIN = 1234
 _LOGGER = logging.getLogger(__name__)
 
 
-@pytest.mark.asyncio
 @patch("audiconnectpy.auth.Auth.async_connect")
 @patch("audiconnectpy.api.AudiConnect._async_fill_url")
 async def test_vehicle_0(
@@ -72,7 +71,6 @@ async def test_vehicle_0(
         assert my_vehicle.vehicle_health_warnings.to_dict() == snapshot
 
 
-@pytest.mark.asyncio
 @patch("audiconnectpy.auth.Auth.async_connect")
 @patch("audiconnectpy.api.AudiConnect._async_fill_url")
 async def test_vehicle_1(
@@ -130,7 +128,6 @@ async def test_vehicle_1(
         # assert my_vehicle.vehicle_health_warnings.to_dict() == snapshot
 
 
-@pytest.mark.asyncio
 @patch("audiconnectpy.auth.Auth.async_connect")
 @patch("audiconnectpy.api.AudiConnect._async_fill_url")
 async def test_vehicle_2(

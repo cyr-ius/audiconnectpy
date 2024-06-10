@@ -7,7 +7,6 @@ from unittest.mock import patch
 
 from aiohttp import ClientSession
 from multidict import CIMultiDict
-import pytest
 
 from audiconnectpy import AudiConnect
 
@@ -21,7 +20,6 @@ SPIN = 1234
 _LOGGER = logging.getLogger(__name__)
 
 
-@pytest.mark.asyncio
 @patch("audiconnectpy.api.AudiConnect.async_fetch_data")
 async def test_connect(fetch_date) -> None:
     """Test connection."""
@@ -108,7 +106,6 @@ async def test_connect(fetch_date) -> None:
         assert api.is_connected is True
 
 
-@pytest.mark.asyncio
 @patch("audiconnectpy.auth.Auth.async_connect")
 @patch("audiconnectpy.api.AudiConnect._async_fill_url")
 @patch("audiconnectpy.vehicle.Vehicle.async_update")
@@ -126,7 +123,6 @@ async def test_fetch_data(connect, fill_url, update, information_vehicles) -> No
         assert api.vehicles[0].infos is not None
 
 
-@pytest.mark.asyncio
 @patch("audiconnectpy.auth.Auth.async_connect")
 @patch("audiconnectpy.vehicle.Vehicle.async_update")
 async def test_get_information_vehicles(connect, update, information_vehicles) -> None:
