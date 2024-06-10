@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal
 
 from mashumaro import DataClassDictMixin, field_options
 from mashumaro.types import SerializationStrategy
@@ -251,9 +251,7 @@ class WindowHeating(Base):
 @dataclass
 class ClimatisationStatus(Base):
     remaining_climatisation_time_min: int | None = None
-    climatisation_state: bool | None = field(
-        metadata=field_options(serialization_strategy=OnOff()), default=None
-    )
+    climatisation_state: Literal["off", "heating", "cooling"] | None = None
 
 
 @dataclass
