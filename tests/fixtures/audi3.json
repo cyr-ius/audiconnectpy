@@ -305,10 +305,10 @@
     "plugStatus": {
       "value": {
         "carCapturedTimestamp": "2023-12-23T19:37:45Z",
-        "plugConnectionState": "connected",
-        "plugLockState": "locked",
-        "externalPower": "active",
-        "ledColor": "green"
+        "plugConnectionState": "disconnected",
+        "plugLockState": "unlocked",
+        "externalPower": "unavailable",
+        "ledColor": "none"
       }
     },
     "chargeMode": {
@@ -335,7 +335,7 @@
       "value": {
         "carCapturedTimestamp": "2023-12-23T19:36:57Z",
         "remainingClimatisationTime_min": 0,
-        "climatisationState": "off"
+        "climatisationState": "heating"
       }
     },
     "windowHeatingStatus": {

@@ -230,6 +230,8 @@ async def test_vehicle_3(
 
         assert api.vehicles is not None
         assert my_vehicle.climatisation_timers.to_dict() == snapshot
+        assert my_vehicle.climatisation.to_dict() == snapshot
+        assert my_vehicle.charging.to_dict() == snapshot
         assert my_vehicle.position_supported is False
         assert my_vehicle.locations_supported is False
         assert my_vehicle.capabilities_supported is True

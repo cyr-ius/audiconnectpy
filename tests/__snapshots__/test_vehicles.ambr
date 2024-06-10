@@ -365,7 +365,7 @@
       'zone_rear_right_enabled': None,
     }),
     'climatisation_status': dict({
-      'climatisation_state': False,
+      'climatisation_state': 'off',
       'remaining_climatisation_time_min': 0,
     }),
     'window_heating_status': dict({
@@ -766,7 +766,7 @@
       'zone_rear_right_enabled': None,
     }),
     'climatisation_status': dict({
-      'climatisation_state': False,
+      'climatisation_state': 'off',
       'remaining_climatisation_time_min': 0,
     }),
     'window_heating_status': dict({
@@ -853,6 +853,64 @@
           }),
         }),
       ]),
+    }),
+  })
+# ---
+# name: test_vehicle_3.1
+  dict({
+    'climatisation_settings': dict({
+      'climatization_at_unlock': True,
+      'target_temperature_c': 22,
+      'target_temperature_f': 72,
+      'unit_in_car': 'celsius',
+      'window_heating_enabled': True,
+      'zone_front_left_enabled': False,
+      'zone_front_right_enabled': False,
+      'zone_rear_left_enabled': None,
+      'zone_rear_right_enabled': None,
+    }),
+    'climatisation_status': dict({
+      'climatisation_state': 'heating',
+      'remaining_climatisation_time_min': 0,
+    }),
+    'window_heating_status': dict({
+      'state': WindowHeating(front=False, rear=False),
+    }),
+  })
+# ---
+# name: test_vehicle_3.2
+  dict({
+    'battery_status': dict({
+      'cruising_range_electric_km': 212,
+      'current_soc_pct': 56,
+    }),
+    'charge_mode': dict({
+      'available_charge_modes': list([
+        'manual',
+        'preferredChargingTimes',
+      ]),
+      'preferred_charge_mode': 'manual',
+    }),
+    'charging_settings': dict({
+      'auto_unlock_plug_when_charged': False,
+      'auto_unlock_plug_when_charged_ac': False,
+      'max_charge_current_ac': 'maximum',
+      'target_soc_pct': 100,
+    }),
+    'charging_status': dict({
+      'charge_mode': 'manual',
+      'charge_power_kw': None,
+      'charge_rate_kmph': 27,
+      'charge_type': 'ac',
+      'charging_settings': 'profile',
+      'charging_state': True,
+      'remaining': 400,
+    }),
+    'plug_status': dict({
+      'external_power': False,
+      'led_color': 'none',
+      'plug_connection_state': False,
+      'plug_lock_state': False,
     }),
   })
 # ---
