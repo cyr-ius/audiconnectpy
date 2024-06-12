@@ -95,12 +95,11 @@ class Vehicle(DataClassDictMixin):  # type: ignore
         # Selective status
         try:
             data = await self.async_get_selectivestatus()
-        except AudiException as error:
-            raise AudiException("Fetch data failed (%s)", error) from error
-        else:
             data = remove_value(data)
             vehicle_model = Model.from_dict(data)
-
+        except (AttributeError, AudiException) as error:
+            raise AudiException("Fetch data failed (%s)", error) from error
+        else:
             for attr in vehicle_model.to_dict():
                 obj = getattr(vehicle_model, attr, None)
                 setattr(self, attr, obj)
@@ -113,6 +112,9 @@ class Vehicle(DataClassDictMixin):  # type: ignore
                 capabilities = await self.async_get_capabilities()
                 self.capabilities = capabilities.get("capabilities")
                 self.capabilities_supported = self.capabilities is not None
+        except AttributeError:
+            logger.warning("Capabilities failed: format is incorrect")
+            self.capabilities_supported = None
         except AudiException:
             self.capabilities_supported = False
 
@@ -122,6 +124,9 @@ class Vehicle(DataClassDictMixin):  # type: ignore
                 position = await self.async_get_position()
                 self.position = Position.from_dict(position.get("data"))
                 self.position_supported = self.position is not None
+        except AttributeError:
+            logger.warning("Position failed: format is incorrect")
+            self.position_supported = None
         except AudiException:
             self.position_supported = False
 
@@ -144,6 +149,9 @@ class Vehicle(DataClassDictMixin):  # type: ignore
                     }
                 )
                 self.locations_supported = self.location is not None
+        except AttributeError:
+            logger.warning("Locations failed: format is incorrect")
+            self.locations_supported = None
         except AudiException:
             self.locations_supported = False
 
