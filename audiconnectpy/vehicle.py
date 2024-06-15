@@ -65,6 +65,7 @@ class Vehicle(DataClassDictMixin):  # type: ignore
     position: Position | None = field(init=False, default=None)
     location: Location | None = field(init=False, default=None)
     last_update: datetime | None = field(init=False, default=None)
+    moving_vehicle: bool | None = field(init=False, default=None)
 
     capabilities_supported: bool | None = field(init=False, default=None)
     position_supported: bool | None = field(init=False, default=None)
@@ -122,7 +123,11 @@ class Vehicle(DataClassDictMixin):  # type: ignore
         try:
             if self.position_supported is not False:
                 position = await self.async_get_position()
-                self.position = Position.from_dict(position.get("data"))
+                if "data" in position:
+                    self.position = Position.from_dict(position.get("data"))
+                    self.moving_vehicle = True
+                else:
+                    self.moving_vehicle = False
                 self.position_supported = self.position is not None
         except AttributeError:
             logger.warning("Position failed: format is incorrect")
