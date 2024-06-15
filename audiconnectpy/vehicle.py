@@ -125,9 +125,9 @@ class Vehicle(DataClassDictMixin):  # type: ignore
                 position = await self.async_get_position()
                 if "data" in position:
                     self.position = Position.from_dict(position.get("data"))
-                    self.is_moving = True
-                else:
                     self.is_moving = False
+                else:
+                    self.is_moving = True
                 self.position_supported = self.position is not None
         except AttributeError:
             logger.warning("Position failed: format is incorrect")
