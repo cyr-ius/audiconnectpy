@@ -98,6 +98,8 @@ class Auth:
             message = contents.decode("utf8")
             if "application/json" in response.headers.get("Content-Type", ""):
                 message = json.loads(message)
+                if msg := message.get('error', {}).get("message"):
+                    message = msg
             raise ServiceNotFoundError(
                 f"Service not found: {url} - {message} ({response.status})"
             ) from error
