@@ -657,14 +657,14 @@ class Vehicle(DataClassDictMixin):  # type: ignore
                         break
 
             if status is None or (failed is not None and status == failed):
-                raise HttpRequestError(("Cannot %s, return code '%s'", action, status))
+                raise HttpRequestError(f"Cannot {action}, return code '{status}'")
 
             if status == success:
                 stauts_good = True
                 break
 
         if stauts_good is False:
-            raise TimeoutExceededError(("Cannot %s, operation timed out", action))
+            raise TimeoutExceededError(f"Cannot {action}, operation timed out")
 
     async def _async_check_request(
         self, url: str, action: str, success: str, failed: str, path: str
@@ -680,14 +680,14 @@ class Vehicle(DataClassDictMixin):  # type: ignore
             status = ExtendedDict(rsp).getr(path)
 
             if status is None or (failed is not None and status == failed):
-                raise HttpRequestError(("Cannot %s, return code '%s'", action, status))
+                raise HttpRequestError(f"Cannot {action}, return code '{status}'")
 
             if status == success:
                 stauts_good = True
                 break
 
         if stauts_good is False:
-            raise TimeoutExceededError(("Cannot %s, operation timed out", action))
+            raise TimeoutExceededError(f"Cannot {action}, operation timed out")
 
     async def _async_get_security_token(self, action: str) -> str:
         """Get security token."""
