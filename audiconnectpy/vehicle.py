@@ -10,6 +10,7 @@ import logging
 from typing import Any, Iterable, Literal, cast
 
 from mashumaro import DataClassDictMixin, field_options
+from mashumaro.exceptions import InvalidFieldValue
 
 from .const import (
     BRAND,
@@ -98,7 +99,7 @@ class Vehicle(DataClassDictMixin):  # type: ignore
             data = await self.async_get_selectivestatus()
             data = remove_value(data)
             vehicle_model = Model.from_dict(data)
-        except (AttributeError, AudiException) as error:
+        except (AttributeError, AudiException, InvalidFieldValue) as error:
             raise AudiException("Fetch data failed (%s)", error) from error
         else:
             for attr in vehicle_model.to_dict():
