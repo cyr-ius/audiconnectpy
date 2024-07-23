@@ -133,7 +133,7 @@ class Auth:
             await self._async_retrieve_url_service()
         except HttpRequestError as error:
             self.binded = False
-            raise AudiException("Failed retrieve urls service (%s)", error) from error
+            raise AudiException(f"Failed retrieve urls service ({error})") from error
 
         try:
             await self._async_login()
