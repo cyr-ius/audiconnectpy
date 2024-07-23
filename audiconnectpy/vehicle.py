@@ -100,7 +100,7 @@ class Vehicle(DataClassDictMixin):  # type: ignore
             data = remove_value(data)
             vehicle_model = Model.from_dict(data)
         except (AttributeError, AudiException, InvalidFieldValue) as error:
-            raise AudiException(f"Fetch data failed ({error})") from error
+            raise AudiException(error) from error
         else:
             for attr in vehicle_model.to_dict():
                 obj = getattr(vehicle_model, attr, None)
