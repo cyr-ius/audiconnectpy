@@ -25,3 +25,5 @@ jobs:
           name: Release ${{ github.ref }}
           body: ${{ steps.changelog.outputs.changelog }}
           token: ${{ secrets.GITHUB_TOKEN }}
+          prerelease: ${{ contains(github.ref_name,'-') }}
+          draft: false
