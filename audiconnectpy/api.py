@@ -70,7 +70,7 @@ class AudiConnect:
             vehicles_response = await self.async_get_information_vehicles()
         except AudiException as error:
             raise AudiException(
-                "Error to get information vehicles ({error})"
+                f"Error to get information vehicles ({error})"
             ) from error
 
         obj_vehicles = Vehicles.from_dict(vehicles_response.get("data", []))
@@ -84,7 +84,7 @@ class AudiConnect:
             try:
                 vehicle.fill_region = await self._async_fill_url(vehicle.vin)
             except AudiException as error:
-                raise AudiException("Error to fill urls ({error})") from error
+                raise AudiException(f"Error to fill urls ({error})") from error
 
             if vinlist is None or vehicle.vin.upper() in vinlist:
                 # Fetch data for a vehicle
