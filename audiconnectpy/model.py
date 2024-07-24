@@ -397,6 +397,7 @@ class RangeStatus(Base):
     electric_range: int | None = None
     gasoline_range: int | None = None
     total_range_km: int | None = None
+    ad_blue_range: int | None = None
 
 
 @dataclass
