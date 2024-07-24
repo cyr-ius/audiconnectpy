@@ -33,5 +33,5 @@ jobs:
       contents: write
       packages: write
       id-token: write
-    if: !contains(github.ref_name, '-')
+    if: ${{ ! contains(github.ref_name, '-') }}
     uses: ./.github/workflows/pythonpublish.yml
