@@ -124,8 +124,10 @@ def state_control(attrs: list[dict[str, Any]], state: str) -> dict[str, bool]:
     metadata = {}
     any_status = []
     for key in status:
-        if "unsupported" not in status.get(key, []):
-            state_b = state not in status.get(key, [])
+        item = status.get(key, [])
+        item = [item] if not isinstance(item, list) else item
+        if "unsupported" not in item:
+            state_b = state not in item
             metadata.update({camel2snake(k): state_b})
             any_status.append(state_b)
 
@@ -150,12 +152,7 @@ def doors_status(attrs: list[dict[str, Any]]) -> dict[str, dict[str, bool]]:
 
 def lights_status(attrs: list[dict[str, Any]]) -> dict[str, bool]:
     """Light status."""
-    status = map_name_status(attrs)
-    left = status.get("left") != "off"
-    right = status.get("right") != "off"
-    metadatas = {"left": left, "right": right, "status": any([left, right])}
-
-    return metadatas
+    return state_control(attrs, "on")
 
 
 def camel2snake(name: str) -> str:
