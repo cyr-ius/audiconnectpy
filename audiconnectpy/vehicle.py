@@ -642,7 +642,7 @@ class Vehicle(DataClassDictMixin):  # type: ignore
         self, url: str, action: str, success: str, failed: str, request_id: str
     ) -> None:
         """Check request succeeded."""
-        stauts_good = False
+        status_good = False
         for _ in range(MAX_RESPONSE_ATTEMPTS):
             await asyncio.sleep(REQUEST_STATUS_SLEEP)
 
@@ -660,10 +660,10 @@ class Vehicle(DataClassDictMixin):  # type: ignore
                 raise HttpRequestError(f"Cannot {action}, return code '{status}'")
 
             if status == success:
-                stauts_good = True
+                status_good = True
                 break
 
-        if stauts_good is False:
+        if status_good is False:
             raise TimeoutExceededError(f"Cannot {action}, operation timed out")
 
     async def _async_check_request(
