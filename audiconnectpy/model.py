@@ -364,7 +364,7 @@ class LightsStatus(Base):
 class Lights(Base):
     left: bool | None = None
     right: bool | None = None
-    status: bool | None = None
+    any_status: bool | None = None
 
 
 # SECTION
