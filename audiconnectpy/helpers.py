@@ -118,6 +118,23 @@ def spin_hash(spin: str, challenge: str) -> str:
     return sha512(b_pin).hexdigest().upper()
 
 
+def state_control(attrs: list[dict[str, Any]], state: str) -> dict[str, bool]:
+    """Check state in list."""
+    status = map_name_status(attrs)
+    metadata = {}
+    any_status = []
+    for key in status:
+        if "unsupported" not in status.get(key, []):
+            state_b = state not in status.get(key, [])
+            metadata.update({camel2snake(k): state_b})
+            any_status.append(state_b)
+
+    if len(windows_open) > 0:
+        metadata.update({"any_status": any(any_status)})
+
+    return metadata
+
+
 def windows_status(attrs: list[dict[str, Any]]) -> dict[str, bool]:
     """Windows open status."""
     status = map_name_status(attrs)
