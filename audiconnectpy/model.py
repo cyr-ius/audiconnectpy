@@ -124,39 +124,38 @@ class Doors(Base):
 class DoorLocked(Base):
     """Windows status."""
 
-    left_front: bool | None = None
-    right_front: bool | None = None
-    left_rear: bool | None = None
-    right_rear: bool | None = None
+    front_left: bool | None = None
+    front_right: bool | None = None
+    rear_left: bool | None = None
+    rear_right: bool | None = None
     trunk: bool | None = None
-    doors_trunk: bool | None = None
-    any_doors_status: bool | None = None
+    any_status: bool | None = None
 
 
 @dataclass
 class DoorOpened(Base):
     """Windows status."""
 
-    left_front: bool | None = None
-    right_front: bool | None = None
-    left_rear: bool | None = None
-    right_rear: bool | None = None
+    front_left: bool | None = None
+    front_right: bool | None = None
+    rear_left: bool | None = None
+    rear_right: bool | None = None
     trunk: bool | None = None
     bonnet: bool | None = None
-    any_doors_status: bool | None = None
+    any_status: bool | None = None
 
 
 @dataclass
 class Window(Base):
     """Windows status."""
 
-    left_front: bool | None = None
-    right_front: bool | None = None
-    left_rear: bool | None = None
-    right_rear: bool | None = None
+    front_left: bool | None = None
+    front_right: bool | None = None
+    rear_left: bool | None = None
+    rear_right: bool | None = None    
     roof_cover: bool | None = None
     sun_roof: bool | None = None
-    any_windows_status: bool | None = None
+    any_status: bool | None = None
 
 
 # SECTION
