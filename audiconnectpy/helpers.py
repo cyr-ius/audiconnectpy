@@ -171,6 +171,12 @@ def remove_value(obj: dict[str, Any]) -> dict[str, Any]:
     return obj
 
 
-def map_name_status(array: list[dict[str, Any]]) -> dict[str, Any]:
+def map_name_status(
+    array: list[dict[str, Any]],
+    key: str = "name",
+    value: str = "status"
+) -> dict[str, Any]:
     """Convert name/status to dictionary."""
-    return {item["name"]: item.get("status") for item in array}
+    if key in array.keys():
+        return {item[key]: item.get(value) for item in array}
+    return dict()
