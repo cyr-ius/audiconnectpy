@@ -15,9 +15,9 @@
     'access_status': dict({
       'car_captured_timestamp': '2024-05-11T16:41:40+00:00',
       'door_lock_status': False,
-      'doors': Doors(locked=DoorLocked(left_front=True, right_front=True, left_rear=True, right_rear=True, trunk=True, doors_trunk=True, any_doors_status=True), opened=DoorOpened(left_front=False, right_front=False, left_rear=False, right_rear=False, trunk=False, bonnet=False, any_doors_status=False)),
+      'doors': Doors(locked=DoorLocked(front_left=True, front_right=True, rear_left=True, rear_right=True, trunk=True, any_status=True), opened=DoorOpened(front_left=False, front_right=False, rear_left=False, rear_right=False, trunk=False, bonnet=False, any_status=False)),
       'overall_status': 'unsafe',
-      'windows': Window(left_front=False, right_front=False, left_rear=False, right_rear=False, roof_cover=None, sun_roof=None, any_windows_status=False),
+      'windows': Window(front_left=False, front_right=False, rear_left=False, rear_right=False, roof_cover=None, sun_roof=None, any_status=False),
     }),
   })
 # ---
@@ -50,7 +50,7 @@
 # name: test_vehicle_0.4
   dict({
     'lights_status': dict({
-      'lights': Lights(left=False, right=False, status=False),
+      'lights': Lights(left=True, right=True, any_status=True),
     }),
   })
 # ---
@@ -67,6 +67,7 @@
       'odometer': 21512,
     }),
     'range_status': dict({
+      'ad_blue_range': None,
       'electric_range': None,
       'gasoline_range': 860,
       'total_range_km': 860,
@@ -281,9 +282,9 @@
     'access_status': dict({
       'car_captured_timestamp': '2024-03-25T10:29:31.596000+00:00',
       'door_lock_status': True,
-      'doors': Doors(locked=DoorLocked(left_front=False, right_front=False, left_rear=False, right_rear=False, trunk=False, doors_trunk=False, any_doors_status=False), opened=DoorOpened(left_front=False, right_front=False, left_rear=False, right_rear=False, trunk=False, bonnet=False, any_doors_status=False)),
+      'doors': Doors(locked=DoorLocked(front_left=False, front_right=False, rear_left=False, rear_right=False, trunk=False, any_status=True), opened=DoorOpened(front_left=False, front_right=False, rear_left=False, rear_right=False, trunk=False, bonnet=False, any_status=False)),
       'overall_status': 'safe',
-      'windows': Window(left_front=False, right_front=False, left_rear=False, right_rear=False, roof_cover=None, sun_roof=None, any_windows_status=False),
+      'windows': Window(front_left=False, front_right=False, rear_left=False, rear_right=False, roof_cover=None, sun_roof=None, any_status=False),
     }),
   })
 # ---
@@ -402,7 +403,7 @@
 # name: test_vehicle_1.8
   dict({
     'lights_status': dict({
-      'lights': Lights(left=False, right=False, status=False),
+      'lights': Lights(left=True, right=True, any_status=True),
     }),
   })
 # ---
@@ -419,6 +420,7 @@
       'odometer': 16221,
     }),
     'range_status': dict({
+      'ad_blue_range': None,
       'electric_range': None,
       'gasoline_range': None,
       'total_range_km': None,
@@ -681,9 +683,9 @@
     'access_status': dict({
       'car_captured_timestamp': '2023-12-23T19:36:52.444000+00:00',
       'door_lock_status': True,
-      'doors': Doors(locked=DoorLocked(left_front=False, right_front=False, left_rear=False, right_rear=False, trunk=False, doors_trunk=False, any_doors_status=False), opened=DoorOpened(left_front=False, right_front=False, left_rear=False, right_rear=False, trunk=False, bonnet=False, any_doors_status=False)),
+      'doors': Doors(locked=DoorLocked(front_left=False, front_right=False, rear_left=False, rear_right=False, trunk=False, any_status=True), opened=DoorOpened(front_left=False, front_right=False, rear_left=False, rear_right=False, trunk=False, bonnet=False, any_status=False)),
       'overall_status': 'safe',
-      'windows': Window(left_front=False, right_front=False, left_rear=False, right_rear=False, roof_cover=None, sun_roof=None, any_windows_status=False),
+      'windows': Window(front_left=False, front_right=False, rear_left=False, rear_right=False, roof_cover=None, sun_roof=None, any_status=False),
     }),
   })
 # ---
@@ -803,7 +805,7 @@
 # name: test_vehicle_2.8
   dict({
     'lights_status': dict({
-      'lights': Lights(left=False, right=False, status=False),
+      'lights': Lights(left=True, right=True, any_status=True),
     }),
   })
 # ---
@@ -820,6 +822,7 @@
       'odometer': 10329,
     }),
     'range_status': dict({
+      'ad_blue_range': None,
       'electric_range': 212,
       'gasoline_range': None,
       'total_range_km': 212,
