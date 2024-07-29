@@ -128,10 +128,10 @@ def state_control(attrs: list[dict[str, Any]], state: str) -> dict[str, bool]:
         item = [item] if not isinstance(item, list) else item
         if "unsupported" not in item:
             state_b = state not in item
-            metadata.update({camel2snake(k): state_b})
+            metadata.update({camel2snake(key): state_b})
             any_status.append(state_b)
 
-    if len(windows_open) > 0:
+    if len(any_status) > 0:
         metadata.update({"any_status": any(any_status)})
 
     return metadata
@@ -146,7 +146,7 @@ def doors_status(attrs: list[dict[str, Any]]) -> dict[str, dict[str, bool]]:
     """Doors lock status."""
     return {
         "locked": state_control(attrs, "locked"),
-        "opened"; state_control(attrs, "closed"),
+        "opened": state_control(attrs, "closed"),
     }
 
 
@@ -172,11 +172,7 @@ def remove_value(obj: dict[str, Any]) -> dict[str, Any]:
 
 
 def map_name_status(
-    array: list[dict[str, Any]],
-    key: str = "name",
-    value: str = "status"
+    array: list[dict[str, Any]], key: str = "name", value: str = "status"
 ) -> dict[str, Any]:
     """Convert name/status to dictionary."""
-    if key in array.keys():
-        return {item[key]: item.get(value) for item in array}
-    return dict()
+    return {item[key]: item.get(value) for item in array}
