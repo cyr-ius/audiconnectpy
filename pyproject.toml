@@ -17,8 +17,9 @@ classifiers = [
     "Development Status :: 5 - Production/Stable",
     "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.10",    
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",    
     "Framework :: AsyncIO",
     "Intended Audience :: Developers",
     "Intended Audience :: System Administrators",
@@ -29,7 +30,8 @@ requires-python = ">=3.10.0"
 dependencies    = [
     "aiohttp>=3.8.1",
     "bs4>=0.0.2",
-    "mashumaro>=3.13",
+    "pydantic>=2.8.2",
+    "pydantic_extra_types>=2.9.0",
 ]
 
 [project.urls]
