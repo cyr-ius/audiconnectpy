@@ -2,261 +2,160 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Literal
 
-from mashumaro import DataClassDictMixin, field_options
-from mashumaro.types import SerializationStrategy
+from pydantic import (
+    AliasPath,
+    BaseModel,
+    ConfigDict,
+    Field,
+    PlainSerializer,
+    WrapSerializer,
+)
+from pydantic.alias_generators import to_camel
+from pydantic_extra_types.coordinate import Latitude, Longitude
+from typing_extensions import Annotated
 
-from .helpers import camel2snake, doors_status, lights_status, windows_status
+from .helpers import doors_status, lights_status, window_heating_status, windows_status
 
+TActived = Annotated[
+    str, PlainSerializer(lambda x: x.lower() == "active", return_type=bool)
+]
+TCharging = Annotated[
+    str, PlainSerializer(lambda x: x.lower() == "charging", return_type=bool)
+]
+TConnected = Annotated[
+    str, PlainSerializer(lambda x: x.lower() == "connected", return_type=bool)
+]
+TDoorLocked = Annotated[list, WrapSerializer(doors_status, return_type=dict)]
 
-class Locked(SerializationStrategy):  # type: ignore
-    def serialize(self, value: str) -> str:
-        return value
-
-    def deserialize(self, value: str) -> bool:
-        return value.lower() == "locked"
-
-
-class OnOff(SerializationStrategy):  # type: ignore
-    def serialize(self, value: str) -> str:
-        return value
-
-    def deserialize(self, value: str) -> bool:
-        return value.lower() != "off"
-
-
-class WindowsStrategy(SerializationStrategy):  # type: ignore
-    def serialize(self, value: str) -> str:
-        return value
-
-    def deserialize(self, value: list[dict[str, Any]]) -> Any:
-        return Window.from_dict(windows_status(value))
-
-
-class DoorsStrategy(SerializationStrategy):  # type: ignore
-    def serialize(self, value: str) -> str:
-        return value
-
-    def deserialize(self, value: list[dict[str, Any]]) -> Any:
-        return Doors.from_dict(doors_status(value))
-
-
-class LightsStrategy(SerializationStrategy):  # type: ignore
-    def serialize(self, value: str) -> str:
-        return value
-
-    def deserialize(self, value: list[dict[str, Any]]) -> Any:
-        return Lights.from_dict(lights_status(value))
-
-
-class WindowHeatingStrategy(SerializationStrategy):  # type: ignore
-    def serialize(self, value: str) -> str:
-        return value
-
-    def deserialize(self, values: list[dict[str, Any]]) -> Any:
-        status = {
-            value["windowLocation"]: (value["windowHeatingState"].lower() != "off")
-            for value in values
-            if "windowLocation" in value.keys() and "windowHeatingState" in value.keys()
-        }
-
-        return WindowHeating.from_dict(status)
-
-
-@dataclass
-class Base(DataClassDictMixin):  # type: ignore
-    @classmethod
-    def __pre_deserialize__(cls, d: dict[Any, Any]) -> dict[Any, Any]:
-        return {camel2snake(k): v for k, v in d.items()}
+TLocked = Annotated[
+    str, PlainSerializer(lambda x: x.lower() == "locked", return_type=bool)
+]
+TWindowOpened = Annotated[list, WrapSerializer(windows_status, return_type=dict)]
+TWindowHeating = Annotated[
+    list, WrapSerializer(window_heating_status, return_type=dict)
+]
+TLights = Annotated[list, WrapSerializer(lights_status, return_type=dict)]
 
 
 # SECTION
-@dataclass
-class Position(Base):
-    longitude: float | None = field(metadata=field_options(alias="lon"), default=None)
-    latitude: float | None = field(metadata=field_options(alias="lat"), default=None)
-    last_access: datetime | None = field(
-        metadata=field_options(alias="car_captured_timestamp"), default=None
+class Base(BaseModel):  # type: ignore
+    """Vehicle."""
+
+    model_config = ConfigDict(alias_generator=to_camel)
+
+
+class UserCapabilities(Base):
+    capabilities_status: list[Capability] | None = Field(
+        validation_alias=AliasPath("capabilitiesStatus", "value")
     )
 
 
-# SECTION
-@dataclass
-class Location(Base):
-    proprietaries: list[dict[str, Any]] | None = None
-    addresses: list[dict[str, Any]] | None = None
+class Capability(Base):
+    id: str
+    user_disabling_allowed: bool
+    expiration_date: datetime | None = None
 
 
 # SECTION
-@dataclass
 class Access(Base):
-    access_status: AccessStatus | None = None
+    access_status: AccessStatus | None = Field(
+        validation_alias=AliasPath("accessStatus", "value")
+    )
 
 
-@dataclass
 class AccessStatus(Base):
     """Return accessStatus."""
 
     car_captured_timestamp: datetime
     overall_status: str | None = None
-    door_lock_status: bool | None = field(
-        metadata=field_options(serialization_strategy=Locked()),
-        default=None,
-    )
-    doors: Doors | None = field(
-        metadata=field_options(serialization_strategy=DoorsStrategy()), default=None
-    )
-    windows: Window | None = field(
-        metadata=field_options(serialization_strategy=WindowsStrategy()), default=None
-    )
-
-
-@dataclass
-class Doors(Base):
-    locked: DoorLocked | None = None
-    opened: DoorOpened | None = None
-
-
-@dataclass
-class DoorLocked(Base):
-    """Windows status."""
-
-    front_left: bool | None = None
-    front_right: bool | None = None
-    rear_left: bool | None = None
-    rear_right: bool | None = None
-    trunk: bool | None = None
-    any_status: bool | None = None
-
-
-@dataclass
-class DoorOpened(Base):
-    """Windows status."""
-
-    front_left: bool | None = None
-    front_right: bool | None = None
-    rear_left: bool | None = None
-    rear_right: bool | None = None
-    trunk: bool | None = None
-    bonnet: bool | None = None
-    any_status: bool | None = None
-
-
-@dataclass
-class Window(Base):
-    """Windows status."""
-
-    front_left: bool | None = None
-    front_right: bool | None = None
-    rear_left: bool | None = None
-    rear_right: bool | None = None    
-    roof_cover: bool | None = None
-    sun_roof: bool | None = None
-    any_status: bool | None = None
+    door_lock_status: TLocked | None = None
+    doors: TDoorLocked | None = None  # type: ignore
+    windows: TWindowOpened | None = None  # type: ignore
 
 
 # SECTION
-@dataclass
 class Charging(Base):
-    battery_status: BatteryStatus | None = None
-    charging_status: ChargingStatus | None = None
-    charging_settings: ChargingSettings | None = None
-    plug_status: PlugStatus | None = None
-    charge_mode: ChargeMode | None = None
+    battery_status: BatteryStatus | None = Field(
+        default=None, validation_alias=AliasPath("batteryStatus", "value")
+    )
+    charging_status: ChargingStatus | None = Field(
+        default=None, validation_alias=AliasPath("chargingStatus", "value")
+    )
+    charging_settings: ChargingSettings | None = Field(
+        default=None, validation_alias=AliasPath("chargingSettings", "value")
+    )
+    plug_status: PlugStatus | None = Field(
+        default=None, validation_alias=AliasPath("plugStatus", "value")
+    )
+    charge_mode: ChargeMode | None = Field(
+        default=None, validation_alias=AliasPath("chargeMode", "value")
+    )
 
 
-@dataclass
 class BatteryStatus(Base):
-    current_soc_pct: int | None = None
-    cruising_range_electric_km: int | None = None
+    current_soc_pct: int | None = Field(default=None, alias="currentSOC_pct")
+    cruising_range_electric_km: int | None = Field(
+        default=None, alias="cruisingRangeElectric_km"
+    )
 
 
-@dataclass
 class ChargingStatus(Base):
-    remaining: int | None = field(
-        metadata=field_options(alias="remaining_charging_time_to_complete_min"),
-        default=None,
+    remaining: int | None = Field(
+        default=None, alias="remaining_charging_time_to_complete_min"
     )
-    charging_state: bool | None = field(
-        metadata=field_options(deserialize=lambda x: x == "charging"), default=None
-    )
+    charging_state: TCharging | None = None
     charge_mode: str | None = None
-    charge_power_kw: float | None = None
-    charge_rate_kmph: int | None = None
+    charge_power_kw: float | None = Field(default=None, alias="chargePower_kW")
+    charge_rate_kmph: int | None = Field(default=None, alias="chargeRate_kmph")
     charge_type: str | None = None
     charging_settings: str | None = None
 
 
-@dataclass
 class ChargingSettings(Base):
     max_charge_current_ac: str | None = None
-    auto_unlock_plug_when_charged: bool | None = field(
-        metadata=field_options(serialization_strategy=OnOff()), default=None
-    )
-    auto_unlock_plug_when_charged_ac: bool | None = field(
-        metadata=field_options(serialization_strategy=OnOff()), default=None
-    )
+    auto_unlock_plug_when_charged: bool | None = None
+    auto_unlock_plug_when_charged_ac: bool | None = None
     target_soc_pct: int | None = None
 
 
-@dataclass
 class PlugStatus(Base):
-    plug_connection_state: bool | None = field(
-        metadata=field_options(deserialize=lambda x: x == "connected"), default=None
-    )
-    plug_lock_state: bool | None = field(
-        metadata=field_options(serialization_strategy=Locked()), default=None
-    )
-    external_power: bool | None = field(
-        metadata=field_options(deserialize=lambda x: x == "active"), default=None
-    )
+    plug_connection_state: TConnected | None = None
+    plug_lock_state: TLocked | None = None
+    external_power: TActived | None = None
     led_color: str | None = None
 
 
-@dataclass
 class ChargeMode(Base):
     preferred_charge_mode: str | None = None
     available_charge_modes: list[str] | None = None
 
 
 # SECTION
-@dataclass
 class Climatisation(Base):
-    window_heating_status: WindowHeatingStatus | None = None
-    climatisation_status: ClimatisationStatus | None = None
-    climatisation_settings: ClimatisationSettings | None = None
-
-
-@dataclass
-class WindowHeatingStatus(Base):
-    state: WindowHeating | None = field(
-        metadata=field_options(
-            alias="window_heating_status",
-            serialization_strategy=WindowHeatingStrategy(),
-        ),
-        default=None,
+    climatisation_settings: ClimatisationSettings | None = Field(
+        default=None, validation_alias=AliasPath("climatisationSettings", "value")
+    )
+    climatisation_status: ClimatisationStatus | None = Field(
+        default=None, validation_alias=AliasPath("climatisationStatus", "value")
+    )
+    window_heating_status: WindowHeatingStatus | None = Field(
+        default=None, validation_alias=AliasPath("windowHeatingStatus", "value")
     )
 
 
-@dataclass
-class WindowHeating(Base):
-    front: bool | None = None
-    rear: bool | None = None
-
-
-@dataclass
 class ClimatisationStatus(Base):
-    remaining_climatisation_time_min: int | None = None
+    remaining_climatisation_time_min: int | None = Field(
+        default=None, alias="remainingClimatisationTime_min"
+    )
     climatisation_state: Literal["off", "heating", "cooling"] | None = None
 
 
-@dataclass
 class ClimatisationSettings(Base):
-    target_temperature_c: int | None = None
-    target_temperature_f: int | None = None
+    target_temperature_c: int | None = Field(default=None, alias="targetTemperature_C")
+    target_temperature_f: int | None = Field(default=None, alias="targetTemperature_F")
     unit_in_car: str | None = None
     climatization_at_unlock: bool | None = None
     window_heating_enabled: bool | None = None
@@ -266,208 +165,235 @@ class ClimatisationSettings(Base):
     zone_rear_right_enabled: bool | None = None
 
 
+class WindowHeatingStatus(Base):
+    state: TWindowHeating | None = None  # type: ignore
+
+
 # SECTION
-@dataclass
 class ClimatisationTimers(Base):
-    climatisation_timers_status: ClimatisationTimersStatus | None = None
-
-
-@dataclass
-class ClimatisationTimersStatus(Base):
-    time_in_car: datetime | None = field(
-        metadata=field_options(
-            deserialize=lambda x: datetime.strptime(x, "%Y-%m-%dT%H:%M:%S%z")
-        ),
-        default=None,
+    climatisation_timers_status: ClimatisationTimersStatus | None = Field(
+        default=None, validation_alias=AliasPath("climatisationTimersStatus", "value")
     )
+
+
+class ClimatisationTimersStatus(Base):
+    time_in_car: datetime | None = None
     timers: list[Timer] | None = None
 
 
-@dataclass
 class Timer(Base):
     id: int
     enabled: bool
     single_timer: SingleTimer
 
 
-@dataclass
 class SingleTimer(Base):
-    start: datetime | None = field(
-        metadata=field_options(alias="start_date_time"), default=None
-    )
-    target: datetime | None = field(
-        metadata=field_options(alias="target_date_time"), default=None
-    )
-    start_local: datetime | None = field(
-        metadata=field_options(alias="start_date_time_local"), default=None
-    )
-    target_local: datetime | None = field(
-        metadata=field_options(alias="target_date_time_local"), default=None
-    )
+    start: datetime | None = Field(alias="start_date_time", default=None)
+    target: datetime | None = Field(alias="target_date_time", default=None)
+    start_local: datetime | None = Field(alias="start_date_time_local", default=None)
+    target_local: datetime | None = Field(alias="target_date_time_local", default=None)
 
 
 # SECTION
-@dataclass
 class FuelStatus(Base):
-    range_status: FuelRangeStatus | None = None
+    range_status: FuelRangeStatus | None = Field(
+        default=None, validation_alias=AliasPath("rangeStatus", "value")
+    )
 
 
-@dataclass
 class FuelRangeStatus(Base):
     car_type: str | None = None
     primary_engine: PrimaryEngine | None = None
     secondary_engine: SecondaryEngine | None = None
-    total_range_km: int | None = None
+    total_range_km: int | None = Field(default=None, alias="totalRange_km")
 
 
-@dataclass
 class PrimaryEngine(Base):
     type: str | None = None
-    current_soc_pct: str | None = None
-    remaining_range_km: int | None = None
-    current_fuel_level_pct: int | None = None
+    current_soc_pct: int | None = Field(default=None, alias="currentSOC_pct")
+    remaining_range_km: int | None = Field(default=None, alias="remainingRange_km")
+    current_fuel_level_pct: int | None = Field(
+        default=None, alias="currentFuelLevel_pct"
+    )
 
 
-@dataclass
 class SecondaryEngine(Base):
     type: str | None = None
-    current_soc_pct: int | None = None
-    remaining_range_km: int | None = None
-    current_fuel_level_pct: int | None = None
+    current_soc_pct: int | None = Field(default=None, alias="currentSOC_pct")
+    remaining_range_km: int | None = Field(default=None, alias="remainingRange_km")
+    current_fuel_level_pct: int | None = Field(
+        default=None, alias="currentFuelLevel_pct"
+    )
 
 
 # SECTION
-@dataclass
 class OilLevel(Base):
-    oil_level_status: OilLevelStatus | None = None
+    oil_level_status: OilLevelStatus | None = Field(
+        default=None, validation_alias=AliasPath("rangeStatus", "value")
+    )
 
 
-@dataclass
 class OilLevelStatus(Base):
     value: bool
 
 
 # SECTION
-@dataclass
 class VehicleLights(Base):
-    lights_status: LightsStatus | None = None
-
-
-@dataclass
-class LightsStatus(Base):
-    lights: Lights | None = field(
-        metadata=field_options(serialization_strategy=LightsStrategy()), default=None
+    lights_status: LightsStatus | None = Field(
+        default=None, validation_alias=AliasPath("lightsStatus", "value")
     )
 
 
-@dataclass
-class Lights(Base):
-    left: bool | None = None
-    right: bool | None = None
-    any_status: bool | None = None
+class LightsStatus(Base):
+    lights: TLights | None = None  # type: ignore
 
 
 # SECTION
-@dataclass
 class VehicleHealthInspection(Base):
-    maintenance_status: MaintenanceStatus | None = None
+    maintenance_status: MaintenanceStatus | None = Field(
+        default=None, validation_alias=AliasPath("maintenanceStatus", "value")
+    )
 
 
-@dataclass
 class MaintenanceStatus(Base):
-    inspection_due_days: int | None = None
-    inspection_due_km: int | None = None
-    mileage_km: int | None = None
-    oil_service_due_days: int | None = None
-    oil_service_due_km: int | None = None
+    inspection_due_days: int | None = Field(default=None, alias="inspectionDue_days")
+    inspection_due_km: int | None = Field(default=None, alias="inspectionDue_km")
+    mileage_km: int | None = Field(default=None, alias="mileage_km")
+    oil_service_due_days: int | None = Field(default=None, alias="oilServiceDue_days")
+    oil_service_due_km: int | None = Field(default=None, alias="oilServiceDue_km")
 
 
 # SECTION
-@dataclass
 class Measurements(Base):
-    range_status: RangeStatus | None = None
-    odometer_status: OdometerStatus | None = None
-    fuel_level_status: FuelLevelStatus | None = None
-    temperature_battery_status: TemperatureBatteryStatus | None = None
+    range_status: RangeStatus | None = Field(
+        default=None, validation_alias=AliasPath("rangeStatus", "value")
+    )
+    odometer_status: OdometerStatus | None = Field(
+        default=None, validation_alias=AliasPath("odometerStatus", "value")
+    )
+    fuel_level_status: FuelLevelStatus | None = Field(
+        default=None, validation_alias=AliasPath("fuelLevelStatus", "value")
+    )
+    temperature_battery_status: TemperatureBatteryStatus | None = Field(
+        default=None, validation_alias=AliasPath("temperatureBatteryStatus", "value")
+    )
 
 
-@dataclass
 class RangeStatus(Base):
     electric_range: int | None = None
     gasoline_range: int | None = None
-    total_range_km: int | None = None
+    total_range_km: int | None = Field(default=None, alias="totalRange_km")
     ad_blue_range: int | None = None
 
 
-@dataclass
 class OdometerStatus(Base):
     odometer: int | None = None
 
 
-@dataclass
 class FuelLevelStatus(Base):
-    current_soc_pct: int | None = None
-    current_fuel_level_pct: int | None = None
+    current_soc_pct: int | None = Field(default=None, alias="currentSOC_pct")
+    current_fuel_level_pct: int | None = Field(
+        default=None, alias="currentFuelLevel_pct"
+    )
     primary_engine_type: str | None = None
     secondary_engine_type: str | None = None
     car_type: str | None = None
 
 
-@dataclass
 class TemperatureBatteryStatus(Base):
-    temperature_hv_battery_max_k: float
-    temperature_hv_battery_min_k: float
-
-
-# SECTION
-@dataclass
-class VehicleHealthWarnings(Base):
-    warning_lights: WarningLights | None = None
-
-
-@dataclass
-class WarningLights(Base):
-    lights: Lights | None = field(
-        metadata=field_options(serialization_strategy=LightsStrategy()), default=None
+    temperature_hv_battery_max_k: float | None = Field(
+        default=None, alias="temperatureHvBatteryMax_K"
+    )
+    temperature_hv_battery_min_k: float | None = Field(
+        default=None, alias="temperatureHvBatteryMin_K"
     )
 
 
-@dataclass
-class UserCapabilities(Base):
-    capabilities_status: list[dict[str, Any]] | None = None
+# SECTION
+class VehicleHealthWarnings(Base):
+    warning_lights: WarningLights | None = Field(
+        default=None, validation_alias=AliasPath("temperatureBatteryStatus", "value")
+    )
+
+
+class WarningLights(Base):
+    lights: TLights | None = None  # type: ignore
 
 
 # SECTION
-@dataclass
+class Location(Base):
+    addresses: list[Address] | None = Field(
+        default=None, validation_alias=AliasPath("data")
+    )
+
+
+class Address(Base):
+    id: str
+    address: dict[str, Any]
+
+
+# SECTION
+class Position(Base):
+    longitude: Longitude | None = Field(
+        validation_alias=AliasPath("data", "lon"), default=None
+    )
+    latitude: Latitude | None = Field(
+        validation_alias=AliasPath("data", "lat"), default=None
+    )
+    last_access: datetime | None = Field(
+        validation_alias=AliasPath("data", "carCapturedTimestamp"), default=None
+    )
+
+
+# SECTION
 class Information(Base):
     core: Core
     media: Media
 
 
-@dataclass
 class Core(Base):
     model_year: int
 
 
-@dataclass
 class Media(Base):
     short_name: str
     long_name: str
 
 
 # SECTION
-@dataclass
+class DepartureProfiles(Base):
+    departure_profiles_status: DepartureProfilesStatus | None = Field(
+        default=None, validation_alias=AliasPath("departureProfilesStatus", "value")
+    )
+
+
+class DepartureProfilesStatus(Base):
+    min_soc_pct: int | None = Field(default=None, alias="minSOC_pct")
+    timers: list[dict[str, Any]] | None = None
+
+
+##### GENERIC CLASS ####
 class Model(Base):
     """Vehicle."""
 
+    last_access: datetime = Field(
+        validation_alias=AliasPath(
+            "access", "accessStatus", "value", "carCapturedTimestamp"
+        )
+    )
+    last_update: datetime = datetime.now()
     user_capabilities: UserCapabilities | None = None
     access: Access | None = None
     charging: Charging | None = None
     climatisation_timers: ClimatisationTimers | None = None
     climatisation: Climatisation | None = None
     fuel_status: FuelStatus | None = None
-    vehicle_health_inspection: VehicleHealthInspection | None = None
-    vehicle_lights: VehicleLights | None = None
-    measurements: Measurements | None = None
     oil_level: OilLevel | None = None
+    vehicle_lights: VehicleLights | None = None
+    vehicle_health_inspection: VehicleHealthInspection | None = None
+    measurements: Measurements | None = None
     vehicle_health_warnings: VehicleHealthWarnings | None = None
+    location: Location | None = None
+    position: Position | None = None
+    infos: Information | None = None
+    departure_profiles: DepartureProfiles | None = None

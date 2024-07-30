@@ -13,6 +13,8 @@ import re
 import time
 from typing import Any
 
+from pydantic import SerializationInfo
+
 from .exceptions import TimeoutExceededError
 
 _LOGGER = logging.getLogger(__name__)
@@ -118,9 +120,14 @@ def spin_hash(spin: str, challenge: str) -> str:
     return sha512(b_pin).hexdigest().upper()
 
 
-def state_control(attrs: list[dict[str, Any]], state: str) -> dict[str, bool]:
+def state_control(
+    attrs: list[dict[str, Any]],
+    state: str,
+    map_key: str = "name",
+    map_value: str = "status",
+) -> dict[str, bool]:
     """Check state in list."""
-    status = map_name_status(attrs)
+    status = map_name_status(attrs, key=map_key, value=map_value)
     metadata = {}
     any_status = []
     for key in status:
@@ -137,22 +144,34 @@ def state_control(attrs: list[dict[str, Any]], state: str) -> dict[str, bool]:
     return metadata
 
 
-def windows_status(attrs: list[dict[str, Any]]) -> dict[str, bool]:
+def windows_status(
+    value: Any, handler: Callable[..., Any], info: SerializationInfo
+) -> dict[str, bool]:
     """Windows open status."""
-    return state_control(attrs, "closed")
+    return state_control(value, "closed")
 
 
-def doors_status(attrs: list[dict[str, Any]]) -> dict[str, dict[str, bool]]:
+def doors_status(
+    value: Any, handler: Callable[..., Any], info: SerializationInfo
+) -> dict[str, dict[str, bool]]:
     """Doors lock status."""
     return {
-        "locked": state_control(attrs, "locked"),
-        "opened": state_control(attrs, "closed"),
+        "locked": state_control(value, "locked"),
+        "opened": state_control(value, "closed"),
     }
 
 
-def lights_status(attrs: list[dict[str, Any]]) -> dict[str, bool]:
+def window_heating_status(
+    value: Any, handler: Callable[..., Any], info: SerializationInfo
+) -> dict[str, bool]:
+    return state_control(value, "on", "windowLocation", "windowHeatingState")
+
+
+def lights_status(
+    value: Any, handler: Callable[..., Any], info: SerializationInfo
+) -> dict[str, bool]:
     """Light status."""
-    return state_control(attrs, "on")
+    return state_control(value, "on")
 
 
 def camel2snake(name: str) -> str:
@@ -172,7 +191,7 @@ def remove_value(obj: dict[str, Any]) -> dict[str, Any]:
 
 
 def map_name_status(
-    array: list[dict[str, Any]], key: str = "name", value: str = "status"
+    array: list[dict[str, Any]], key: str, value: str
 ) -> dict[str, Any]:
     """Convert name/status to dictionary."""
     return {item[key]: item.get(value) for item in array}
