@@ -3,7 +3,7 @@
     "accessStatus": {
       "value": {
         "overallStatus": "unsafe",
-        "carCapturedTimestamp": "2024-05-11T16:41:40T+00",
+        "carCapturedTimestamp": "2024-05-11T16:41:40Z",
         "doors": [
           { "name": "bonnet", "status": ["closed"] },
           { "name": "frontLeft", "status": ["unlocked", "closed"] },

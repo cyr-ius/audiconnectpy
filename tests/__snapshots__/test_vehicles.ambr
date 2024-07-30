@@ -13,11 +13,36 @@
 # name: test_vehicle_0.1
   dict({
     'access_status': dict({
-      'car_captured_timestamp': '2024-05-11T16:41:40+00:00',
+      'car_captured_timestamp': datetime.datetime(2024, 5, 11, 16, 41, 40, tzinfo=TzInfo(UTC)),
       'door_lock_status': False,
-      'doors': Doors(locked=DoorLocked(front_left=True, front_right=True, rear_left=True, rear_right=True, trunk=True, any_status=True), opened=DoorOpened(front_left=False, front_right=False, rear_left=False, rear_right=False, trunk=False, bonnet=False, any_status=False)),
+      'doors': dict({
+        'locked': dict({
+          'any_status': True,
+          'bonnet': True,
+          'front_left': True,
+          'front_right': True,
+          'rear_left': True,
+          'rear_right': True,
+          'trunk': True,
+        }),
+        'opened': dict({
+          'any_status': False,
+          'bonnet': False,
+          'front_left': False,
+          'front_right': False,
+          'rear_left': False,
+          'rear_right': False,
+          'trunk': False,
+        }),
+      }),
       'overall_status': 'unsafe',
-      'windows': Window(front_left=False, front_right=False, rear_left=False, rear_right=False, roof_cover=None, sun_roof=None, any_status=False),
+      'windows': dict({
+        'any_status': False,
+        'front_left': False,
+        'front_right': False,
+        'rear_left': False,
+        'rear_right': False,
+      }),
     }),
   })
 # ---
@@ -50,7 +75,11 @@
 # name: test_vehicle_0.4
   dict({
     'lights_status': dict({
-      'lights': Lights(left=True, right=True, any_status=True),
+      'lights': dict({
+        'any_status': True,
+        'left': True,
+        'right': True,
+      }),
     }),
   })
 # ---
@@ -77,16 +106,12 @@
 # ---
 # name: test_vehicle_0.6
   dict({
-    'oil_level_status': dict({
-      'value': True,
-    }),
+    'oil_level_status': None,
   })
 # ---
 # name: test_vehicle_0.7
   dict({
-    'warning_lights': dict({
-      'lights': None,
-    }),
+    'warning_lights': None,
   })
 # ---
 # name: test_vehicle_1
@@ -104,175 +129,174 @@
   dict({
     'capabilities_status': list([
       dict({
-        'expirationDate': '2082-12-25T23:59:59Z',
+        'expiration_date': datetime.datetime(2082, 12, 25, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'webApp',
-        'userDisablingAllowed': False,
+        'user_disabling_allowed': False,
       }),
       dict({
-        'expirationDate': '2028-12-25T23:59:59Z',
+        'expiration_date': datetime.datetime(2028, 12, 25, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'automation',
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2082-12-25T23:59:59Z',
+        'expiration_date': datetime.datetime(2082, 12, 25, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'batteryChargingCare',
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2082-12-25T23:59:59Z',
+        'expiration_date': datetime.datetime(2082, 12, 25, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'batteryColdWarning',
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
+        'expiration_date': None,
         'id': 'batterySupport',
-        'userDisablingAllowed': False,
+        'user_disabling_allowed': False,
       }),
       dict({
-        'expirationDate': '2028-12-25T23:59:59Z',
+        'expiration_date': datetime.datetime(2028, 12, 25, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'charging',
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2028-12-25T23:59:59Z',
+        'expiration_date': datetime.datetime(2028, 12, 25, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'chargingProfiles',
-        'userDisablingAllowed': False,
+        'user_disabling_allowed': False,
       }),
       dict({
-        'expirationDate': '2028-12-25T23:59:59Z',
+        'expiration_date': datetime.datetime(2028, 12, 25, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'chargingStations',
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2028-12-25T23:59:59Z',
+        'expiration_date': datetime.datetime(2028, 12, 25, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'climatisation',
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2028-12-25T23:59:59Z',
+        'expiration_date': datetime.datetime(2028, 12, 25, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'climatisationTimers',
-        'userDisablingAllowed': False,
+        'user_disabling_allowed': False,
       }),
       dict({
+        'expiration_date': None,
         'id': 'cubicNetwork',
-        'userDisablingAllowed': False,
+        'user_disabling_allowed': False,
       }),
       dict({
-        'expirationDate': '2082-12-25T23:59:59Z',
+        'expiration_date': datetime.datetime(2082, 12, 25, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'dealerAppointment',
-        'status': list([
-          1007,
-          1002,
-        ]),
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2028-12-25T23:59:59Z',
+        'expiration_date': datetime.datetime(2028, 12, 25, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'destinations',
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2028-12-25T23:59:59Z',
+        'expiration_date': datetime.datetime(2028, 12, 25, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'fuelStatus',
-        'userDisablingAllowed': False,
+        'user_disabling_allowed': False,
       }),
       dict({
-        'expirationDate': '2028-12-25T23:59:59Z',
+        'expiration_date': datetime.datetime(2028, 12, 25, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'ignition',
-        'userDisablingAllowed': False,
+        'user_disabling_allowed': False,
       }),
       dict({
-        'expirationDate': '2028-12-25T23:59:59Z',
+        'expiration_date': datetime.datetime(2028, 12, 25, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'mapUpdate',
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2082-12-25T23:59:59Z',
+        'expiration_date': datetime.datetime(2082, 12, 25, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'measurements',
-        'userDisablingAllowed': False,
+        'user_disabling_allowed': False,
       }),
       dict({
-        'expirationDate': '2028-12-25T23:59:59Z',
+        'expiration_date': datetime.datetime(2028, 12, 25, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'onlineSpeech',
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2082-12-25T23:59:59Z',
+        'expiration_date': datetime.datetime(2082, 12, 25, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'parkingBrake',
-        'userDisablingAllowed': False,
+        'user_disabling_allowed': False,
       }),
       dict({
-        'expirationDate': '2028-12-25T23:59:59Z',
+        'expiration_date': datetime.datetime(2028, 12, 25, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'parkingInformation',
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2082-12-25T23:59:59Z',
+        'expiration_date': datetime.datetime(2082, 12, 25, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'parkingPosition',
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2082-12-25T23:59:59Z',
+        'expiration_date': datetime.datetime(2082, 12, 25, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'personalizationOnline',
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2082-12-25T23:59:59Z',
+        'expiration_date': datetime.datetime(2082, 12, 25, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'plugAndCharge',
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2028-12-25T23:59:59Z',
+        'expiration_date': datetime.datetime(2028, 12, 25, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'poiSearch',
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
+        'expiration_date': None,
         'id': 'readiness',
-        'userDisablingAllowed': False,
+        'user_disabling_allowed': False,
       }),
       dict({
-        'expirationDate': '2028-12-25T23:59:59Z',
+        'expiration_date': datetime.datetime(2028, 12, 25, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'routing',
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2082-12-25T23:59:59Z',
+        'expiration_date': datetime.datetime(2082, 12, 25, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'state',
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2028-12-25T23:59:59Z',
+        'expiration_date': datetime.datetime(2028, 12, 25, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'trafficInformation',
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2082-12-25T23:59:59Z',
+        'expiration_date': datetime.datetime(2082, 12, 25, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'vehicleHealth',
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2082-12-25T23:59:59Z',
+        'expiration_date': datetime.datetime(2082, 12, 25, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'vehicleHealthInspection',
-        'userDisablingAllowed': False,
+        'user_disabling_allowed': False,
       }),
       dict({
-        'expirationDate': '2082-12-25T23:59:59Z',
+        'expiration_date': datetime.datetime(2082, 12, 25, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'vehicleHealthWarnings',
-        'userDisablingAllowed': False,
+        'user_disabling_allowed': False,
       }),
       dict({
-        'expirationDate': '2082-12-25T23:59:59Z',
+        'expiration_date': datetime.datetime(2082, 12, 25, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'vehicleLights',
-        'userDisablingAllowed': False,
+        'user_disabling_allowed': False,
       }),
       dict({
-        'expirationDate': '2082-12-25T23:59:59Z',
+        'expiration_date': datetime.datetime(2082, 12, 25, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'vehicleWakeUpTrigger',
-        'userDisablingAllowed': False,
+        'user_disabling_allowed': False,
       }),
       dict({
-        'expirationDate': '2028-12-25T23:59:59Z',
+        'expiration_date': datetime.datetime(2028, 12, 25, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'webRadio',
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
     ]),
   })
@@ -280,11 +304,36 @@
 # name: test_vehicle_1.2
   dict({
     'access_status': dict({
-      'car_captured_timestamp': '2024-03-25T10:29:31.596000+00:00',
+      'car_captured_timestamp': datetime.datetime(2024, 3, 25, 10, 29, 31, 596000, tzinfo=TzInfo(UTC)),
       'door_lock_status': True,
-      'doors': Doors(locked=DoorLocked(front_left=False, front_right=False, rear_left=False, rear_right=False, trunk=False, any_status=True), opened=DoorOpened(front_left=False, front_right=False, rear_left=False, rear_right=False, trunk=False, bonnet=False, any_status=False)),
+      'doors': dict({
+        'locked': dict({
+          'any_status': True,
+          'bonnet': True,
+          'front_left': False,
+          'front_right': False,
+          'rear_left': False,
+          'rear_right': False,
+          'trunk': False,
+        }),
+        'opened': dict({
+          'any_status': False,
+          'bonnet': False,
+          'front_left': False,
+          'front_right': False,
+          'rear_left': False,
+          'rear_right': False,
+          'trunk': False,
+        }),
+      }),
       'overall_status': 'safe',
-      'windows': Window(front_left=False, front_right=False, rear_left=False, rear_right=False, roof_cover=None, sun_roof=None, any_status=False),
+      'windows': dict({
+        'any_status': False,
+        'front_left': False,
+        'front_right': False,
+        'rear_left': False,
+        'rear_right': False,
+      }),
     }),
   })
 # ---
@@ -302,18 +351,18 @@
     }),
     'charging_settings': dict({
       'auto_unlock_plug_when_charged': False,
-      'auto_unlock_plug_when_charged_ac': False,
-      'max_charge_current_ac': 'maximum',
-      'target_soc_pct': 80,
+      'auto_unlock_plug_when_charged_ac': None,
+      'max_charge_current_ac': None,
+      'target_soc_pct': None,
     }),
     'charging_status': dict({
       'charge_mode': 'manual',
-      'charge_power_kw': None,
+      'charge_power_kw': 0.0,
       'charge_rate_kmph': 0,
       'charge_type': 'ac',
       'charging_settings': 'default',
       'charging_state': True,
-      'remaining': 0,
+      'remaining': None,
     }),
     'plug_status': dict({
       'external_power': True,
@@ -326,15 +375,15 @@
 # name: test_vehicle_1.4
   dict({
     'climatisation_timers_status': dict({
-      'time_in_car': '2024-03-25T11:29:32+01:00',
+      'time_in_car': datetime.datetime(2024, 3, 25, 11, 29, 32, tzinfo=TzInfo(+01:00)),
       'timers': list([
         dict({
           'enabled': False,
           'id': 1,
           'single_timer': dict({
-            'start': '2024-01-28T07:30:00+00:00',
+            'start': None,
             'start_local': None,
-            'target': '2024-01-28T07:30:00+00:00',
+            'target': None,
             'target_local': None,
           }),
         }),
@@ -342,9 +391,9 @@
           'enabled': False,
           'id': 2,
           'single_timer': dict({
-            'start': '2023-10-12T06:20:00+00:00',
+            'start': None,
             'start_local': None,
-            'target': '2023-10-12T06:20:00+00:00',
+            'target': None,
             'target_local': None,
           }),
         }),
@@ -370,7 +419,7 @@
       'remaining_climatisation_time_min': 0,
     }),
     'window_heating_status': dict({
-      'state': WindowHeating(front=False, rear=False),
+      'state': None,
     }),
   })
 # ---
@@ -403,7 +452,11 @@
 # name: test_vehicle_1.8
   dict({
     'lights_status': dict({
-      'lights': Lights(left=True, right=True, any_status=True),
+      'lights': dict({
+        'any_status': True,
+        'left': True,
+        'right': True,
+      }),
     }),
   })
 # ---
@@ -446,234 +499,184 @@
   dict({
     'capabilities_status': list([
       dict({
+        'expiration_date': None,
         'id': 'webApp',
-        'status': list([
-          1013,
-          1014,
-          2003,
-        ]),
-        'userDisablingAllowed': False,
+        'user_disabling_allowed': False,
       }),
       dict({
-        'expirationDate': '2025-04-19T23:59:59Z',
+        'expiration_date': datetime.datetime(2025, 4, 19, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'automation',
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2025-04-19T23:59:59Z',
+        'expiration_date': datetime.datetime(2025, 4, 19, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'batteryChargingCare',
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2025-04-19T23:59:59Z',
+        'expiration_date': datetime.datetime(2025, 4, 19, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'batteryColdWarning',
-        'status': list([
-          1013,
-          1014,
-        ]),
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
+        'expiration_date': None,
         'id': 'batterySupport',
-        'userDisablingAllowed': False,
+        'user_disabling_allowed': False,
       }),
       dict({
-        'expirationDate': '2025-04-19T23:59:59Z',
+        'expiration_date': datetime.datetime(2025, 4, 19, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'charging',
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2025-04-19T23:59:59Z',
+        'expiration_date': datetime.datetime(2025, 4, 19, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'chargingProfiles',
-        'userDisablingAllowed': False,
+        'user_disabling_allowed': False,
       }),
       dict({
-        'expirationDate': '2025-04-19T23:59:59Z',
+        'expiration_date': datetime.datetime(2025, 4, 19, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'chargingStations',
-        'status': list([
-          1013,
-          1014,
-        ]),
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2025-04-19T23:59:59Z',
+        'expiration_date': datetime.datetime(2025, 4, 19, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'climatisation',
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2025-04-19T23:59:59Z',
+        'expiration_date': datetime.datetime(2025, 4, 19, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'climatisationTimers',
-        'userDisablingAllowed': False,
+        'user_disabling_allowed': False,
       }),
       dict({
+        'expiration_date': None,
         'id': 'cubicNetwork',
-        'userDisablingAllowed': False,
+        'user_disabling_allowed': False,
       }),
       dict({
-        'expirationDate': '2025-04-19T23:59:59Z',
+        'expiration_date': datetime.datetime(2025, 4, 19, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'dealerAppointment',
-        'status': list([
-          1003,
-          1004,
-        ]),
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2025-04-19T23:59:59Z',
+        'expiration_date': datetime.datetime(2025, 4, 19, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'destinations',
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2025-04-19T23:59:59Z',
+        'expiration_date': datetime.datetime(2025, 4, 19, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'fuelStatus',
-        'userDisablingAllowed': False,
+        'user_disabling_allowed': False,
       }),
       dict({
-        'expirationDate': '2025-04-19T23:59:59Z',
+        'expiration_date': datetime.datetime(2025, 4, 19, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'ignition',
-        'userDisablingAllowed': False,
+        'user_disabling_allowed': False,
       }),
       dict({
-        'expirationDate': '2025-04-19T23:59:59Z',
+        'expiration_date': datetime.datetime(2025, 4, 19, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'mapUpdate',
-        'status': list([
-          1013,
-          1014,
-        ]),
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2025-04-19T23:59:59Z',
+        'expiration_date': datetime.datetime(2025, 4, 19, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'measurements',
-        'userDisablingAllowed': False,
+        'user_disabling_allowed': False,
       }),
       dict({
-        'expirationDate': '2025-04-19T23:59:59Z',
+        'expiration_date': datetime.datetime(2025, 4, 19, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'onlineSpeech',
-        'status': list([
-          3004,
-          1013,
-          1014,
-        ]),
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2025-04-19T23:59:59Z',
+        'expiration_date': datetime.datetime(2025, 4, 19, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'parkingBrake',
-        'userDisablingAllowed': False,
+        'user_disabling_allowed': False,
       }),
       dict({
-        'expirationDate': '2025-04-19T23:59:59Z',
+        'expiration_date': datetime.datetime(2025, 4, 19, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'parkingInformation',
-        'status': list([
-          1013,
-          1014,
-        ]),
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2025-04-19T23:59:59Z',
+        'expiration_date': datetime.datetime(2025, 4, 19, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'parkingPosition',
-        'status': list([
-          1013,
-          1014,
-        ]),
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2025-04-19T23:59:59Z',
+        'expiration_date': datetime.datetime(2025, 4, 19, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'personalizationOnline',
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2025-04-19T23:59:59Z',
+        'expiration_date': datetime.datetime(2025, 4, 19, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'plugAndCharge',
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2025-04-19T23:59:59Z',
+        'expiration_date': datetime.datetime(2025, 4, 19, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'poiSearch',
-        'status': list([
-          1013,
-          1014,
-        ]),
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2033-04-19T23:59:59Z',
+        'expiration_date': datetime.datetime(2033, 4, 19, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'privateEmergencyCall',
-        'status': list([
-          1013,
-          1014,
-        ]),
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
+        'expiration_date': None,
         'id': 'readiness',
-        'userDisablingAllowed': False,
+        'user_disabling_allowed': False,
       }),
       dict({
-        'expirationDate': '2025-04-19T23:59:59Z',
+        'expiration_date': datetime.datetime(2025, 4, 19, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'roadsideAssistant',
-        'status': list([
-          1013,
-          1014,
-        ]),
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2025-04-19T23:59:59Z',
+        'expiration_date': datetime.datetime(2025, 4, 19, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'routing',
-        'status': list([
-          1013,
-          1014,
-        ]),
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2025-04-19T23:59:59Z',
+        'expiration_date': datetime.datetime(2025, 4, 19, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'state',
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2025-04-19T23:59:59Z',
+        'expiration_date': datetime.datetime(2025, 4, 19, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'trafficInformation',
-        'status': list([
-          1013,
-          1014,
-        ]),
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2025-04-19T23:59:59Z',
+        'expiration_date': datetime.datetime(2025, 4, 19, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'vehicleHealth',
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
       dict({
-        'expirationDate': '2025-04-19T23:59:59Z',
+        'expiration_date': datetime.datetime(2025, 4, 19, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'vehicleHealthInspection',
-        'userDisablingAllowed': False,
+        'user_disabling_allowed': False,
       }),
       dict({
-        'expirationDate': '2025-04-19T23:59:59Z',
+        'expiration_date': datetime.datetime(2025, 4, 19, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'vehicleHealthWarnings',
-        'userDisablingAllowed': False,
+        'user_disabling_allowed': False,
       }),
       dict({
-        'expirationDate': '2025-04-19T23:59:59Z',
+        'expiration_date': datetime.datetime(2025, 4, 19, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'vehicleLights',
-        'userDisablingAllowed': False,
+        'user_disabling_allowed': False,
       }),
       dict({
-        'expirationDate': '2025-04-19T23:59:59Z',
+        'expiration_date': datetime.datetime(2025, 4, 19, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'vehicleWakeUpTrigger',
-        'userDisablingAllowed': False,
+        'user_disabling_allowed': False,
       }),
       dict({
-        'expirationDate': '2025-04-19T23:59:59Z',
+        'expiration_date': datetime.datetime(2025, 4, 19, 23, 59, 59, tzinfo=TzInfo(UTC)),
         'id': 'webRadio',
-        'userDisablingAllowed': True,
+        'user_disabling_allowed': True,
       }),
     ]),
   })
@@ -681,11 +684,36 @@
 # name: test_vehicle_2.2
   dict({
     'access_status': dict({
-      'car_captured_timestamp': '2023-12-23T19:36:52.444000+00:00',
+      'car_captured_timestamp': datetime.datetime(2023, 12, 23, 19, 36, 52, 444000, tzinfo=TzInfo(UTC)),
       'door_lock_status': True,
-      'doors': Doors(locked=DoorLocked(front_left=False, front_right=False, rear_left=False, rear_right=False, trunk=False, any_status=True), opened=DoorOpened(front_left=False, front_right=False, rear_left=False, rear_right=False, trunk=False, bonnet=False, any_status=False)),
+      'doors': dict({
+        'locked': dict({
+          'any_status': True,
+          'bonnet': True,
+          'front_left': False,
+          'front_right': False,
+          'rear_left': False,
+          'rear_right': False,
+          'trunk': False,
+        }),
+        'opened': dict({
+          'any_status': False,
+          'bonnet': False,
+          'front_left': False,
+          'front_right': False,
+          'rear_left': False,
+          'rear_right': False,
+          'trunk': False,
+        }),
+      }),
       'overall_status': 'safe',
-      'windows': Window(front_left=False, front_right=False, rear_left=False, rear_right=False, roof_cover=None, sun_roof=None, any_status=False),
+      'windows': dict({
+        'any_status': False,
+        'front_left': False,
+        'front_right': False,
+        'rear_left': False,
+        'rear_right': False,
+      }),
     }),
   })
 # ---
@@ -704,18 +732,18 @@
     }),
     'charging_settings': dict({
       'auto_unlock_plug_when_charged': False,
-      'auto_unlock_plug_when_charged_ac': False,
-      'max_charge_current_ac': 'maximum',
-      'target_soc_pct': 100,
+      'auto_unlock_plug_when_charged_ac': None,
+      'max_charge_current_ac': None,
+      'target_soc_pct': None,
     }),
     'charging_status': dict({
       'charge_mode': 'manual',
-      'charge_power_kw': None,
+      'charge_power_kw': 5.5,
       'charge_rate_kmph': 27,
       'charge_type': 'ac',
       'charging_settings': 'profile',
       'charging_state': True,
-      'remaining': 400,
+      'remaining': None,
     }),
     'plug_status': dict({
       'external_power': True,
@@ -728,15 +756,15 @@
 # name: test_vehicle_2.4
   dict({
     'climatisation_timers_status': dict({
-      'time_in_car': '2023-12-23T20:36:53+01:00',
+      'time_in_car': datetime.datetime(2023, 12, 23, 20, 36, 53, tzinfo=TzInfo(+01:00)),
       'timers': list([
         dict({
           'enabled': False,
           'id': 1,
           'single_timer': dict({
-            'start': '2023-11-28T06:40:00+00:00',
+            'start': None,
             'start_local': None,
-            'target': '2023-11-28T06:40:00+00:00',
+            'target': None,
             'target_local': None,
           }),
         }),
@@ -744,9 +772,9 @@
           'enabled': False,
           'id': 2,
           'single_timer': dict({
-            'start': '1999-12-31T23:00:00+00:00',
+            'start': None,
             'start_local': None,
-            'target': '1999-12-31T23:00:00+00:00',
+            'target': None,
             'target_local': None,
           }),
         }),
@@ -772,7 +800,7 @@
       'remaining_climatisation_time_min': 0,
     }),
     'window_heating_status': dict({
-      'state': WindowHeating(front=False, rear=False),
+      'state': None,
     }),
   })
 # ---
@@ -805,7 +833,11 @@
 # name: test_vehicle_2.8
   dict({
     'lights_status': dict({
-      'lights': Lights(left=True, right=True, any_status=True),
+      'lights': dict({
+        'any_status': True,
+        'left': True,
+        'right': True,
+      }),
     }),
   })
 # ---
@@ -833,16 +865,16 @@
 # name: test_vehicle_3
   dict({
     'climatisation_timers_status': dict({
-      'time_in_car': '2023-12-23T20:36:53+01:00',
+      'time_in_car': datetime.datetime(2023, 12, 23, 20, 36, 53, tzinfo=TzInfo(+01:00)),
       'timers': list([
         dict({
           'enabled': False,
           'id': 1,
           'single_timer': dict({
             'start': None,
-            'start_local': '2023-11-28T06:40:00+00:00',
+            'start_local': None,
             'target': None,
-            'target_local': '2023-11-28T06:40:00+00:00',
+            'target_local': None,
           }),
         }),
         dict({
@@ -850,9 +882,9 @@
           'id': 2,
           'single_timer': dict({
             'start': None,
-            'start_local': '1999-12-31T23:00:00+00:00',
+            'start_local': None,
             'target': None,
-            'target_local': '1999-12-31T23:00:00+00:00',
+            'target_local': None,
           }),
         }),
       ]),
@@ -877,7 +909,7 @@
       'remaining_climatisation_time_min': 0,
     }),
     'window_heating_status': dict({
-      'state': WindowHeating(front=False, rear=False),
+      'state': None,
     }),
   })
 # ---
@@ -896,18 +928,18 @@
     }),
     'charging_settings': dict({
       'auto_unlock_plug_when_charged': False,
-      'auto_unlock_plug_when_charged_ac': False,
-      'max_charge_current_ac': 'maximum',
-      'target_soc_pct': 100,
+      'auto_unlock_plug_when_charged_ac': None,
+      'max_charge_current_ac': None,
+      'target_soc_pct': None,
     }),
     'charging_status': dict({
       'charge_mode': 'manual',
-      'charge_power_kw': None,
+      'charge_power_kw': 5.5,
       'charge_rate_kmph': 27,
       'charge_type': 'ac',
       'charging_settings': 'profile',
       'charging_state': True,
-      'remaining': 400,
+      'remaining': None,
     }),
     'plug_status': dict({
       'external_power': False,

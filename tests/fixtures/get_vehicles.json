@@ -1,0 +1,14 @@
+{
+  "data": [
+    {
+      "vin": "WAUZZZF44NA048546",
+      "userRole": "PRIMARY_USER",
+      "userRoleStatus": "ENABLED",
+      "enrollmentStatus": "COMPLETED",
+      "nickname": "WAUZZZF44NA048546",
+      "devicePlatform": "MBB_ODP",
+      "engineType": { "primaryEngineType": "gasoline" },
+      "carType": "gasoline"
+    }
+  ]
+}

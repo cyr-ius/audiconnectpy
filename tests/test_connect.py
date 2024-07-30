@@ -36,6 +36,9 @@ async def test_connect(fetch_date) -> None:
             }
         }
     )
+    market = mock_response(
+        resp_data={"vehicleDomainGraphQLServiceURLLive": "https://app-api.live-my"}
+    )
     services = mock_response(
         resp_data={
             "idkClientIDAndroidLive": "https://idk_client",
@@ -44,6 +47,7 @@ async def test_connect(fetch_date) -> None:
             "mbbOAuthBaseURLLive": "https://mbb_oauth",
             "connectedVehicleVehicleServiceBaseURLProduction": "https://connected_vehicle",
             "idkLoginServiceConfigurationURLProduction": "https://idk_login",
+            "mobileDeviceKeyBaseURLProduction": "https://mdk",
         }
     )
     openid_json = mock_response(
@@ -82,6 +86,7 @@ async def test_connect(fetch_date) -> None:
             "aiohttp.ClientSession.request",
             side_effect=[
                 markets_json(),
+                market(),
                 services(),
                 openid_json(),
                 idk_response(),
@@ -109,42 +114,37 @@ async def test_connect(fetch_date) -> None:
 @patch("audiconnectpy.auth.Auth.async_connect")
 @patch("audiconnectpy.api.AudiConnect._async_fill_url")
 @patch("audiconnectpy.vehicle.Vehicle.async_update")
-async def test_fetch_data(connect, fill_url, update, information_vehicles) -> None:
+async def test_fetch_data(connect, fill_url, update, vehicles) -> None:
     """Test fetch data information."""
     api = AudiConnect(
         session=ClientSession(), username=USR, password=PWD, country=COUNTRY, spin=SPIN
     )
     with patch(
-        "audiconnectpy.api.AudiConnect.async_get_information_vehicles",
-        return_value=information_vehicles,
+        "audiconnectpy.api.AudiConnect.async_get_vehicles",
+        return_value=vehicles,
     ):
         await api.async_login()
         assert api.vehicles is not None
-        assert api.vehicles[0].infos is not None
 
 
 @patch("audiconnectpy.auth.Auth.async_connect")
 @patch("audiconnectpy.vehicle.Vehicle.async_update")
-async def test_get_information_vehicles(connect, update, information_vehicles) -> None:
+async def test_get_vehicles(connect, update, vehicles, uris) -> None:
     """Test fetch data information."""
     api = AudiConnect(
         session=ClientSession(), username=USR, password=PWD, country=COUNTRY, spin=SPIN
     )
     with (
         patch(
-            "audiconnectpy.api.AudiConnect.uri_services",
-            return_value={"language": "fr", "country": "FR"},
-        ),
-        patch(
             "aiohttp.ClientSession.request",
             side_effect=[
-                mock_response(information_vehicles)(),
+                mock_response(vehicles)(),
                 mock_response({"homeRegion": {"baseUri": {"content": "mal-xxx"}}})(),
             ],
         ),
     ):
+        api.auth.uris = uris
         await api.async_login()
         assert api.vehicles is not None
-        assert api.vehicles[0].infos is not None
         assert api.vehicles[0].fill_region.url == "fal-xxx"
         assert api.vehicles[0].fill_region.url_setter == "mal-xxx"
