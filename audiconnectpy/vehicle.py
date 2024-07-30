@@ -524,7 +524,7 @@ class Vehicle:
             data = json.dumps(data)
             await post_req(headers, data)
 
-    async def set_auxiliary_climatisation(
+    async def async_set_auxiliary_climatisation(
         self, action: bool, duration: int = 60
     ) -> None:
         """Set pre heater."""
