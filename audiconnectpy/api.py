@@ -9,16 +9,10 @@ from typing import Any, Literal, NamedTuple, Self
 from aiohttp import ClientSession
 
 from .auth import Auth
-from .const import (
-    CLIENT_IDS,
-    URL_HOME_REGION,
-    URL_HOME_REGION_SETTER,
-    URL_INFO_VEHICLE,
-    URL_INFO_VEHICLE_US,
-)
+from .const import CLIENT_IDS, URL_HOME_REGION, URL_HOME_REGION_SETTER
 from .exceptions import AudiException
 from .helpers import ExtendedDict
-from .vehicle import Globals, Vehicle, Vehicles
+from .vehicle import Globals, Vehicle
 
 MODELS = list(CLIENT_IDS)
 
@@ -67,24 +61,28 @@ class AudiConnect:
     async def async_fetch_data(self, vinlist: list[str] | None = None) -> None:
         """Update the state of all vehicles."""
         try:
-            vehicles_response = await self.async_get_information_vehicles()
+            loaded_vehicles = await self.async_get_vehicles()
+            if "data" not in loaded_vehicles:
+                raise AudiException("Vehicle(s) not found")
         except AudiException as error:
             raise AudiException(
                 f"Error to get information vehicles ({error})"
             ) from error
 
-        obj_vehicles = Vehicles.from_dict(vehicles_response.get("data", []))
-        self.vehicles = obj_vehicles.user_vehicles
-        for vehicle in self.vehicles:
-            # Add attributes to vehicle
-            vehicle.auth = self.auth
-            vehicle.spin = self._spin
-            vehicle.uris = self.uri_services
-
+        self.vehicles = []
+        for item in loaded_vehicles["data"]:
             try:
-                vehicle.fill_region = await self._async_fill_url(vehicle.vin)
+                fill_region = await self._async_fill_url(item["vin"])
             except AudiException as error:
                 raise AudiException(f"Error to fill urls ({error})") from error
+
+            vehicle = Vehicle(
+                vin=item["vin"],
+                auth=self.auth,
+                spin=self._spin,
+                uris=self.uri_services,
+                fillRegion=fill_region,
+            )
 
             if vinlist is None or vehicle.vin.upper() in vinlist:
                 # Fetch data for a vehicle
@@ -94,31 +92,17 @@ class AudiConnect:
                     _LOGGER.error(
                         "Error while updating - %s - (%s)", vehicle.vin, error
                     )
+            self.vehicles.append(vehicle)
 
-    async def async_get_information_vehicles(self) -> Any:
-        """Get information vehicles."""
-        language = self.uri_services["language"]
-        country = self.uri_services["country"]
-        url = URL_INFO_VEHICLE if country != "US" else URL_INFO_VEHICLE_US
-        headers = await self.auth.async_get_headers(
-            token_type="audi",
-            headers={
-                "Accept-Language": f"{language}-{country}",
-                "Content-Type": "application/json",
-                "X-User-Country": country,
-            },
+    async def async_get_vehicles(self) -> Any:
+        """Fetch vehicles."""
+        headers = await self.auth.async_get_headers(token_type="idk")
+        data = await self.auth.request(
+            "GET",
+            f"{self.uri_services["mdk_url"]}/vehicle/v2/vehicles",
+            headers=headers,
         )
-        data = {
-            "query": "query vehicleList {\n userVehicles {\n vin\n mappingVin\n vehicle { core { modelYear\n }\n media { shortName\n longName }\n }\n csid\n commissionNumber\n type\n devicePlatform\n mbbConnect\n userRole {\n role\n }\n vehicle {\n classification {\n driveTrain\n }\n }\n nickname\n }\n}"
-        }
-
-        response = await self.auth.request(
-            "POST", url, json=data, headers=headers, allow_redirects=False
-        )
-        if "data" not in response:
-            raise AudiException("Invalid json in vehicle information")
-
-        return response
+        return data
 
     async def _async_fill_url(self, vin: str) -> NamedTuple:
         """Fill region."""
