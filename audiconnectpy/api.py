@@ -36,7 +36,7 @@ class AudiConnect:
         """Initialize."""
         Globals(unit_system)
         self.auth = Auth(session, username, password, country.upper(), model)
-        self._spin = spin
+        self._spin = str(spin)
         self.vehicles: list[Vehicle] = []
 
     @property
@@ -76,12 +76,12 @@ class AudiConnect:
             except AudiException as error:
                 raise AudiException(f"Error to fill urls ({error})") from error
 
-            vehicle = Vehicle(
+            vehicle = Vehicle(  # type: ignore
                 vin=item["vin"],
                 auth=self.auth,
                 spin=self._spin,
                 uris=self.uri_services,
-                fillRegion=fill_region,
+                fill_region=fill_region,
             )
 
             if vinlist is None or vehicle.vin.upper() in vinlist:
