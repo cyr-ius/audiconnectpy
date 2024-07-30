@@ -229,7 +229,7 @@ class SecondaryEngine(Base):
 # SECTION
 class OilLevel(Base):
     oil_level_status: OilLevelStatus | None = Field(
-        default=None, validation_alias=AliasPath("rangeStatus", "value")
+        default=None, validation_alias=AliasPath("oilLevelStatus", "value")
     )
 
 
