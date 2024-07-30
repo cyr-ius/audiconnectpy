@@ -55,9 +55,20 @@ async def main() -> None:
                     logger.info(vehicle.measurements)
                     logger.info(vehicle.vehicle_health_warnings)
                     logger.info(vehicle.infos)
+
+                    # Lock vehicle if spin
+                    # --------------------
                     # await vehicle.async_set_lock(True)
+
+                    # Refresh call remote vehicle
+                    # --------------------
                     # await vehicle.async_refresh_vehicle_data()
-                    await vehicle.async_update()
+                    # await vehicle.async_wakeup()
+
+                    # Update Audi API
+                    # --------------------
+                    # await vehicle.async_update()
+
             except AudiException as error:
                 logger.error(error)
             finally:
