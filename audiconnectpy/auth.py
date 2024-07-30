@@ -619,25 +619,26 @@ class Auth:
 
         language = country_spec[self.country].get("defaultLanguage")
 
-        # Get market config
+        # Get market without locale
+        market_json = await self.request("GET", f"{MARKET_URL}/market")
+        vdgqs_url = market_json.get("vehicleDomainGraphQLServiceURLLive")
+
+        # Get market with locale
         services = await self.request(
             "GET", f"{MARKET_URL}/market/{self.country}/{language}"
         )
 
         client_id = services.get("idkClientIDAndroidLive", CLIENT_IDS[self.model])
-        audi_baseurl = services.get(
-            "myAudiAuthorizationServerProxyServiceURLProduction"
-        )
-        profil_url = (
-            services.get("idkCustomerProfileMicroserviceBaseURLLive", "") + "/v3"
-        )
-        mbb_baseurl = services.get("mbbOAuthBaseURLLive", MBB_URL)
-        cvvsb_base_url = services.get("connectedVehicleVehicleServiceBaseURLProduction")
+        audi_url = services.get("myAudiAuthorizationServerProxyServiceURLProduction")
+        profil_url = services.get("idkCustomerProfileMicroserviceBaseURLLive")
+        mbb_url = services.get("mbbOAuthBaseURLLive", MBB_URL)
+        mdk_url = services.get("mobileDeviceKeyBaseURLProduction")
+        cvvsb_url = services.get("connectedVehicleVehicleServiceBaseURLProduction")
+        oidc_url = services.get("idkLoginServiceConfigurationURLProduction")
 
         # Get openId config
-        openid_url = services.get("idkLoginServiceConfigurationURLProduction")
-        _LOGGER.debug("IDK Base Url: %s", openid_url)
-        openid_json = await self.request("GET", openid_url)
+        _LOGGER.debug("IDK Base Url: %s", oidc_url)
+        openid_json = await self.request("GET", oidc_url)
 
         authorization_endpoint_url = openid_json.get("authorization_endpoint", "")
         token_endpoint_url = openid_json.get("token_endpoint", "")
@@ -645,12 +646,14 @@ class Auth:
 
         self.uris = {
             "client_id": client_id,
-            "audi_url": audi_baseurl,
-            "profil_url": profil_url,
-            "mbb_url": mbb_baseurl,
+            "audi_url": audi_url,
+            "profil_url": f"{profil_url}/v3",
+            "mbb_url": mbb_url,
             "here_url": URL_HERE_COM,
-            "cv_url": cvvsb_base_url,
+            "mdk_url": mdk_url,
+            "cv_url": cvvsb_url,
             "user_url": URL_INFO_USER,
+            "vdgqs_url": vdgqs_url,
             "authorization_endpoint": authorization_endpoint_url,
             "token_endpoint": token_endpoint_url,
             "revocation_endpoint": revocation_endpoint_url,
