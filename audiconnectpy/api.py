@@ -99,7 +99,7 @@ class AudiConnect:
         headers = await self.auth.async_get_headers(token_type="idk")
         data = await self.auth.request(
             "GET",
-            f"{self.uri_services["mdk_url"]}/vehicle/v2/vehicles",
+            f"{self.uri_services['mdk_url']}/vehicle/v2/vehicles",
             headers=headers,
         )
         return data
