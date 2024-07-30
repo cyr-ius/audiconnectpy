@@ -312,7 +312,7 @@ class TemperatureBatteryStatus(Base):
 # SECTION
 class VehicleHealthWarnings(Base):
     warning_lights: WarningLights | None = Field(
-        default=None, validation_alias=AliasPath("temperatureBatteryStatus", "value")
+        default=None, validation_alias=AliasPath("warningLights", "value")
     )
 
 
