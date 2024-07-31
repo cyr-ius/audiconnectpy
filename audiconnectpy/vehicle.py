@@ -50,6 +50,7 @@ class Vehicle:
     last_access: datetime | None = None
     last_update: datetime | None = None
     is_moving: bool | None = None
+    capabilities: dict[str, Any] | None = None
     capabilities_supported: bool | None = None
     position_supported: bool | None = None
     locations_supported: bool | None = None
@@ -80,11 +81,19 @@ class Vehicle:
     async def async_update(self) -> None:
         """Update data vehicle."""
 
-        # Selective status
+        data = {}
+
+        # Capabilities
         try:
-            data = await self.async_get_selectivestatus()
-        except (AttributeError, AudiException) as error:
-            raise AudiException(error) from error
+            if self.capabilities_supported is not False:
+                capabilities = await self.async_get_capabilities()
+                self.capabilities = capabilities.get("capabilities")
+                self.capabilities_supported = self.capabilities is not None
+        except AttributeError:
+            logger.warning("Capabilities failed: format is incorrect")
+            self.capabilities_supported = None
+        except AudiException:
+            self.capabilities_supported = False
 
         # Get information
         try:
@@ -93,17 +102,12 @@ class Vehicle:
         except (AttributeError, AudiException) as error:
             raise AudiException(error) from error
 
-        # Capabilities
+        # Selective status
         try:
-            if self.capabilities_supported is not False:
-                capabilities = await self.async_get_capabilities()
-                data.update({"capabilities": capabilities})
-                self.capabilities_supported = capabilities is not None
-        except AttributeError:
-            logger.warning("Capabilities failed: format is incorrect")
-            self.capabilities_supported = None
-        except AudiException:
-            self.capabilities_supported = False
+            selectivestatus = await self.async_get_selectivestatus()
+            data.update(selectivestatus)
+        except (AttributeError, AudiException) as error:
+            raise AudiException(error) from error
 
         # Position
         try:
@@ -158,7 +162,6 @@ class Vehicle:
         """Get information vehicles."""
         language = self.uris["language"]
         country = self.uris["country"]
-        # url = URL_INFO_VEHICLE if country != "US" else URL_INFO_VEHICLE_US
         headers = await self.auth.async_get_headers(
             token_type="audi",
             headers={
@@ -182,10 +185,8 @@ class Vehicle:
             headers=headers,
             allow_redirects=False,
         )
-        if (infos := ExtendedDict(data).getr("data.userVehicle.vehicle")) is None:
-            raise AudiException("Invalid json in vehicle information")
 
-        return infos
+        return data
 
     async def async_get_location(self) -> Any:
         """Get destination data."""
@@ -232,21 +233,24 @@ class Vehicle:
         self, capabilities: Iterable[str] | None = None
     ) -> Any:
         """Get capabilities."""
-        if capabilities is None:
-            headers = await self.auth.async_get_headers(token_type="idk")
-            response = await self.auth.request(
-                "GET",
-                f"{self.uris['mdk_url']}vehicle/v1/vehicles/{self.vin}/selectivestatus?jobs=userCapabilities",
-                headers=headers,
-            )
-            caps = ExtendedDict(response).getr(
-                "userCapabilities.capabilitiesStatus.value", []
-            )
+        headers = await self.auth.async_get_headers(token_type="idk")
+        response = await self.auth.request(
+            "GET",
+            f"{self.uris['mdk_url']}vehicle/v1/vehicles/{self.vin}/selectivestatus?jobs=userCapabilities",
+            headers=headers,
+        )
+        caps = ExtendedDict(response).getr(
+            "userCapabilities.capabilitiesStatus.value", []
+        )
 
-            self.capabilities = [str(d) for cap in caps if (d := cap.get("id"))]
+        user_capabilities_id = [str(d) for cap in caps if (d := cap.get("id"))]
+        user_capabilities = ",".join(user_capabilities_id)
 
-        caps = ",".join(self.capabilities)
-        str_jobs = f"{caps},userCapabilities" if caps != "" else caps
+        str_jobs = (
+            f"{user_capabilities},userCapabilities"
+            if user_capabilities != ""
+            else user_capabilities
+        )
 
         headers = await self.auth.async_get_headers(token_type="idk")
         data = await self.auth.request(

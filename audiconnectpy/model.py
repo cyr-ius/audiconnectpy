@@ -55,7 +55,6 @@ class UserCapabilities(Base):
 
 class Capability(Base):
     id: str
-    user_disabling_allowed: bool
     expiration_date: datetime | None = None
 
 
@@ -347,8 +346,12 @@ class Position(Base):
 
 # SECTION
 class Information(Base):
-    core: Core
-    media: Media
+    core: Core = Field(
+        validation_alias=AliasPath("data", "userVehicle", "vehicle", "core")
+    )
+    media: Media = Field(
+        validation_alias=AliasPath("data", "userVehicle", "vehicle", "media")
+    )
 
 
 class Core(Base):
