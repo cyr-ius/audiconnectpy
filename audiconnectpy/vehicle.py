@@ -72,7 +72,9 @@ class Vehicle:
 
     def set_api_level(
         self,
-        mode: Literal["climatisation", "ventilation", "charger", "windows_heating", "lock"],
+        mode: Literal[
+            "climatisation", "ventilation", "charger", "windows_heating", "lock"
+        ],
         value: int,
     ) -> None:
         """Set API Level."""
