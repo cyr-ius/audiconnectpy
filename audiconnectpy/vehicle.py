@@ -57,26 +57,27 @@ class Vehicle:
     trips_supported: bool | None = None
     position: Position | None = None
     climatisation_timers: ClimatisationTimers = Field(default_factory=list)
+    _api_level = {
+        "climatisation": 2,  # 2 or 3
+        "ventilation": 1,  # 1 or other
+        "charger": 1,  # 1 or 2 or 3 (json)
+        "windows_heating": 1,  # 1 or 2 (json)
+        "lock": 2,  # 1 or 2 (json)
+    }
 
     @property
     def api_level(self) -> dict[str, int]:
         """Return API Level."""
-        return {
-            "climatisation": 2,  # 2 or 3
-            "ventilation": 1,  # 1 or other
-            "charger": 1,  # 1 or 2 or 3 (json)
-            "windows_heating": 1,  # 1 or 2 (json)
-            "lock": 2,  # 1 or 2 (json)
-        }
+        return self._api_level
 
     def set_api_level(
         self,
-        mode: Literal["climatisation", "ventilation", "charger", "window_heating"],
+        mode: Literal["climatisation", "ventilation", "charger", "windows_heating", "lock"],
         value: int,
     ) -> None:
         """Set API Level."""
-        if mode in self.api_level.keys():
-            self.api_level[mode] = int(value)
+        if mode in self._api_level.keys():
+            self._api_level[mode] = int(value)
 
     async def async_update(self) -> None:
         """Update data vehicle."""
