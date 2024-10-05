@@ -3,10 +3,12 @@ name: Create release
 on:
   push:
     tags:
-      - "*.*.*" # Push events to matching i.e. 1.0.0, 4.0.1
+      - "[0-9]+.[0-9]+.[0-9]+" # Push events to matching i.e. 1.0.0, 4.0.1
 jobs:
   release:
     runs-on: ubuntu-latest
+    outputs:
+      release: ${{ ! contains(github.ref_name,'-') }}
     steps:
       # To use this repository's private action,
       # you must check out the repository
@@ -27,3 +29,11 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           prerelease: ${{ contains(github.ref_name,'-') }}
           draft: false
+  publish:
+    needs: release
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+    if: ${{ ! contains(github.ref_name, '-') }}
+    uses: ./.github/workflows/python-publish.yml
