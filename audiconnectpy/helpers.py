@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from collections.abc import Callable
 from datetime import datetime
 import functools
@@ -10,7 +11,6 @@ from hashlib import sha512
 import logging
 import random
 import re
-import time
 from typing import Any
 
 from pydantic import SerializationInfo
@@ -96,7 +96,7 @@ def retry(
                     if logger is not None:
                         logger.warning("%s, trying again in %s seconds", error, _delay)
 
-                    time.sleep(_delay)
+                    await asyncio.sleep(_delay)
                     _delay *= backoff
 
                     if isinstance(jitter, tuple):
