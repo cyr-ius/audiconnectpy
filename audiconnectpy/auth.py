@@ -619,15 +619,12 @@ class Auth:
 
         language = country_spec[self.country].get("defaultLanguage")
 
-        # Get market without locale
-        market_json = await self.request("GET", f"{MARKET_URL}/market")
-        vdgqs_url = market_json.get("vehicleDomainGraphQLServiceURLLive")
-
         # Get market with locale
         services = await self.request(
             "GET", f"{MARKET_URL}/market/{self.country}/{language}"
         )
 
+        base_url = services.get("commonsBaseURLLive")
         client_id = services.get("idkClientIDAndroidLive", CLIENT_IDS[self.model])
         audi_url = services.get("myAudiAuthorizationServerProxyServiceURLProduction")
         profil_url = services.get("idkCustomerProfileMicroserviceBaseURLLive")
@@ -647,13 +644,13 @@ class Auth:
         self.uris = {
             "client_id": client_id,
             "audi_url": audi_url,
+            "base_url": base_url,
             "profil_url": f"{profil_url}/v3",
             "mbb_url": mbb_url,
             "here_url": URL_HERE_COM,
             "mdk_url": mdk_url,
             "cv_url": cvvsb_url,
             "user_url": URL_INFO_USER,
-            "vdgqs_url": vdgqs_url,
             "authorization_endpoint": authorization_endpoint_url,
             "token_endpoint": token_endpoint_url,
             "revocation_endpoint": revocation_endpoint_url,

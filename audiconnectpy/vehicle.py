@@ -183,7 +183,7 @@ class Vehicle:
 
         data = await self.auth.request(
             "POST",
-            f"{self.uris['vdgqs_url']}/graphql",
+            f"{self.uris['base_url']}/vgql/v1/graphql",
             json=data,
             headers=headers,
             allow_redirects=False,
