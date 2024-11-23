@@ -176,7 +176,7 @@ class Vehicle(DataClassDictMixin):  # type: ignore
         headers = await self.auth.async_get_headers(token_type="idk")
         data = await self.auth.request(
             "GET",
-            f"{self.uris['cv_url']}/vehicles/{self.vin}/parkingposition",
+            f"{self.uris['cv_url']}/vehicle/v1/vehicles/{self.vin}/parkingposition",
             headers=headers,
         )
         return data
@@ -186,7 +186,7 @@ class Vehicle(DataClassDictMixin):  # type: ignore
         headers = await self.auth.async_get_headers(token_type="idk")
         data = await self.auth.request(
             "GET",
-            f"{self.uris['cv_url']}/vehicles/{self.vin}/capabilities",
+            f"{self.uris['cv_url']}/vehicle/v1/vehicles/{self.vin}/capabilities",
             headers=headers,
         )
         return data
@@ -196,7 +196,7 @@ class Vehicle(DataClassDictMixin):  # type: ignore
         headers = await self.auth.async_get_headers(token_type="idk")
         data = await self.auth.request(
             "GET",
-            f"{self.uris['cv_url']}/vehicles/{self.vin}/{path}",
+            f"{self.uris['cv_url']}/vehicle/v1/vehicles/{self.vin}/{path}",
             headers=headers,
         )
         return data
