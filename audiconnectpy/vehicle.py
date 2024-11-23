@@ -209,7 +209,7 @@ class Vehicle(DataClassDictMixin):  # type: ignore
             headers = await self.auth.async_get_headers(token_type="idk")
             response = await self.auth.request(
                 "GET",
-                f"{self.uris['cv_url']}/vehicles/{self.vin}/selectivestatus?jobs=userCapabilities",
+                f"{self.uris['cv_url']}/vehicle/v1/vehicles/{self.vin}/selectivestatus?jobs=userCapabilities",
                 headers=headers,
             )
             caps = ExtendedDict(response).getr(
@@ -224,7 +224,7 @@ class Vehicle(DataClassDictMixin):  # type: ignore
         headers = await self.auth.async_get_headers(token_type="idk")
         data = await self.auth.request(
             "GET",
-            f"{self.uris['cv_url']}/vehicles/{self.vin}/selectivestatus?jobs={str_jobs}",
+            f"{self.uris['cv_url']}/vehicle/v1/vehicles/{self.vin}/selectivestatus?jobs={str_jobs}",
             headers=headers,
         )
         return data
