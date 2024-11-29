@@ -10,7 +10,7 @@ from audiconnectpy import AudiConnect, AudiException
 
 # create console handler and set level to debug
 logger = logging.getLogger()
-logger.setLevel("DEBUG")
+logger.setLevel("INFO")
 ch = logging.StreamHandler()
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 ch.setFormatter(formatter)
@@ -44,7 +44,7 @@ async def main() -> None:
                     logger.info(vehicle.fuel_status)
                     logger.info(vehicle.last_access)
                     logger.info(vehicle.position)
-                    # logger.info(vehicle.location)
+                    logger.info(vehicle.location)
                     logger.info(vehicle.access)
                     logger.info(vehicle.charging)
                     logger.info(vehicle.climatisation)
