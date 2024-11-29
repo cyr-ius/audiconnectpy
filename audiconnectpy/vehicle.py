@@ -128,6 +128,7 @@ class Vehicle(DataClassDictMixin):  # type: ignore
                     self.position = Position.from_dict(position.get("data"))
                     self.is_moving = False
                 else:
+                    self.position = Position.from_dict({})
                     self.is_moving = True
                 self.position_supported = self.position is not None
         except AttributeError:
