@@ -79,7 +79,7 @@ class Position(Base):
     longitude: float | None = field(metadata=field_options(alias="lon"), default=None)
     latitude: float | None = field(metadata=field_options(alias="lat"), default=None)
     last_access: datetime | None = field(
-        metadata=field_options(alias="car_captured_timestamp"), default=None
+        metadata=field_options(alias="car_captured_timestamp"), default=datetime.now()
     )
 
 
